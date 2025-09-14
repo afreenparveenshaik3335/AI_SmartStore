@@ -1,4 +1,4 @@
-# Smart Store Website
+# AI SMART STORE
 
 Welcome to the Smart Store Website repository! This project is a fully responsive e-commerce platform built using HTML.
 
