@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale =1.0" />
+    <title>Smart Grocery Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: #f5f5f5;
+        }
+        /* Sidebar */
+        
+        .sidebar {
+            width: 200px;
+            background-color: #8E3B82;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: white;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #5C2754;
+        }
+        /* Main Content */
+        
+        .main {
+            margin-left: 200px;
+            flex: 1;
+        }
+        
+        .search-bar-wrapper {
+            position: sticky;
+            top: 0;
+            background: #D7A9CF;
+            padding: 10px;
+            z-index: 100;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .search-container img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .products {
+            padding: 20px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-section h2 {
+            margin-bottom: 15px;
+        }
+        
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .product {
+            background: white;
+            width: 180px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .product h3 {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        .product p {
+            font-weight: bold;
+            color: #5C2754;
+        }
+        
+        .buy-btn {
+            background-color: #5C2754;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .buy-btn:hover {
+            background: #388E3C;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        /* Modal overlays */
+        
+        .modal-overlay,
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active,
+        .success-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 420px;
+            width: 90%;
+            padding: 20px 30px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .modal p {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        
+        .close-btn,
+        .success-close-btn {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .close-btn:hover,
+        .success-close-btn:hover {
+            color: #333;
+        }
+        
+        #addressBlock {
+            background: #f7f7f7;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin-bottom: 18px;
+            text-align: left;
+            font-size: 15px;
+        }
+        
+        .address-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .address-btns button {
+            flex: 1;
+            padding: 8px;
+            font-weight: 700;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #fff;
+        }
+        
+        .address-btns .modify {
+            background: #ff9800;
+        }
+        
+        .address-btns .add {
+            background: #03A9F4;
+        }
+        
+        .address-btns .modify:hover {
+            background: #e65100;
+        }
+        
+        .address-btns .add:hover {
+            background: #0277bd;
+        }
+        
+        #addressForm {
+            text-align: left;
+            margin-top: 14px;
+            max-width: 340px;
+            margin: auto;
+        }
+        
+        #addressForm h3 {
+            color: #388E3C;
+            font-size: 18px;
+        }
+        
+        #addressForm label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600;
+        }
+        
+        #addressForm input {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+        }
+        
+        #addressForm input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .submit-address-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .submit-address-btn:hover {
+            background: #388E3C;
+        }
+        
+        .payment-options {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        
+        .payment-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 3px solid #4CAF50;
+            border-radius: 30px;
+            background: white;
+            font-weight: 700;
+            color: #4CAF50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .payment-btn:hover:not(:disabled) {
+            background: #4CAF50;
+            color: #fff;
+        }
+        
+        .payment-btn:disabled {
+            background: #ccc !important;
+            color: #888 !important;
+            cursor: not-allowed;
+        }
+        
+        .wallet-section {
+            margin: 16px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .wallet-section.visible {
+            display: flex;
+            animation: popIn 0.4s;
+        }
+        
+        .wallet-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .wallet-btn {
+            flex: 1;
+            border: 2px solid #2196f3;
+            background: #fff;
+            color: #2196f3;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .wallet-btn:hover {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 18px;
+            max-width: 340px;
+            width: 90%;
+            padding: 25px 22px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+            animation: fadeIn 0.5s;
+        }
+        
+        .success-check {
+            font-size: 70px;
+            color: #19af56;
+            margin-bottom: 10px;
+            animation: tickBlink 1.4s linear infinite;
+        }
+        
+        @keyframes tickBlink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .success-text-main {
+            font-size: 22px;
+            color: #19af56;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 4px 0 12px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .success-address {
+            margin-top: 14px;
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+        
+        .size-buttons {
+            margin-top: 8px;
+        }
+        
+        .size-btn {
+            border: 1px solid #ccc;
+            background: white;
+            padding: 6px 12px;
+            margin: 3px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .size-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .size-btn.selected {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1100;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #8E3B82 0%, #D7A9CF 100%);
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            transform: translateZ(0);
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+            background: linear-gradient(135deg, #5C2754 0%, #3A1834 100%);
+        }
+        
+        .back-btn:hover .back-icon {
+            transform: translateX(-3px);
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .back-btn {
+                top: 10px;
+                left: 10px;
+                padding: 9px 14px;
+            }
+            .back-btn .back-text {
+                font-size: 13px;
+            }
+        }
+        
+        .ai-panel {
+            width: 340px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+            border-left: 2px solid #bdbdbd;
+            padding: 28px 20px 20px 20px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1300;
+            box-shadow: -4px 0 24px rgba(90, 64, 55, 0.10);
+            transition: transform 0.3s, box-shadow 0.2s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: slideInRight 0.4s;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .ai-panel h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #5D4037;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel textarea {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            border: 1.5px solid #bdbdbd;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: vertical;
+            box-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel button {
+            background: linear-gradient(90deg, #5D4037 0%, #8D6E63 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3eeff;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .ai-panel button:hover {
+            background: linear-gradient(90deg, #388E3C 0%, #8D6E63 100%);
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 2.2rem;
+            color: #8D6E63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .ai-close-btn:hover {
+            color: #388E3C;
+        }
+        
+        #aiResponse {
+            margin-top: 18px;
+            min-height: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-family: inherit;
+        }
+        
+        .ai-panel #aiResponse {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .ai-panel .ai-clone {
+            width: calc(50% - 10px);
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel .ai-clone {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 16px 8px;
+            }
+        }
+        
+        .ai-open-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1200;
+            background: #5D4037;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ai-open-btn:hover {
+            background: #388E3C;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- AI Assistant Button -->
+    <button id="aiOpenBtn" class="ai-open-btn" title="AI Assistance">🤖</button>
+
+    <!-- AI Assistant Sidebar -->
+    <div class="ai-panel hidden" id="aiPanel">
+        <span class="ai-close-btn" id="aiCloseBtn">&times;</span>
+        <h2>AI Assistance ✨</h2>
+        <textarea id="aiInput" placeholder="Ask me anything..."></textarea>
+        <button onclick="handleAI()">Ask AI</button>
+        <div id="aiResponse" style="margin-top:15px;"></div>
+    </div>
+    <button class="back-btn" id="backBtn" aria-label="Go back" onclick="window.location.href='categories.html'">
+    <span class="back-icon" aria-hidden="true">←</span>
+    <span class="back-text">Back</span>
+</button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="active" onclick="filterCategory('all', this)">All</a>
+        <a href="#" onclick="filterCategory('casualshoes', this)">Casual Shoes</a>
+        <a href="#" onclick="filterCategory('formalshoes', this)">Formal Shoes</a>
+        <a href="#" onclick="filterCategory('boots', this)">Boots</a>
+    </div>
+    <!-- Main -->
+    <div class="main">
+        <!-- Search -->
+        <div class="search-bar-wrapper">
+            <div class="search-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Search Icon">
+                <input type="text" id="searchInput" placeholder="Search for footwear...👟">
+                <span id="searchClearBtn" style="display:none;cursor:pointer;font-size:20px;margin-left:8px;">&#10005;</span>
+
+            </div>
+        </div>
+        <!-- Products -->
+        <div class="products" id="productContainer">
+            <!-- Casual Shoes -->
+            <div class="category-section" data-category="casualshoes">
+                <div class="product-list">
+                    <div class="product" data-name="leather shoes">
+                        <img src="https://down-my.img.susercontent.com/file/0f3fa0e79ac3240010dc88962326d975" alt="leathercasualshoes">
+                        <h3>Leather Shoes</h3>
+                        <p>₹1800</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="centrino sneaker">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.6KHG-Y3F5EPh2vHF4jR_TAHaHa?pid=Api&P=0&h=180" alt="Centrino Sneaker">
+                        <h3>Centrino Sneaker</h3>
+                        <p>₹3050</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="shadow slip">
+                        <img src="https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_600,h_600/global/386738/02/fnd/IND/fmt/png/Shadow-Slip-On-Men's-Sneakers" alt="Shadow Slip">
+                        <h3>Shadow Slip</h3>
+                        <p>₹1879</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="canvas shoes">
+                        <img src="https://i5.walmartimages.com/seo/Obtaom-Women-s-Canvas-Sneakers-Fashion-Lace-Up-Canvas-Shoes-Low-Top-Casual-Flat-Lightweight-Tennis-Shoes-Black-US9_89cd77ac-5683-4198-afba-936db1a649f5.3177200d6ad8b60b4aa05707c9301957.jpeg" alt="Canvas shoes">
+                        <h3>Canvas shoes</h3>
+                        <p>₹3999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="espadrilles">
+                        <img src="https://n.nordstrommedia.com/id/sr3/888b9db5-36f2-4577-8ce1-19be4e8c750f.jpeg?crop=pad&pad_color=FFF&format=jpeg&trim=color&trimcolor=FFF&w=780&h=838&dpr=4" alt="Espadrilles">
+                        <h3>Espadrilles</h3>
+                        <p>₹4999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="moccasins">
+                        <img src="https://i.pinimg.com/originals/f8/ba/c4/f8bac4904c14c836e828de5fb7f95db1.jpg" alt="Moccasins">
+                        <h3>Moccasins</h3>
+                        <p>₹5550</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="boat shoes">
+                        <img src="https://i.pinimg.com/originals/4b/63/4d/4b634d6e72865712b7ed5dc0ea570779.jpg" alt="Boat Shoes">
+                        <h3>Boat Shoes</h3>
+                        <p>₹3999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="plimsolls">
+                        <img src="https://p.turbosquid.com/ts-thumb/Bi/Nfxw7T/Im/women_plimsoll_shoes_01_square_0000/jpg/1681391181/600x600/fit_q87/340bd45d4472cf574df25b6709c1c1b6ae3e64d1/women_plimsoll_shoes_01_square_0000.jpg" alt="Plimsolls">
+                        <h3>Plimsolls</h3>
+                        <p>₹3590</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="trainers shoes">
+                        <img src="https://cdn.sportsshoes.com/product/N/NEW691590/NEW691590_2500_4.jpg" alt="Trainers">
+                        <h3>Trainers Shoes</h3>
+                        <p>₹2999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="chukka shoes">
+                        <img src="https://cdna.lystit.com/photos/dunelondon/acfd44fb/dune-Black-Crawshaw-Leather-Chukka-Boots.jpeg" alt="Cabage">
+                        <h3>Chukka Shoes</h3>
+                        <p>₹6599</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="derby shoes">
+                        <img src="https://i.etsystatic.com/40482438/r/il/713a46/4961549335/il_fullxfull.4961549335_eqpg.jpg" alt="Derby shoes">
+                        <h3>Derby shoes</h3>
+                        <p>₹7850</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="nike court vision low">
+                        <img src="https://cdn.shopify.com/s/files/1/1788/1479/products/CD5434001-5.jpg?v=1585252716" alt="Boat Shoes">
+                        <h3>Nike Court Vision Low</h3>
+                        <p>₹6699</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="driving shoes">
+                        <img src="https://d2dsc1gf0t80gb.cloudfront.net/wp-content/uploads/2019/05/31133043/PILO_endurance_navy_lifestyle3.jpg" alt="Driving Shoes">
+                        <h3>Driving Shoes</h3>
+                        <p>₹3599</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="skate shoes">
+                        <img src="https://cdn.shopify.com/s/files/1/0503/8718/9923/products/10_2e563d17-1b76-4a58-bb07-3764ba253af5_1400x.png?v=1660024611" alt="Skate Shoes">
+                        <h3>Skate Shoes</h3>
+                        <p>₹7800</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="mule shoes">
+                        <img src="https://www.travelandleisure.com/thmb/SRaSWHCF5bY_XS-PXrUGLFDpIXQ=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/vionic-fairfax-clog-mule-78be13ff9ddc42c1a10ed6ce461df264.jpg" alt="Mule Shoes">
+                        <h3>Mule Shoes</h3>
+                        <p>₹4300</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formal Shoes -->
+            <div class="category-section" data-category="formalshoes">
+                <div class="product-list">
+                    <div class="product" data-name="oxford shoes">
+                        <img src="https://cdn.pixabay.com/photo/2021/03/26/07/22/oxford-shoes-6125110_1280.jpg" alt="oxford shoes">
+                        <h3>Oxford Shoes</h3>
+                        <p>₹2999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="monk strap">
+                        <img src="http://cdn.shopify.com/s/files/1/0217/3274/products/pau2729_025_h.jpg?v=1465241050" alt="Monk Strap">
+                        <h3>Monk Strap</h3>
+                        <p>₹2550</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="Men Black Leather Formal Shoes (Oxfords)">
+                        <img src="https://images-cdn.ubuy.co.in/1BO0SWFC-yuyuor-black-formal-shoes-men-loafers.jpg" alt="Men Black Leather Formal Shoes">
+                        <h3>Men Black Leather Formal Shoes (Oxfords)</h3>
+                        <p>₹1,500</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Unisex Formal Leather Shoes">
+                        <img src="https://img.freepik.com/premium-photo/men-women-formal-shoe_950863-20.jpg?w=2000" alt="Unisex Formal Leather Shoes">
+                        <h3>Unisex Formal Leather Shoes</h3>
+                        <p>₹1,300</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Men's Black Formal Loafers">
+                        <img src="https://images-na.ssl-images-amazon.com/images/I/71uOkAlKPpL._AC_UL1500_.jpg" alt="Men's Black Formal Loafers">
+                        <h3>Men's Black Formal Loafers</h3>
+                        <p>₹1,800</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Minimalist Black Formal Shoes">
+                        <img src="https://www.beshideshi.com/wp-content/uploads/2018/10/A0109-A-Copy.png" alt="Minimalist Black Formal Shoes">
+                        <h3>Minimalist Black Formal Shoes</h3>
+                        <p>₹1,400</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Classic Black Formal Shoes">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.CzWGpjXL0caqv4rY-pCIlAHaHa?pid=Api&P=0&h=180" alt="Classic Black Formal Shoes">
+                        <h3>Classic Black Formal Shoes</h3>
+                        <p>₹1,200</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Cap-Toe Men's Formal Shoes">
+                        <img src="https://blackberrys.com/cdn/shop/files/formal-footwear-in-black-pren-blackberrys-clothing-1.jpg?v=1685951322" alt="Cap-Toe Men's Formal Shoes">
+                        <h3>Cap-Toe Men's Formal Shoes</h3>
+                        <p>₹2,500</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Men's Lace-Up Plain Leather Formal Shoes">
+                        <img src="https://happygentleman.com/wp-content/uploads/2019/11/mens-laced-plain-leather-lined-laced-smart-casual-formal-shoes-black-1.jpg" alt="Men's Lace-Up Plain Leather Formal Shoes">
+                        <h3>Men's Lace-Up Plain Leather Formal Shoes</h3>
+                        <p>₹1,600</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="borgue">
+                        <img src="https://www.cordings.co.uk/media/catalog/product/cache/90cced69a688d3fb8b4ac2887336c7a4/l/f/lft156brnch.jpg" alt="Borgue">
+                        <h3>Borgue</h3>
+                        <p>₹2490</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wingtip">
+                        <img src="https://www.nicekicks.com/files/2022/10/cole-haan-staple-originalgrand-wingtip-ultra-wingtip-oxford-14.jpg" alt="Wingtip">
+                        <h3>Wingtip</h3>
+                        <p>₹2599</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="cap toe oxford">
+                        <img src="http://cdn.shopify.com/s/files/1/0835/2281/products/CAP_TOE_OXFORD_OX_3_QUARTER_1024x1024.png?v=1573657038" alt="Cap Toe Oxford">
+                        <h3>Cap Toe Oxford</h3>
+                        <p>₹4990</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="whole cut">
+                        <img src="https://www.realmenrealstyle.com/wp-content/uploads/2023/11/Whole-Cut-Oxfords-shoes-formal.jpg" alt="Whole Cut">
+                        <h3>Whole Cut</h3>
+                        <p>₹5555</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="loafers">
+                        <img src="https://happygentleman.com/wp-content/uploads/2019/11/mens-black-weave-pu-leather-loafers-2.jpg" alt="Loafers">
+                        <h3>Loafers</h3>
+                        <p>₹2999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="kiltie loafers">
+                        <img src="https://i.pinimg.com/originals/03/61/60/0361609e8094e5cdee3da542d811c114.jpg" alt="Kiltie Loafers">
+                        <h3>Kiltie Loafers</h3>
+                        <p>₹4999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="belgain loafers">
+                        <img src="https://theshoesnobblog.com/wp-content/uploads/2015/06/men-belgian-loafers-brown-suede-leather-leather-sole-ciappacan-velasca1-900x506.jpg" alt="Belgain Loafers">
+                        <h3>Belgian Loafers</h3>
+                        <p>₹2990</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="spectator shoes">
+                        <img src="https://images.bonanzastatic.com/afu/images/ee96/7e1c/dddc_8043696794/s-l1600.jpg" alt="Spectator Shoes">
+                        <h3>Spectator Shoes</h3>
+                        <p>₹2990</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Boots -->
+            <div class="category-section" data-category="boots">
+                <div class="product-list">
+                    <div class="product" data-name="wing tip">
+                        <img src="https://thursdayboots.com/cdn/shop/files/2800x1080-Men-Wingtip-DarkOak-191115_800x533_crop_right.jpg?v=1613638061" alt="Wing Tip">
+                        <h3>Wing Tip</h3>
+                        <p>₹4550</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="Leather Hub Men's Black Boots">
+                        <img src="https://i.pinimg.com/originals/47/13/59/47135962ec0232c3c6e7a6c20e9e4549.jpg" alt="Leather Hub Men's Black Boots">
+                        <h3>Leather Hub Men's Black Boots</h3>
+                        <p>₹1,499</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Leather Hub Brown Leather Shoes">
+                        <img src="http://leatherhub.in/cdn/shop/products/7000637730.jpg?v=1697261668" alt="Leather Hub Brown Leather Shoes">
+                        <h3>Leather Hub Brown Leather Shoes</h3>
+                        <p>₹1,499</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Red Wing Mario's Boots (Replica)">
+                        <img src="https://sneakerbardetroit.com/wp-content/uploads/2023/03/Red-Wings-Mario-Boots-2023.jpg" alt="Red Wing Mario's Boots (Replica)">
+                        <h3>Red Wing Mario's Boots (Replica)</h3>
+                        <p>₹1,999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="cap toe boots">
+                        <img src="https://cdna.lystit.com/photos/zappos/def79213/florsheim-Brown-Estabrook-Cap-Toe-Boot.jpeg" alt="Cap Toe Boots">
+                        <h3>Cap Toe Boots</h3>
+                        <p>₹4000</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="Girls Zipper Ankle Boots">
+                        <img src="https://i5.walmartimages.com/seo/Boots-for-Girls-Girls-Zipper-Ankle-Boots-Thick-Sole-Warm-Winter-Snow-Solid-Color-Casual-Size-10_9da19505-6f28-4626-aca9-6c0407f5a1be.55a8472d1c0f389c13675eebf5d7e14a.jpeg" alt="Girls Zipper Ankle Boots">
+                        <h3>Girls Zipper Ankle Boots</h3>
+                        <p>₹2,000</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Girls Leather Dance Shoes">
+                        <img src="https://i5.walmartimages.com/seo/Boots-for-Girls-Girls-Dance-Shoes-Leather-Performance-Children-Ballet-Jazz-Small-Sizes-Size-4-4-5-Years_0ef7c42e-3cf3-4e82-8de4-0e7d99f2b94c.3632e750fa38c3210833f4bcc27bf821.jpeg" alt="Girls Leather Dance Shoes">
+                        <h3>Girls Leather Dance Shoes</h3>
+                        <p>₹1,200</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Oliver Bonas Leather Ankle Boots">
+                        <img src="https://www.oliverbonas.com/static/media/catalog/product/1/5/1564457_2_1.jpg" alt="Oliver Bonas Leather Ankle Boots">
+                        <h3>Oliver Bonas Leather Ankle Boots</h3>
+                        <p>₹8,000</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Men's Chelsea Boots">
+                        <img src="https://www.suitsexpert.com/wp-content/uploads/different-ways-to-wear-chelsea-boots-for-men-cover.jpg" alt="Men's Chelsea Boots">
+                        <h3>Men's Chelsea Boots</h3>
+                        <p>₹5,500</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="chelsea">
+                        <img src="https://fxposed.co.uk/Images/No%20Watermark/PVC%20Shoes/A1972H/A1972H-BLACK/IMG_9622.JPG" alt="ChelSea">
+                        <h3>ChelSea</h3>
+                        <p>₹4444</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="winter boots">
+                        <img src="https://orthopedicsdakota.com/cdn/shop/files/obionoshoesWideToeBoxComfortableWinterBootswithFur_0f8eb9b3-52e2-4dff-b102-dabdb32e18b0.jpg?v=1754001578&width=1100" alt="Winter Boots">
+                        <h3>Winter Boots</h3>
+                        <p>₹6990</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="plain toe Leather boots">
+                        <img src="https://cdna.lystit.com/photos/zappos/f5289186/florsheim-Neutral-Supucush-Plain-Toe-Chukka-Boot.jpeg" alt="Plain Toe Leather Boots">
+                        <h3>Plain Toe Leather Boots</h3>
+                        <p>₹3550</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (Address/Payment Flow) -->
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-btn" id="closeModal">&#10005;</span>
+            <h2 id="modalProductName">Product Name</h2>
+            <p id="modalProductPrice">Price</p>
+            <div id="addressBlock" class="hidden"></div>
+            <div class="address-btns hidden" id="addressBtns">
+                <button class="modify">Modify Address</button>
+                <button class="add">Add New Address</button>
+            </div>
+            <form id="addressForm" class="hidden" novalidate>
+                <h3>Delivery Address</h3>
+                <label>House/Flat Number*</label>
+                <input type="text" name="houseNumber" required />
+                <label>Landmark</label>
+                <input type="text" name="landmark" />
+                <label>City*</label>
+                <input type="text" name="city" required />
+                <label>State*</label>
+                <input type="text" name="state" required />
+                <label>Pin Code*</label>
+                <input type="text" name="pin" pattern="\d{6}" required />
+                <button type="submit" class="submit-address-btn">Save Address</button>
+            </form>
+            <div id="paymentSection" class="hidden">
+                <p>Please select a payment method:</p>
+                <div class="payment-options">
+                    <button class="payment-btn" data-payment="Online Payment">💳 Online Payment</button>
+                    <button class="payment-btn" data-payment="Cash on Delivery">🏠 Cash on Delivery</button>
+                </div>
+            </div>
+            <div class="wallet-section" id="walletSection">
+                <p>Select a payment wallet:</p>
+                <div class="wallet-options">
+                    <button class="wallet-btn" data-wallet="PhonePe">📲 PhonePe</button>
+                    <button class="wallet-btn" data-wallet="Google Pay">💙 Google Pay</button>
+                    <button class="wallet-btn" data-wallet="Paytm">🟦 Paytm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <span class="success-close-btn" id="successCloseBtn">&#10005;</span>
+            <div class="success-check">✔</div>
+            <div class="success-text-main">Order Placed Successfully!</div>
+            <div class="success-message" id="orderPlacedDetails"></div>
+            <div class="success-address" id="orderPlacedAddress"></div>
+        </div>
+    </div>
+    <script>
+        // ...existing code...
+                function showOrderPlacedModal(paySource) {
+                    successModalOverlay.classList.add('active');
+                    orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+// ...existing code...let currentProductName = "";
+        let currentProductPrice = "";
+        let selectedPaymentMethod = null;
+        let savedAddress = null;
+
+        // Modal elements
+        const modalOverlay = document.getElementById('modalOverlay'),
+            modalProductName = document.getElementById('modalProductName'),
+            modalProductPrice = document.getElementById('modalProductPrice'),
+            addressBlock = document.getElementById('addressBlock'),
+            addressBtns = document.getElementById('addressBtns'),
+            addressForm = document.getElementById('addressForm'),
+            paymentSection = document.getElementById('paymentSection'),
+            walletSection = document.getElementById('walletSection'),
+            successModalOverlay = document.getElementById('successModalOverlay'),
+            successCloseBtn = document.getElementById('successCloseBtn'),
+            orderPlacedDetails = document.getElementById('orderPlacedDetails'),
+            orderPlacedAddress = document.getElementById('orderPlacedAddress');
+
+        // Open modal for product
+        function openModalForProduct(product) {
+            currentProductName = product.querySelector('h3').textContent;
+            currentProductPrice = product.querySelector('p').textContent;
+            modalProductName.textContent = currentProductName;
+            modalProductPrice.textContent = currentProductPrice;
+            walletSection.classList.remove('visible');
+
+            if (loadSavedAddress()) {
+                renderSavedAddress();
+                showPaymentStep();
+                togglePaymentButtons(true);
+            } else {
+                showAddressStep();
+                togglePaymentButtons(false);
+            }
+        }
+
+        // Attach buy button for AI clones
+        function attachBuyForClone(card) {
+            const btn = card.querySelector('.buy-btn');
+            if (!btn) return;
+            btn.addEventListener('click', (e) => {
+                const p = e.target.closest('.product');
+                openModalForProduct(p);
+            });
+        }
+
+        // AI Assistant logic
+        function handleAI() {
+            const inputEl = document.getElementById("aiInput");
+            const responseBox = document.getElementById("aiResponse");
+            const input = (inputEl.value || "").trim().toLowerCase();
+
+            responseBox.innerHTML = "";
+
+            if (!input) {
+                responseBox.innerText = "⚠️ Please type something first!";
+                return;
+            }
+
+            const products = document.querySelectorAll("#productContainer .product");
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = input.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = input.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = input.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "products", "product"
+            ]);
+            const words = input
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            const matches = [];
+
+            products.forEach(product => {
+                const nameEl = product.querySelector("h3");
+                const priceEl = product.querySelector("p");
+                if (!nameEl || !priceEl) return;
+
+                const name = nameEl.innerText.toLowerCase();
+                const priceText = priceEl.innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+
+                const nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+
+                if (nameMatch && priceOK) matches.push({
+                    product,
+                    price
+                });
+            });
+
+            if (matches.length === 0) {
+                responseBox.innerText = "🤖 Sorry, no matching products found!";
+                return;
+            }
+
+            if (maxPrice != null && minPrice == null) {
+                matches.sort((a, b) => a.price - b.price);
+            } else if (minPrice != null && maxPrice == null) {
+                matches.sort((a, b) => b.price - a.price);
+            } else {
+                matches.sort((a, b) => a.price - b.price);
+            }
+
+            matches.forEach((hit, i) => {
+                const clone = hit.product.cloneNode(true);
+                clone.classList.add('ai-clone');
+                responseBox.appendChild(clone);
+                attachBuyForClone(clone);
+                setTimeout(() => clone.classList.add('show'), i * 120);
+            });
+        }
+
+        // Category filter
+        function filterCategory(category, link) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(sec => {
+                sec.classList.toggle('hidden',
+                    category !== 'all' && sec.dataset.category !== category);
+            });
+            document.getElementById('searchInput').value = '';
+            filterSearch('');
+        }
+
+        // Search filter
+        function filterSearch(query) {
+            query = query.toLowerCase().trim();
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = query.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = query.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = query.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "product", "products"
+            ]);
+            const words = query
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            // Always search across all categories for search
+            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('hidden'));
+
+            document.querySelectorAll('.product').forEach(p => {
+                const name = p.querySelector('h3').innerText.toLowerCase();
+                const priceText = p.querySelector('p').innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+                let nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+                p.classList.toggle('hidden', !(nameMatch && priceOK));
+
+            });
+
+            // Hide category-section if all products inside are hidden
+            document.querySelectorAll('.category-section').forEach(section => {
+                const products = section.querySelectorAll('.product');
+                const visible = Array.from(products).some(p => !p.classList.contains('hidden'));
+                section.classList.toggle('hidden', !visible);
+            });
+
+            // Show humble message if nothing matches
+            let anyVisible = !!document.querySelector('.product:not(.hidden)');
+            let msgId = 'searchNoMatchMsg';
+            let container = document.getElementById('productContainer');
+            let oldMsg = document.getElementById(msgId);
+            if (!anyVisible) {
+                if (!oldMsg) {
+                    let msg = document.createElement('div');
+                    msg.id = msgId;
+                    msg.style = "text-align:center; font-size:1.2rem; color:#555; margin:40px 0;";
+                    msg.innerText = "🙏 Sorry, no products found matching your search.";
+                    container.appendChild(msg);
+                }
+            } else if (oldMsg) {
+                oldMsg.remove();
+            }
+        }
+
+        // Address logic
+        function loadSavedAddress() {
+            let s = localStorage.getItem('userAddress');
+            savedAddress = s ? JSON.parse(s) : null;
+            return !!savedAddress;
+        }
+
+        function saveAddress(addr) {
+            savedAddress = addr;
+            localStorage.setItem('userAddress', JSON.stringify(addr));
+        }
+
+        function renderSavedAddress() {
+            if (!savedAddress) {
+                addressBlock.classList.add('hidden');
+                addressBtns.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            } else {
+                addressBlock.classList.remove('hidden');
+                addressBlock.innerHTML = `<strong>Address:</strong><br>${savedAddress.houseNumber}` +
+                    (savedAddress.landmark ? `, ${savedAddress.landmark}` : '') + `
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+                addressBtns.classList.remove('hidden');
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
+        function togglePaymentButtons(enabled) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function showAddressStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.add('hidden');
+            addressBtns.classList.add('hidden');
+            addressForm.classList.remove('hidden');
+            paymentSection.classList.add('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        function showPaymentStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.remove('hidden');
+            addressBtns.classList.remove('hidden');
+            addressForm.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        // Buy button logic
+        document.querySelectorAll('.buy-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                const product = e.target.closest('.product');
+                openModalForProduct(product);
+            });
+        });
+
+        // Address buttons
+        addressBtns.querySelector('.modify').onclick = function() {
+            addressForm.houseNumber.value = savedAddress.houseNumber || '';
+            addressForm.landmark.value = savedAddress.landmark || '';
+            addressForm.city.value = savedAddress.city || '';
+            addressForm.state.value = savedAddress.state || '';
+            addressForm.pin.value = savedAddress.pin || '';
+            showAddressStep();
+        };
+        addressBtns.querySelector('.add').onclick = function() {
+            addressForm.reset();
+            showAddressStep();
+        };
+
+        // Address form submit
+        addressForm.onsubmit = function(e) {
+            e.preventDefault();
+            if (!addressForm.checkValidity()) {
+                addressForm.reportValidity();
+                return;
+            }
+            const fd = new FormData(addressForm);
+            const newAddr = {
+                houseNumber: fd.get('houseNumber').trim(),
+                landmark: fd.get('landmark').trim(),
+                city: fd.get('city').trim(),
+                state: fd.get('state').trim(),
+                pin: fd.get('pin').trim()
+            };
+            saveAddress(newAddr);
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        };
+
+        // Payment button logic
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedPaymentMethod = btn.dataset.payment;
+                if (selectedPaymentMethod === "Online Payment") {
+                    walletSection.classList.add('visible');
+                } else {
+                    showOrderPlacedModal("Cash on Delivery");
+                    modalOverlay.classList.remove('active');
+                }
+            };
+        });
+
+        // Wallet button logic
+        document.querySelectorAll('.wallet-btn').forEach(btn => {
+            btn.onclick = function() {
+                walletSection.classList.remove('visible');
+                showOrderPlacedModal(btn.dataset.wallet);
+                modalOverlay.classList.remove('active');
+            };
+        });
+
+        function showOrderPlacedModal(paySource) {
+            successModalOverlay.classList.add('active');
+            orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// Success modal close
+successCloseBtn.onclick = () => successModalOverlay.classList.remove('active');
+successModalOverlay.addEventListener('click', e => {
+    if (e.target === successModalOverlay) successModalOverlay.classList.remove('active');
+});
+
+// AI Panel toggle
+const aiPanel = document.getElementById('aiPanel');
+const aiOpenBtn = document.getElementById('aiOpenBtn');
+const aiCloseBtn = document.getElementById('aiCloseBtn');
+
+aiOpenBtn.onclick = () => {
+    aiPanel.classList.remove('hidden');
+    document.body.classList.add('ai-open');
+};
+aiCloseBtn.onclick = () => {
+    aiPanel.classList.add('hidden');
+    document.body.classList.remove('ai-open');
+};
+document.addEventListener('click', function(e) {
+    if (!aiPanel.classList.contains('hidden') &&
+        !aiPanel.contains(e.target) &&
+        e.target !== aiOpenBtn) {
+        aiPanel.classList.add('hidden');
+        document.body.classList.remove('ai-open');
+    }
+});
+
+// Search input event
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    filterSearch(e.target.value);
+});
+
+document.getElementById('closeModal').onclick = () => {
+    // If address form is visible, just hide it and show previous step
+    if (!addressForm.classList.contains('hidden')) {
+        addressForm.classList.add('hidden');
+        if (loadSavedAddress()) {
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        } else {
+            modalOverlay.classList.remove('active');
+        }
+    } else {
+        modalOverlay.classList.remove('active');
+        walletSection.classList.remove('visible');
+    }
+};const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', function() {
+    searchClearBtn.style.display = searchInput.value ? 'inline' : 'none';
+});
+
+searchClearBtn.onclick = function() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterSearch('');
+};
+    </script>
+</body>
+
+</html>

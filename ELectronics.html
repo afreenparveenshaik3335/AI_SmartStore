@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale =1.0" />
+    <title>Smart Grocery Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: #f5f5f5;
+        }
+        /* Sidebar */
+        
+        .sidebar {
+            width: 200px;
+            background-color: 		#0078FF;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: white;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: 		#0050A4;
+        }
+        /* Main Content */
+        
+        .main {
+            margin-left: 200px;
+            flex: 1;
+        }
+        
+        .search-bar-wrapper {
+            position: sticky;
+            top: 0;
+            background: 		#B3D9FF;
+            padding: 10px;
+            z-index: 100;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .search-container img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .products {
+            padding: 20px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-section h2 {
+            margin-bottom: 15px;
+        }
+        
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .product {
+            background: white;
+            width: 180px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .product h3 {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        .product p {
+            font-weight: bold;
+            color: 		#0050A4;
+        }
+        
+        .buy-btn {
+            background-color: 	#0050A4;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .buy-btn:hover {
+            background: #388E3C;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        /* Modal overlays */
+        
+        .modal-overlay,
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active,
+        .success-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 420px;
+            width: 90%;
+            padding: 20px 30px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .modal p {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        
+        .close-btn,
+        .success-close-btn {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .close-btn:hover,
+        .success-close-btn:hover {
+            color: #333;
+        }
+        
+        #addressBlock {
+            background: #f7f7f7;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin-bottom: 18px;
+            text-align: left;
+            font-size: 15px;
+        }
+        
+        .address-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .address-btns button {
+            flex: 1;
+            padding: 8px;
+            font-weight: 700;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #fff;
+        }
+        
+        .address-btns .modify {
+            background: #ff9800;
+        }
+        
+        .address-btns .add {
+            background: #03A9F4;
+        }
+        
+        .address-btns .modify:hover {
+            background: #e65100;
+        }
+        
+        .address-btns .add:hover {
+            background: #0277bd;
+        }
+        
+        #addressForm {
+            text-align: left;
+            margin-top: 14px;
+            max-width: 340px;
+            margin: auto;
+        }
+        
+        #addressForm h3 {
+            color: #388E3C;
+            font-size: 18px;
+        }
+        
+        #addressForm label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600;
+        }
+        
+        #addressForm input {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+        }
+        
+        #addressForm input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .submit-address-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .submit-address-btn:hover {
+            background: #388E3C;
+        }
+        
+        .payment-options {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        
+        .payment-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 3px solid #4CAF50;
+            border-radius: 30px;
+            background: white;
+            font-weight: 700;
+            color: #4CAF50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .payment-btn:hover:not(:disabled) {
+            background: #4CAF50;
+            color: #fff;
+        }
+        
+        .payment-btn:disabled {
+            background: #ccc !important;
+            color: #888 !important;
+            cursor: not-allowed;
+        }
+        
+        .wallet-section {
+            margin: 16px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .wallet-section.visible {
+            display: flex;
+            animation: popIn 0.4s;
+        }
+        
+        .wallet-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .wallet-btn {
+            flex: 1;
+            border: 2px solid #2196f3;
+            background: #fff;
+            color: #2196f3;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .wallet-btn:hover {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 18px;
+            max-width: 340px;
+            width: 90%;
+            padding: 25px 22px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+            animation: fadeIn 0.5s;
+        }
+        
+        .success-check {
+            font-size: 70px;
+            color: #19af56;
+            margin-bottom: 10px;
+            animation: tickBlink 1.4s linear infinite;
+        }
+        
+        @keyframes tickBlink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .success-text-main {
+            font-size: 22px;
+            color: #19af56;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 4px 0 12px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .success-address {
+            margin-top: 14px;
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+		.back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0078FF 0%,#B3D9FF 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transform: translateZ(0);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    background: linear-gradient(135deg, #0050A4 0%, #003B75 100%);
+}
+
+    /* AI Assistant Panel */
+        
+        .ai-panel {
+            width: 340px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+            border-left: 2px solid #bdbdbd;
+            padding: 28px 20px 20px 20px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1300;
+            box-shadow: -4px 0 24px rgba(90, 64, 55, 0.10);
+            transition: transform 0.3s, box-shadow 0.2s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: slideInRight 0.4s;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .ai-panel h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #5D4037;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel textarea {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            border: 1.5px solid #bdbdbd;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: vertical;
+            box-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel button {
+            background: linear-gradient(90deg, #0050A4 0%, #0078FF 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3eeff;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .ai-panel button:hover {
+            background: linear-gradient(90deg, #0050A4 0%, #0078FF 100%);
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 2.2rem;
+            color: #8D6E63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .ai-close-btn:hover {
+            color: #388E3C;
+        }
+        
+        #aiResponse {
+            margin-top: 18px;
+            min-height: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-family: inherit;
+        }
+        
+        .ai-panel #aiResponse {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .ai-panel .ai-clone {
+            width: calc(50% - 10px);
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        /* Responsive for mobile */
+        
+        @media (max-width: 600px) {
+            .ai-panel .ai-clone {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 16px 8px;
+            }
+        }
+        /* ...existing code... */
+        
+        .ai-open-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1200;
+            background: #0050A4;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ai-open-btn:hover {
+            background: #388E3C;
+        }
+    </style>
+
+    <body>
+        <!-- AI Assistant Button -->
+        <button id="aiOpenBtn" class="ai-open-btn" title="AI Assistance">🤖</button>
+
+        <!-- AI Assistant Sidebar -->
+        <div class="ai-panel hidden" id="aiPanel">
+            <span class="ai-close-btn" id="aiCloseBtn">&times;</span>
+            <h2>AI Assistance ✨</h2>
+            <textarea id="aiInput" placeholder="Ask me anything..."></textarea>
+            <button onclick="handleAI()">Ask AI</button>
+            <div id="aiResponse" style="margin-top:15px;"></div>
+        </div>
+    <!-- Main -->
+    <div class="main">
+        <!-- Search -->
+        <div class="search-bar-wrapper">
+            <div class="search-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Search Icon" />
+                <input type="text" id="searchInput" placeholder="Search for Electronics...🪑" />
+				
+                <span id="searchClearBtn" style="display:none;cursor:pointer;font-size:20px;margin-left:8px;">&#10005;</span>
+            </div>
+        </div>
+
+        <body>
+    <button class="back-btn" id="backBtn" aria-label="Go back" onclick="window.location.href='categories.html'">
+    <span class="back-icon" aria-hidden="true">←</span>
+    <span class="back-text">Back</span>
+</button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="active" onclick="filterCategory('all', this)">All</a>
+        <a href="#" onclick="filterCategory('mobiles', this)">Mobiles</a>
+        <a href="#" onclick="filterCategory('laptops', this)">Laptops</a>
+        <a href="#" onclick="filterCategory('tablets', this)">Tablets</a>
+    </div>
+        <!-- Products -->
+        <div class="products" id="productContainer">
+
+            <!-- Mobiles -->
+            <div class="category-section" data-category="mobiles">
+                <div class="product-list">
+                    <div class="product" data-name="realme narzo 20 series">
+                        <img src="https://image01.realme.net/general/20200917/1600332417558.jpg" alt="Realme Narzo 20 Series" />
+                        <h3>Realme Narzo 20 Series</h3>
+                        <p>₹12,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="realme 6s">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.MWkUP-ezj9zwDMAUZfdW7gHaIy?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Realme 6S">
+                        <h3>Realme 6S</h3>
+                        <p>₹13,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="realme narzo 50">
+                        <img src="https://www.newmobileprice.pk/wp-content/uploads/2022/02/Realme-Narzo-50-1.jpg?is-pending-load=1" alt="Realme Narzo 50">
+                        <h3>Realme Narzo 50</h3>
+                        <p>₹14,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="realme gt">
+                        <img src="https://www.giztop.com/media/catalog/product/cache/dc206057cdd42d7e34b9d36e347785ca/r/e/realme_gt_s.jpg" alt="Realme GT">
+                        <h3>Realme GT</h3>
+                        <p>₹30,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="vivo y300 5g">
+                        <img src="https://cdn.beebom.com/mobile/vivo-y300-5g/vivo-y300-5g-front-back-design.png" alt="Vivo Y300 5G">
+                        <h3>Vivo Y300 5G</h3>
+                        <p>₹13,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="vivo v25 pro">
+                        <img src="https://asia-exstatic-vivofs.vivo.com/PSee2l50xoirPK7y/1666259100870/c2505b155f4287b4285e0eb9d0b0e6f2.png" alt="Vivo V25 Pro">
+                        <h3>Vivo V25 Pro</h3>
+                        <p>₹32,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="vivo v20">
+                        <img src="https://asia-exstatic-vivofs.vivo.com/PSee2l50xoirPK7y/1600777531847/13239c4e7dc8ccbc639ed14c170d5721.png" alt="Vivo V20">
+                        <h3>Vivo V20</h3>
+                        <p>₹24,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="vivo v21e">
+                        <img src="https://cdn1.smartprix.com/rx-idq6N7SMW-w1200-h1200/dq6N7SMW.jpg" alt="Vivo V21e">
+                        <h3>Vivo V21e</h3>
+                        <p>₹20,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="vivo v21 series">
+                        <img src="https://www.megabites.com.ph/wp-content/uploads/2021/06/Photo_vivo-launches-the-V21-series-brings-a-new-era-of-selfie-phones1-1536x1175.jpg" alt="Vivo V21 Series">
+                        <h3>Vivo V21 Series</h3>
+                        <p>₹25,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                    <div class="product" data-name="samsung galaxy s10e">
+                        <img src="https://www.lifewire.com/thmb/-cA-9xF6JPmgnriyHU0KUWCirKY=/fit-in/3224x2579/filters:no_upscale():max_bytes(150000):strip_icc()/gs10e-photo13-HeroHoriz-dfd14396a8514f4ab9d48f9bfb56cbd3.jpg" alt="Samsung Galaxy S10e">
+                        <h3>Samsung Galaxy S10e</h3>
+                        <p>₹25,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="samsung galaxya32 5g">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.neDq-UL9QplWWnNHeWF7XgHaF1?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Samsung Galaxy A32 5G">
+                        <h3>Samsung Galaxy A32 5G</h3>
+                        <p>₹15,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="samsung galaxy s23 series">
+                        <img src="https://images.samsung.com/is/image/samsung/assets/us/2302/pcd/smartphones/01262023/Smartphones-PCD-FT03-Embrace-Epic-Power-1-S23-S23-Plus-M.jpg?$720_N_JPG$" alt="Samsung Galaxy S23 Series">
+                        <h3>Samsung Galaxy S23 Series</h3>
+                        <p>₹70,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="samsung galaxy latest">
+                        <img src="https://robots.net/wp-content/uploads/2023/09/which-is-the-latest-samsung-galaxy-phone-1693721505.jpg" alt="Samsung Galaxy Latest Model">
+                        <h3>Samsung Galaxy Latest</h3>
+                        <p>₹60,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="samsung galaxy pcd">
+                        <img src="https://cdn.samsung.com/etc/designs/smg/global/imgs/Social_Image_Samsung_Mobile_Smartphone_PCD_PF.jpg" alt="Samsung Galaxy PCD">
+                        <h3>Samsung Galaxy PCD</h3>
+                        <p>₹55,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="xiaomi redmi 10x pro 5g">
+                        <img src="https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1666350267.6365923!500x500.png" alt="Xiaomi Redmi 10X Pro 5G (Blue)">
+                        <h3>Xiaomi Redmi 10X Pro 5G</h3>
+                        <p>₹23,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="xiaomi redmi 10x pro 5g silver">
+                        <img src="https://i02.appmifile.com/686_operatorx_operatorx_opx/23/02/2024/a13c444dfc0b5db4ecae1e9d0ba10326.png?thumb=1&w=500&q=85" alt="Xiaomi Redmi 10X Pro 5G (Silver)">
+                        <h3>Xiaomi Redmi 10X Pro 5G Silver</h3>
+                        <p>₹23,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="xiaomi redmi 10x pro 5g">
+                        <img src="https://img.gkbcdn.com/s3/p/2020-05-28/Xiaomi-Redmi-10X-Pro-6-57-Inch-8GB-256GB-5G-Smartphone-Blue-905478-.jpg" alt="Xiaomi Redmi 10X Pro 5G (Blue, back)">
+                        <h3>Xiaomi Redmi 10X Pro 5G</h3>
+                        <p>₹23,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="xiaomi redmi 10x pro 5g purple">
+                        <img src="https://i02.appmifile.com/869_operatorx_operatorx_opx/13/07/2023/3fb100cbeddc8c587069561b871a0330!500x500.png" alt="Xiaomi Redmi 10X Pro 5G (Purple)">
+                        <h3>Xiaomi Redmi 10X Pro 5G Purple</h3>
+                        <p>₹23,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                    <div class="product" data-name="vivo v20 se">
+                        <img src="https://images.fonearena.com/blog/wp-content/uploads/2020/09/Vivo-V20-SE.jpg" alt="Vivo V20 SE">
+                        <h3>Vivo V20 SE</h3>
+                        <p>₹20,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="vivo t1 pro">
+                        <img src="https://www.themobileindian.com/wp-content/uploads/2022/05/T1-pro-600x600.png" alt="Vivo T1 Pro">
+                        <h3>Vivo T1 Pro</h3>
+                        <p>₹23,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="vivo v20">
+                        <img src="https://asia-exstatic-vivofs.vivo.com/PSee2l50xoirPK7y/1605774726172/94908c809ca3f37e16b5d5a6c167eb80.png" alt="Vivo V20">
+                        <h3>Vivo V20</h3>
+                        <p>₹22,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="iphone 11 blue">
+                        <img src="https://i0.wp.com/www.mobilebd.co/wp-content/uploads/2021/01/Apple-iPhone-11-Blue-502x500.jpg" alt="Apple iPhone 11 (Blue)">
+                        <h3>iPhone 11 Blue</h3>
+                        <p>₹30,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="iphone 12 pro">
+                        <img src="https://www.resetdigitale.it/118694-thickbox_default/smartphone-apple-iphone-12-pro-256gb-silver.jpg" alt="Apple iPhone 12 Pro (Silver)">
+                        <h3>iPhone 12 Pro</h3>
+                        <p>₹60,999</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="iphone11">
+                        <img src="https://cdn.siasat.com/wp-content/uploads/2019/09/iPhone-11.jpg" alt="Apple iPhone 11 (Back View)">
+                        <h3>iPhone11</h3>
+                        <p>₹89,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="iphone 12 pro">
+                        <img src="https://media.ldlc.com/ld/products/00/05/81/99/LD0005819915_1.jpg" alt="Apple iPhone 12 Pro (Silver, Angle)">
+                        <h3>iPhone 12 Pro</h3>
+                        <p>₹60,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="iphone 11pro">
+                        <img src="https://canoonstore.com/wp-content/uploads/2020/10/2020-10-20-product.png" alt="Apple iPhone (unknown model)">
+                        <h3>iPhone 11pro</h3>
+                        <p>₹99999</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="iphone 14pro gold">
+                        <img src="https://www.apple.com/newsroom/images/product/iphone/geo/Apple-iPhone-14-Pro-iPhone-14-Pro-Max-gold-220907-geo_inline.jpg.large.jpg" alt="Apple iPhone 14 Pro (Gold)">
+                        <h3>iPhone 14Pro Gold</h3>
+                        <p>₹1,30,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="iphone 14 pro black">
+                        <img src="https://www.notebookcheck.net/fileadmin/_processed_/1/a/csm_iphone_14_pro_ldvova_8_34cf25194d.jpg" alt="Apple iPhone 14 Pro (Black)">
+                        <h3>iPhone 14 Pro Black</h3>
+                        <p>₹1,30,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="oneplus 11 green">
+                        <img src="https://oasis.opstatics.com/content/dam/oasis/page/2023/na/oneplus-11/specs/green-img.png" alt="OnePlus 11 (Green)">
+                        <h3>OnePlus 11 Green</h3>
+                        <p>₹50,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="oneplus 10 pro">
+                        <img src="https://m.media-amazon.com/images/I/61smwbhzBML._AC_SL1500_.jpg" alt="OnePlus 10 Pro">
+                        <h3>OnePlus 10 Pro</h3>
+                        <p>₹45,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="realme 2 pro">
+                        <img src="https://www.whatmobile.com.pk/admin/images/Oppo/Realme%202%20Pro/OPPO-Realme-2-Pro-Combine.jpg" alt="Realme 2 Pro" />
+                        <h3>Realme 2 Pro</h3>
+                        <p>₹10,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <!-- continue for all other mobile products... -->
+                </div>
+            </div>
+
+            <!-- Laptops -->
+            <div class="category-section" data-category="laptops">
+                <div class="product-list">
+                    <div class="product" data-name="hp spectre x360">
+                        <img src="https://cdn.mos.cms.futurecdn.net/mbzesJUnM7uJA55GzQ6Tv7.jpg" alt="HP Spectre x360" />
+                        <h3>HP Spectre x360</h3>
+                        <p>₹1,25,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="apple macbook air m2">
+                        <img src="https://cdn.mos.cms.futurecdn.net/j6ndSR6hKav95QT83beRB4.jpg" alt="Laptop 3">
+                        <h3>Apple MacBook Air M2</h3>
+                        <p>₹1,10,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="alienware gaming laptop">
+                        <img src="https://www.techpowerup.com/img/15-06-03/67b.jpg" alt="Laptop 4">
+                        <h3>Alienware Gaming Laptop</h3>
+                        <p>₹2,00,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="msi prestiage 14 evo">
+                        <img src="https://cdn.mos.cms.futurecdn.net/UEEkgUpRTeWcwpGaYpPJES.jpg" alt="Laptop 5">
+                        <h3>MSI Prestige 14 Evo</h3>
+                        <p>₹90,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="lenovo yoga slim 7">
+                        <img src="https://i.pcmag.com/imagery/roundups/04OtgLS2CSnpQsNfHODkh5S-1.1569470764.fit_lim.size_1200x630.jpg" alt="Laptop 6">
+                        <h3>Lenovo Yoga Slim 7</h3>
+                        <p>₹82,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="asus rog zephyrus">
+                        <img src="https://cdn.mos.cms.futurecdn.net/Hrq2TjjHh64VLrc3YgFYA8.jpg" alt="Laptop 7">
+                        <h3>ASUS ROG Zephyrus</h3>
+                        <p>₹1,75,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="microsoft surface laptop 4">
+                        <img src="https://b2c-contenthub.com/wp-content/uploads/2022/02/20211018_1102470.jpg?quality=50&strip=all" alt="Laptop 8">
+                        <h3>Microsoft Surface Laptop 4</h3>
+                        <p>₹1,30,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="asus proart studiobook">
+                        <img src="https://dlcdnwebimgs.asus.com/files/media/55a8f7c0-86e3-4c25-b78d-0de32e0401aa/v1/assets/image/proart/article_cover.jpg" alt="Laptop 9">
+                        <h3>ASUS ProArt StudioBook</h3>
+                        <p>₹2,10,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="hp envy x360">
+                        <img src="https://cdn.mos.cms.futurecdn.net/gBeu6qgL4pc8K7HEjw4Kok.jpg" alt="Laptop 10">
+                        <h3>HP Envy x360</h3>
+                        <p>₹88,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="dell xps 13">
+                        <img src="https://cdn.neowin.com/news/images/uploaded/2020/07/1594196059_dell-xps-13.jpg" alt="Laptop 11">
+                        <h3>Dell XPS 13</h3>
+                        <p>₹1,20,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="acer swift 5">
+                        <img src="https://cdn.mos.cms.futurecdn.net/6VtzMteKMup53Z8REvaVFU.jpg" alt="Laptop 12">
+                        <h3>Acer Swift 5</h3>
+                        <p>₹78,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="lenovo thinkbook plus twist">
+                        <img src="https://sm.pcmag.com/t/pcmag_uk/news/c/ces-2023-h/ces-2023-hands-on-lenovos-thinkbook-plus-twist-flips-between_39q4.3840.jpg" alt="Laptop 13">
+                        <h3>Lenovo ThinkBook Plus Twist</h3>
+                        <p>₹1,40,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="samsung galaxy book flex 2">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.h033PffgwKcYOG7O2S6KqgHaEW?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Laptop 14">
+                        <h3>Samsung Galaxy Book Flex 2</h3>
+                        <p>₹1,35,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="apple macbook pro 13">
+                        <img src="https://www.simplymac.com/wp-content/uploads/1_image-430.png" alt="Laptop 1">
+                        <h3>Apple MacBook Pro 13</h3>
+                        <p>₹1,29,900</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="apple macbook air m2">
+                        <img src="https://www.simplymac.com/wp-content/uploads/image-438-1024x1024.png" alt="Laptop 2">
+                        <h3>Apple MacBook Air M2 </h3>
+                        <p>₹1,14,900</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="alienware 15 r2">
+                        <img src="https://www.techpowerup.com/img/15-06-03/67a.jpg" alt="Laptop 3">
+                        <h3>Alienware 15 R2</h3>
+                        <p>₹1,99,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="apple macbook pro touch bar">
+                        <img src="https://www.simplymac.com/wp-content/uploads/image-435-1024x812.png" alt="Laptop 4">
+                        <h3>Apple MacBook Pro Touch Bar</h3>
+                        <p>₹1,55,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="dell xps 13 oled">
+                        <img src="https://www.windowscentral.com/sites/wpcentral.com/files/styles/large/public/field/image/2021/07/xps-13-9310-oled-7.jpg" alt="Laptop 5">
+                        <h3>Dell XPS 13 OLED</h3>
+                        <p>₹1,45,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="hp pavilion x360">
+                        <img src="https://i5.walmartimages.com/asr/55efd929-9e73-46b0-be7d-96ddae36860b.675c5c182840401413f6ab1c8e09d67c.jpeg" alt="Laptop 6">
+                        <h3>HP Pavilion x360 </h3>
+                        <p>₹72,999</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="dell inpspiron 15">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.UmuMesQprL38DHPMzmF5oAHaE8?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Laptop 7">
+                        <h3>Dell Inspiron 15</h3>
+                        <p>₹58,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="lenovo yoga 9i">
+                        <img src="https://cdn.mos.cms.futurecdn.net/yg8RWrCksT86awL5ETNBxc.jpg" alt="Laptop 8">
+                        <h3>Lenovo Yoga 9i</h3>
+                        <p>₹1,20,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                    <div class="product" data-name="acer predator">
+                        <img src="https://cdn.mos.cms.futurecdn.net/r23BnDmGZzqnLZpwb5Ft6j-1200-80.jpg" alt="Acer Predator">
+                        <h3>Acer Predator</h3>
+                        <p>₹85,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="hp envy">
+                        <img src="https://cdn.mos.cms.futurecdn.net/yrrMKexnLDBUhybnvHW5HE.jpg" alt="HP Envy">
+                        <h3>HP Envy</h3>
+                        <p>₹70,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                    <div class="product" data-name="life wire laptop">
+                        <img src="https://www.lifewire.com/thmb/02xrHGpkKP0kGp-ioxGJcdYQhrg=/1500x1125/filters:fill(auto,1)/4065134-4-5c315e9a46e0fb0001ca20f2.jpg" alt="Laptop 4">
+                        <h3>Life Wire Laptop</h3>
+                        <p>₹60,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="predator helios 300">
+                        <img src="https://cdn.uc.assets.prezly.com/40835504-e2fd-4644-bb9a-4236ac5f64f5/PREDATOR-HELIOS-300-PH315-55-08.jpg" alt="Predator Helios 300">
+                        <h3>Predator Helios 300</h3>
+                        <p>₹90,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="dell inspiron 15">
+                        <img src="https://i.dell.com/sites/csimages/Videos_Images/all/inspiron-15-7000-2n1-rollupimage.jpg" alt="Dell Inspiron 15 7000">
+                        <h3>Dell Inspiron 15</h3>
+                        <p>₹75,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="asus rog">
+                        <img src="https://cdn.mos.cms.futurecdn.net/k976GJLUC9iNfC5orutNqk.jpg" alt="ASUS ROG">
+                        <h3>ASUS ROG</h3>
+                        <p>₹88,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="dell xps 9640">
+                        <img src="https://www.dell.com/wp-uploads/2024/01/XPS-9640-laptops-back-to-back-1280x800-1.jpg" alt="Dell XPS 9640">
+                        <h3>Dell XPS 9640</h3>
+                        <p>₹1,10,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="micromax alpha">
+                        <img src="http://mspoweruser.com/wp-content/uploads/2016/08/Micromax-Alpha-Laptop-3.jpg" alt="Micromax Alpha">
+                        <h3>Micromax Alpha</h3>
+                        <p>₹32,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="microless laptop">
+                        <img src="https://microless.com/cdn/products/f026b0f0fb6302d095eda73e25215408-hi.jpg" alt="Microless Laptop">
+                        <h3>Microless Laptop</h3>
+                        <p>₹45,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="hp elite">
+                        <img src="https://static1.xdaimages.com/wordpress/wp-content/uploads/2021/04/Best-HP-laptops.jpg" alt="Best HP Laptops">
+                        <h3>HP Elite</h3>
+                        <p>₹68,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="future laptop">
+                        <img src="https://cdn.mos.cms.futurecdn.net/A4GDK27VMnz6LtFDy9yzk.jpg" alt="Laptop Future">
+                        <h3>Future Laptop</h3>
+                        <p>₹64,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="asus zenbook duo">
+                        <img src="https://cdn.mos.cms.futurecdn.net/4MdfxeCXns9oQps7zkmXjf.png" alt="ASUS ZenBook Duo" />
+                        <h3>ASUS ZenBook Duo</h3>
+                        <p>₹1,45,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <!-- continue for all laptop products... -->
+                </div>
+            </div>
+
+            <!-- Tablets -->
+            <div class="category-section" data-category="tablets">
+                <div class="product-list">
+                    <div class="product" data-name="samsung galaxy tab s 10.5">
+                        <img src="https://www.bhphotovideo.com/images/images2500x2500/samsung_sm_t800ntsaxar_16gb_galaxy_tab_s_1054121.jpg" alt="Samsung Galaxy Tab S 10.5">
+                        <h3>Samsung Galaxy Tab S 10.5</h3>
+                        <p>₹25,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="lenovo tab extreme">
+                        <img src="https://www.thephonetalks.com/wp-content/uploads/2023/01/Lenovo-Tab-Extreme-hd.jpg" alt="Lenovo Tab Extreme">
+                        <h3>Lenovo Tab Extreme</h3>
+                        <p>₹45,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="lenovo thinkpad">
+                        <img src="https://www.windowscentral.com/sites/wpcentral.com/files/styles/larger/public/field/image/2015/05/Thinkpad%2010_Standard_05.jpg?itok=yaANNO_9" alt="Lenovo ThinkPad 10">
+                        <h3>Lenovo ThinkPad</h3>
+                        <p>₹20,000</p>
+
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="honor pad">
+                        <img src="https://cdn.mos.cms.futurecdn.net/Pj7q3oicQvQdToNhNbFguJ.jpg" alt="Honor Pad 9">
+                        <h3>Honor Pad</h3>
+                        <p>₹22,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="samsung galaxy tab series ">
+                        <img src="https://mynexttablet.com/wp-content/uploads/2021/03/tablets-with-large-screens.jpg" alt="Samsung Tablets Collection">
+                        <h3>(Large‑Screen Collection)</h3>
+                        <p>₹18,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="vankyo tablet">
+                        <img src="https://i5.walmartimages.com/asr/2208b853-4a9e-4b30-b92c-6f8ec31b2735_2.ecdf7b40ed41dcc1dd0e2ef8a886ab5e.png" alt="Vankyo MatrixPad Z4">
+                        <h3>Vankyo Tablet</h3>
+                        <p>₹8,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="fusion tablet">
+                        <img src="https://www.tabletgeeky.com/wp-content/uploads/2020/02/tablet-new.jpg" alt="Fusion5 Tablet">
+                        <h3>Fusion Tablet</h3>
+                        <p>₹10,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="think pad tablet">
+                        <img src="https://www.windowscentral.com/sites/wpcentral.com/files/styles/larger/public/field/image/2015/05/Thinkpad%2010_Standard_05.jpg?itok=yaANNO_9" alt="Lenovo ThinkPad 10">
+                        <h3>Think Pad Tablet</h3>
+                        <p>₹20,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+
+                    <div class="product" data-name="asus zenbook a14 oled">
+                        <img src="https://m.media-amazon.com/images/I/4122sVrHADL._SX300_SY300_QL70_FMwebp_.jpg" alt="ASUS Zenbook A14 OLED">
+                        <h3>ASUS Zenbook A14 OLED</h3>
+                        <p>₹86,990</p>
+                        <button class="buy-btn ">Buy Now</button>
+                    </div>
+
+
+                    <div class="product" data-name="redmi pad pro 5G |Snapdragon 7s Gen">
+                        <img src=" https://m.media-amazon.com/images/I/81kX1whO+iL._SY450_.jpg " alt=">Redmi Pad Pro 5G |Snapdragon 7s Gen">
+                        <h3>Redmi Pad Pro 5G |Snapdragon 7s Gen</h3>
+                        <p>₹20,000</p>
+                        <button class="buy-btn ">Buy Now</button>
+                    </div>
+
+                    <div class="product " data-name="samsung galaxy">
+                        <img src="https://m.media-amazon.com/images/I/61H8OothfXL._SX679_.jpg " alt="Samsung Galaxy">
+                        <h3>Samsung Galaxy</h3>
+                        <p>₹29,000</p>
+                        <button class="buy-btn ">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="lenovo tab m11">
+                        <img src="https://m.media-amazon.com/images/I/61rW5ur5VhL._SX425_.jpg" alt="Lenovo Tab M11">
+                        <h3>Lenovo Tab M11</h3>
+                        <p>₹14,990</p>
+                        <button class="buy-btn ">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="xiaomi pad 7 ">
+                        <img src="https://m.media-amazon.com/images/S/al-eu-726f4d26-7fdb/016a08f9-0fa5-4419-b6d3-f46bc0927513._CR0,0,1200,628_SX430_CB1169409_QL70_.png " alt="Xiaomi Pad 7 ">
+                        <h3>Xiaomi Pad 7 </h3>
+                        <p>₹26,999</p>
+                        <button class="buy-btn ">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="lenovo idea tab with pen">
+                        <img src="https://m.media-amazon.com/images/I/814xaiiTRIL._SY450_.jpg" alt=">Lenovo Idea Tab with Pen">
+                        <h3>Lenovo Idea Tab with Pen</h3>
+                        <p>₹17,999</p>
+                        <button class="buy-btn ">Buy Now</button>
+                    </div>
+
+
+                    <!-- Repeat for all tablets with Buy Now button -->
+                    <!-- ... other tablet products -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Modal (Address/Payment Flow) -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-btn" id="closeModal">&#10005;</span>
+            <h2 id="modalProductName">Product Name</h2>
+            <p id="modalProductPrice">Price</p>
+            <div id="addressBlock" class="hidden"></div>
+            <div class="address-btns hidden" id="addressBtns">
+                <button class="modify">Modify Address</button>
+                <button class="add">Add New Address</button>
+            </div>
+            <form id="addressForm" class="hidden" novalidate>
+                <h3>Delivery Address</h3>
+                <label>House/Flat Number*</label>
+                <input type="text" name="houseNumber" required />
+                <label>Landmark</label>
+                <input type="text" name="landmark" />
+                <label>City*</label>
+                <input type="text" name="city" required />
+                <label>State*</label>
+                <input type="text" name="state" required />
+                <label>Pin Code*</label>
+                <input type="text" name="pin" pattern="\d{6}" required />
+                <button type="submit" class="submit-address-btn">Save Address</button>
+            </form>
+            <div id="paymentSection" class="hidden">
+                <p>Please select a payment method:</p>
+                <div class="payment-options">
+                    <button class="payment-btn" data-payment="Online Payment">💳 Online Payment</button>
+                    <button class="payment-btn" data-payment="Cash on Delivery">🏠 Cash on Delivery</button>
+                </div>
+            </div>
+            <div class="wallet-section" id="walletSection">
+                <p>Select a payment wallet:</p>
+                <div class="wallet-options">
+                    <button class="wallet-btn" data-wallet="PhonePe">📲 PhonePe</button>
+                    <button class="wallet-btn" data-wallet="Google Pay">💙 Google Pay</button>
+                    <button class="wallet-btn" data-wallet="Paytm">🟦 Paytm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <span class="success-close-btn" id="successCloseBtn">&#10005;</span>
+            <div class="success-check">✔</div>
+            <div class="success-text-main">Order Placed Successfully!</div>
+            <div class="success-message" id="orderPlacedDetails"></div>
+            <div class="success-address" id="orderPlacedAddress"></div>
+        </div>
+    </div>
+
+    <script>
+	// ...existing code...
+                function showOrderPlacedModal(paySource) {
+                    successModalOverlay.classList.add('active');
+                    orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+// ...existing code...let currentProductName = "";
+        let currentProductPrice = "";
+        let selectedPaymentMethod = null;
+        let savedAddress = null;
+
+        // Modal elements
+        const modalOverlay = document.getElementById('modalOverlay'),
+            modalProductName = document.getElementById('modalProductName'),
+            modalProductPrice = document.getElementById('modalProductPrice'),
+            addressBlock = document.getElementById('addressBlock'),
+            addressBtns = document.getElementById('addressBtns'),
+            addressForm = document.getElementById('addressForm'),
+            paymentSection = document.getElementById('paymentSection'),
+            walletSection = document.getElementById('walletSection'),
+            successModalOverlay = document.getElementById('successModalOverlay'),
+            successCloseBtn = document.getElementById('successCloseBtn'),
+            orderPlacedDetails = document.getElementById('orderPlacedDetails'),
+            orderPlacedAddress = document.getElementById('orderPlacedAddress');
+
+        // Open modal for product
+        function openModalForProduct(product) {
+            currentProductName = product.querySelector('h3').textContent;
+            currentProductPrice = product.querySelector('p').textContent;
+            modalProductName.textContent = currentProductName;
+            modalProductPrice.textContent = currentProductPrice;
+            walletSection.classList.remove('visible');
+
+            if (loadSavedAddress()) {
+                renderSavedAddress();
+                showPaymentStep();
+                togglePaymentButtons(true);
+            } else {
+                showAddressStep();
+                togglePaymentButtons(false);
+            }
+        }
+
+        // Attach buy button for AI clones
+        function attachBuyForClone(card) {
+            const btn = card.querySelector('.buy-btn');
+            if (!btn) return;
+            btn.addEventListener('click', (e) => {
+                const p = e.target.closest('.product');
+                openModalForProduct(p);
+            });
+        }
+
+        // AI Assistant logic
+        function handleAI() {
+            const inputEl = document.getElementById("aiInput");
+            const responseBox = document.getElementById("aiResponse");
+            const input = (inputEl.value || "").trim().toLowerCase();
+
+            responseBox.innerHTML = "";
+
+            if (!input) {
+                responseBox.innerText = "⚠️ Please type something first!";
+                return;
+            }
+
+            const products = document.querySelectorAll("#productContainer .product");
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = input.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = input.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = input.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "products", "product"
+            ]);
+            const words = input
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            const matches = [];
+
+            products.forEach(product => {
+                const nameEl = product.querySelector("h3");
+                const priceEl = product.querySelector("p");
+                if (!nameEl || !priceEl) return;
+
+                const name = nameEl.innerText.toLowerCase();
+                const priceText = priceEl.innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+
+                const nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+
+                if (nameMatch && priceOK) matches.push({
+                    product,
+                    price
+                });
+            });
+
+            if (matches.length === 0) {
+                responseBox.innerText = "🤖 Sorry, no matching products found!";
+                return;
+            }
+
+            if (maxPrice != null && minPrice == null) {
+                matches.sort((a, b) => a.price - b.price);
+            } else if (minPrice != null && maxPrice == null) {
+                matches.sort((a, b) => b.price - a.price);
+            } else {
+                matches.sort((a, b) => a.price - b.price);
+            }
+
+            matches.forEach((hit, i) => {
+                const clone = hit.product.cloneNode(true);
+                clone.classList.add('ai-clone');
+                responseBox.appendChild(clone);
+                attachBuyForClone(clone);
+                setTimeout(() => clone.classList.add('show'), i * 120);
+            });
+        }
+
+        // Category filter
+        function filterCategory(category, link) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(sec => {
+                sec.classList.toggle('hidden',
+                    category !== 'all' && sec.dataset.category !== category);
+            });
+            document.getElementById('searchInput').value = '';
+            filterSearch('');
+        }
+
+        // Search filter
+        function filterSearch(query) {
+            query = query.toLowerCase().trim();
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = query.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = query.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = query.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "product", "products"
+            ]);
+            const words = query
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            // Always search across all categories for search
+            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('hidden'));
+
+            document.querySelectorAll('.product').forEach(p => {
+                const name = p.querySelector('h3').innerText.toLowerCase();
+                const priceText = p.querySelector('p').innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+                let nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+                p.classList.toggle('hidden', !(nameMatch && priceOK));
+
+            });
+
+            // Hide category-section if all products inside are hidden
+            document.querySelectorAll('.category-section').forEach(section => {
+                const products = section.querySelectorAll('.product');
+                const visible = Array.from(products).some(p => !p.classList.contains('hidden'));
+                section.classList.toggle('hidden', !visible);
+            });
+
+            // Show humble message if nothing matches
+            let anyVisible = !!document.querySelector('.product:not(.hidden)');
+            let msgId = 'searchNoMatchMsg';
+            let container = document.getElementById('productContainer');
+            let oldMsg = document.getElementById(msgId);
+            if (!anyVisible) {
+                if (!oldMsg) {
+                    let msg = document.createElement('div');
+                    msg.id = msgId;
+                    msg.style = "text-align:center; font-size:1.2rem; color:#555; margin:40px 0;";
+                    msg.innerText = "🙏 Sorry, no products found matching your search.";
+                    container.appendChild(msg);
+                }
+            } else if (oldMsg) {
+                oldMsg.remove();
+            }
+        }
+
+        // Address logic
+        function loadSavedAddress() {
+            let s = localStorage.getItem('userAddress');
+            savedAddress = s ? JSON.parse(s) : null;
+            return !!savedAddress;
+        }
+
+        function saveAddress(addr) {
+            savedAddress = addr;
+            localStorage.setItem('userAddress', JSON.stringify(addr));
+        }
+
+        function renderSavedAddress() {
+            if (!savedAddress) {
+                addressBlock.classList.add('hidden');
+                addressBtns.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            } else {
+                addressBlock.classList.remove('hidden');
+                addressBlock.innerHTML = `<strong>Address:</strong><br>${savedAddress.houseNumber}` +
+                    (savedAddress.landmark ? `, ${savedAddress.landmark}` : '') + `
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+                addressBtns.classList.remove('hidden');
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
+        function togglePaymentButtons(enabled) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function showAddressStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.add('hidden');
+            addressBtns.classList.add('hidden');
+            addressForm.classList.remove('hidden');
+            paymentSection.classList.add('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        function showPaymentStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.remove('hidden');
+            addressBtns.classList.remove('hidden');
+            addressForm.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        // Buy button logic
+        document.querySelectorAll('.buy-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                const product = e.target.closest('.product');
+                openModalForProduct(product);
+            });
+        });
+
+        // Address buttons
+        addressBtns.querySelector('.modify').onclick = function() {
+            addressForm.houseNumber.value = savedAddress.houseNumber || '';
+            addressForm.landmark.value = savedAddress.landmark || '';
+            addressForm.city.value = savedAddress.city || '';
+            addressForm.state.value = savedAddress.state || '';
+            addressForm.pin.value = savedAddress.pin || '';
+            showAddressStep();
+        };
+        addressBtns.querySelector('.add').onclick = function() {
+            addressForm.reset();
+            showAddressStep();
+        };
+
+        // Address form submit
+        addressForm.onsubmit = function(e) {
+            e.preventDefault();
+            if (!addressForm.checkValidity()) {
+                addressForm.reportValidity();
+                return;
+            }
+            const fd = new FormData(addressForm);
+            const newAddr = {
+                houseNumber: fd.get('houseNumber').trim(),
+                landmark: fd.get('landmark').trim(),
+                city: fd.get('city').trim(),
+                state: fd.get('state').trim(),
+                pin: fd.get('pin').trim()
+            };
+            saveAddress(newAddr);
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        };
+
+        // Payment button logic
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedPaymentMethod = btn.dataset.payment;
+                if (selectedPaymentMethod === "Online Payment") {
+                    walletSection.classList.add('visible');
+                } else {
+                    showOrderPlacedModal("Cash on Delivery");
+                    modalOverlay.classList.remove('active');
+                }
+            };
+        });
+
+        // Wallet button logic
+        document.querySelectorAll('.wallet-btn').forEach(btn => {
+            btn.onclick = function() {
+                walletSection.classList.remove('visible');
+                showOrderPlacedModal(btn.dataset.wallet);
+                modalOverlay.classList.remove('active');
+            };
+        });
+
+        function showOrderPlacedModal(paySource) {
+            successModalOverlay.classList.add('active');
+            orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// Success modal close
+successCloseBtn.onclick = () => successModalOverlay.classList.remove('active');
+successModalOverlay.addEventListener('click', e => {
+    if (e.target === successModalOverlay) successModalOverlay.classList.remove('active');
+});
+
+// AI Panel toggle
+const aiPanel = document.getElementById('aiPanel');
+const aiOpenBtn = document.getElementById('aiOpenBtn');
+const aiCloseBtn = document.getElementById('aiCloseBtn');
+
+aiOpenBtn.onclick = () => {
+    aiPanel.classList.remove('hidden');
+    document.body.classList.add('ai-open');
+};
+aiCloseBtn.onclick = () => {
+    aiPanel.classList.add('hidden');
+    document.body.classList.remove('ai-open');
+};
+document.addEventListener('click', function(e) {
+    if (!aiPanel.classList.contains('hidden') &&
+        !aiPanel.contains(e.target) &&
+        e.target !== aiOpenBtn) {
+        aiPanel.classList.add('hidden');
+        document.body.classList.remove('ai-open');
+    }
+});
+
+// Search input event
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    filterSearch(e.target.value);
+});
+
+document.getElementById('closeModal').onclick = () => {
+    // If address form is visible, just hide it and show previous step
+    if (!addressForm.classList.contains('hidden')) {
+        addressForm.classList.add('hidden');
+        if (loadSavedAddress()) {
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        } else {
+            modalOverlay.classList.remove('active');
+        }
+    } else {
+        modalOverlay.classList.remove('active');
+        walletSection.classList.remove('visible');
+    }
+};const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', function() {
+    searchClearBtn.style.display = searchInput.value ? 'inline' : 'none';
+});
+
+searchClearBtn.onclick = function() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterSearch('');
+};
+	</script>
+    </body>
+
+</html>
+
+</html>

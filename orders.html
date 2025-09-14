@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Order History</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(120deg, #232526 0%, #414345 100%);
+            animation: bgMove 12s ease-in-out infinite alternate;
+        }
+        
+        @keyframes bgMove {
+            0% {
+                background: linear-gradient(120deg, #232526 0%, #414345 100%);
+            }
+            50% {
+                background: linear-gradient(120deg, #434343 0%, #232526 100%);
+            }
+            100% {
+                background: linear-gradient(120deg, #232526 0%, #434343 100%);
+            }
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 48px auto;
+            background: rgba(34, 36, 38, 0.97);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(56, 142, 60, 0.13), 0 2px 8px rgba(90, 64, 55, 0.10);
+            padding: 40px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        
+        .header-row h1 {
+            margin: 0;
+            flex: 1;
+            text-align: center;
+            color: #f8ffae;
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px #232526;
+        }
+        
+        .order-list {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            width: 100%;
+            align-items: center;
+        }
+        
+        .order-card {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(90deg, #232526 0%, #434343 100%);
+            border-radius: 16px;
+            box-shadow: 0 4px 18px rgba(67, 198, 172, 0.13);
+            padding: 22px 32px;
+            transition: box-shadow 0.2s, transform 0.18s;
+            width: 90%;
+            min-height: 140px;
+            max-width: 700px;
+            position: relative;
+        }
+        
+        .order-card:hover {
+            box-shadow: 0 12px 32px rgba(67, 198, 172, 0.18);
+            transform: translateY(-2px) scale(1.01);
+        }
+        
+        .order-img {
+            width: 160px;
+            height: 160px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-right: 32px;
+            background: #fff;
+            box-shadow: 0 2px 8px #232526;
+            flex-shrink: 0;
+            border: 2px solid #43c6ac;
+        }
+        
+        .order-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .order-details {
+            font-size: 1.08rem;
+            color: #f8ffae;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .order-details strong {
+            color: #43c6ac;
+            min-width: 90px;
+            display: inline-block;
+        }
+        
+        .order-address {
+            font-size: 0.98rem;
+            color: #e0eafc;
+            background: #232526;
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-bottom: 6px;
+            width: fit-content;
+            box-shadow: 0 1px 4px #434343;
+        }
+        
+        .order-time {
+            font-size: 0.88rem;
+            color: #cfdef3;
+            text-align: right;
+            margin-top: 2px;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(90deg, #43c6ac 0%, #232526 100%);
+            color: #f8ffae;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 28px;
+            font-size: 1.08rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(67, 198, 172, 0.10);
+            transition: background 0.18s, box-shadow 0.18s, color 0.18s;
+        }
+        
+        .back-btn:hover {
+            background: linear-gradient(90deg, #388E3C 0%, #43c6ac 100%);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(67, 198, 172, 0.18);
+        }
+        
+        .back-icon {
+            font-size: 1.3em;
+            margin-right: 10px;
+        }
+        
+        .back-text {
+            font-size: 1em;
+        }
+        
+        /* Modal styles */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(30,32,34,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-bg.active { display: flex; }
+        .modal-box {
+            background: #232526;
+            border-radius: 16px;
+            padding: 32px 24px 24px 24px;
+            box-shadow: 0 8px 32px #232526;
+            min-width: 320px;
+            max-width: 95vw;
+            color: #f8ffae;
+            text-align: center;
+        }
+        .modal-box h2 {
+            margin-top: 0;
+            color: #43c6ac;
+            font-size: 1.3rem;
+        }
+        .reasons-list {
+            text-align: left;
+            margin: 18px 0 12px 0;
+        }
+        .reasons-list label {
+            display: block;
+            margin-bottom: 7px;
+            cursor: pointer;
+            font-size: 1.05em;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 18px;
+        }
+        .modal-btn {
+            padding: 8px 22px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            background: #43c6ac;
+            color: #fff;
+            transition: background 0.18s;
+        }
+        .modal-btn.cancel {
+            background: #434343;
+        }
+        .modal-btn.delete {
+            background: #b71c1c;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .order-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 14px;
+                width: 98vw;
+                max-width: 98vw;
+            }
+            .order-img { margin-right: 0; margin-bottom: 12px; }
+            .order-info { width: 100%; }
+            .header-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+            .header-row h1 {
+                text-align: center;
+                font-size: 1.5rem;
+            }
+            .modal-box { min-width: 90vw; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-row">
+            <button class="back-btn" onclick="window.location.href='categories.html'" aria-label="Go back">
+                <span class="back-icon" aria-hidden="true">&#8592;</span>
+                <span class="back-text">Back</span>
+            </button>
+            <h1>Order History</h1>
+        </div>
+        <a href="categories.html" class="back-btn" style="margin-bottom:18px;display:inline-block;text-align:center;">
+            <span class="back-icon">&#128722;</span>
+            <span class="back-text" >ADD ORDERS</span>
+        </a>
+        <!-- Add/Update Order Form -->
+        <form id="orderForm" style="width:100%;max-width:700px;margin-bottom:32px;display:none;background:#232526;padding:18px 24px;border-radius:12px;box-shadow:0 2px 8px #232526;">
+            <input type="hidden" id="orderIndex" />
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <input required id="product" placeholder="Product" style="flex:1;padding:8px;border-radius:6px;border:1px solid #43c6ac;" />
+                <input required id="price" placeholder="Price" style="flex:1;padding:8px;border-radius:6px;border:1px solid #43c6ac;" />
+                <input required id="payment" placeholder="Payment" style="flex:1;padding:8px;border-radius:6px;border:1px solid #43c6ac;" />
+            </div>
+            <div style="display:flex;gap:12px;margin-top:10px;">
+                <input required id="address" placeholder="Address" style="flex:2;padding:8px;border-radius:6px;border:1px solid #43c6ac;" />
+                <input required id="image" placeholder="Image URL" style="flex:2;padding:8px;border-radius:6px;border:1px solid #43c6ac;" />
+            </div>
+            <div style="margin-top:12px;text-align:right;">
+                <button type="submit" class="back-btn" style="padding:8px 22px;">Save</button>
+                <button type="button" class="back-btn" style="background:#434343;color:#fff;padding:8px 22px;" onclick="hideForm()">Cancel</button>
+            </div>
+        </form>
+        <div class="order-list" id="orderList"></div>
+    </div>
+
+    <!-- Delete Reason Modal -->
+    <div class="modal-bg" id="deleteModal">
+        <div class="modal-box">
+            <h2>Select a reason for deleting this order</h2>
+            <form id="reasonForm">
+                <div class="reasons-list" id="reasonsList">
+                    <!-- Reasons will be injected here -->
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn cancel" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="submit" class="modal-btn delete">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Helper functions ---
+        function getOrders() {
+            return JSON.parse(localStorage.getItem('orders') || '[]');
+        }
+        function saveOrders(orders) {
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
+        function resetForm() {
+            document.getElementById('orderForm').reset();
+            document.getElementById('orderIndex').value = '';
+        }
+        // --- Reasons for deletion ---
+        const DELETE_REASONS = [
+            "Ordered by mistake",
+            "Found a better price elsewhere",
+            "Product no longer needed",
+            "Ordered wrong product",
+            "Shipping time too long",
+            "Changed payment method",
+            "Duplicate order",
+            "Issue with address",
+            "Product unavailable",
+            "Other (please specify)"
+        ];
+        // --- Modal logic ---
+        let deleteOrderIdx = null;
+        function openDeleteModal(idx) {
+            deleteOrderIdx = idx;
+            const modal = document.getElementById('deleteModal');
+            const reasonsList = document.getElementById('reasonsList');
+            reasonsList.innerHTML = '';
+            DELETE_REASONS.forEach((reason, i) => {
+                reasonsList.innerHTML += `
+                    <label>
+                        <input type="radio" name="deleteReason" value="${reason}" style="margin-right:8px;" ${i===0?'checked':''}>
+                        ${reason}
+                    </label>
+                `;
+            });
+            modal.classList.add('active');
+        }
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            deleteOrderIdx = null;
+        }
+        document.getElementById('reasonForm').onsubmit = function(e) {
+            e.preventDefault();
+            const reason = document.querySelector('input[name="deleteReason"]:checked');
+            if (!reason) {
+                alert('Please select a reason.');
+                return;
+            }
+            // Optionally, you can log or store the reason here
+            actuallyDeleteOrder(deleteOrderIdx, reason.value);
+            closeDeleteModal();
+        };
+        // --- Render Orders ---
+        function renderOrders() {
+            const orderList = document.getElementById('orderList');
+            let orders = getOrders();
+            if (orders.length === 0) {
+                orderList.innerHTML = "<div style='text-align:center;color:#888;font-size:1.2rem;'>No orders found.</div>";
+                return;
+            }
+            orderList.innerHTML = '';
+            orders.slice().reverse().forEach((order, i) => {
+                // For reverse order, calculate real index
+                const idx = orders.length - 1 - i;
+                const card = document.createElement('div');
+                card.className = 'order-card';
+                card.innerHTML = `
+                    <img src="${order.image}" alt="${order.product}" class="order-img" />
+                    <div class="order-info">
+                        <div class="order-details">
+                            <strong>Product:</strong> ${order.product}<br>
+                            <strong>Price:</strong> ${order.price}<br>
+                            <strong>Payment:</strong> ${order.payment}
+                        </div>
+                        <div class="order-address"><strong>Address:</strong> ${order.address}</div>
+                        <div class="order-time">${order.time || ''}</div>
+                        <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                            <button class="back-btn" style="padding:6px 14px;font-size:0.95em;" onclick="editOrder(${idx})">Edit</button>
+                            <button class="back-btn" style="padding:6px 14px;font-size:0.95em;background:#b71c1c;color:#fff;" onclick="deleteOrder(${idx})">Delete</button>
+                            <span style="margin-left:10px;">${renderRating(order.rating || 0, idx)}</span>
+                        </div>
+                    </div>
+                `;
+                orderList.appendChild(card);
+            });
+        }
+        
+        // --- Edit Order ---
+        window.editOrder = function(idx) {
+            const orders = getOrders();
+            showForm(orders[idx], idx, true);
+        };
+        // --- Delete Order (show modal) ---
+        window.deleteOrder = function(idx) {
+            openDeleteModal(idx);
+        };
+        // --- Actually Delete Order (after reason selected) ---
+        function actuallyDeleteOrder(idx, reason) {
+            let orders = getOrders();
+            // Optionally, you can log/store the reason with the order here
+            orders.splice(idx, 1);
+            saveOrders(orders);
+            renderOrders();
+        }
+        // --- Rating ---
+        function renderRating(rating, idx) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<span style="cursor:pointer;font-size:1.3em;color:${i<=rating?'#ffd700':'#888'};" onclick="rateOrder(${idx},${i})">&#9733;</span>`;
+            }
+            return stars;
+        }
+        window.rateOrder = function(idx, rating) {
+            let orders = getOrders();
+            orders[idx].rating = rating;
+            saveOrders(orders);
+            renderOrders();
+        };
+        // --- Show form on +Add click ---
+        window.showForm = function(order = null, idx = null, isEdit = false) {
+            document.getElementById('orderForm').style.display = 'block';
+            // Enable all fields by default
+            document.getElementById('product').disabled = false;
+            document.getElementById('price').disabled = false;
+            document.getElementById('payment').disabled = false;
+            document.getElementById('image').disabled = false;
+            if (order) {
+                document.getElementById('product').value = order.product;
+                document.getElementById('price').value = order.price;
+                document.getElementById('payment').value = order.payment;
+                document.getElementById('address').value = order.address;
+                document.getElementById('image').value = order.image;
+                document.getElementById('orderIndex').value = idx;
+                // If editing, disable all except address
+                if (isEdit) {
+                    document.getElementById('product').disabled = true;
+                    document.getElementById('price').disabled = true;
+                    document.getElementById('payment').disabled = true;
+                    document.getElementById('image').disabled = true;
+                }
+            } else {
+                resetForm();
+            }
+        };
+        window.hideForm = function() {
+            document.getElementById('orderForm').style.display = 'none';
+            resetForm();
+        };
+        // --- Initial render ---
+        renderOrders();
+    </script>
+</body>
+
+</html>

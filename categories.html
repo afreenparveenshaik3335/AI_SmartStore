@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Smart Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: #f8fafc;
+            color: #1f2937;
+        }
+        /* main content wrapper */
+        
+        .main-content {
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        header {
+            background-color: #2563eb;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+        /* Hamburger Menu */
+        
+        .menu-icon {
+            position: absolute;
+            left: 20px;
+            top: 23px;
+            width: 30px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1100;
+        }
+        
+        .menu-icon span {
+            height: 4px;
+            background: white;
+            border-radius: 2px;
+        }
+        /* Sidebar (start at zero width) */
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: #1f2937;
+            color: white;
+            overflow: hidden;
+            transition: width 0.4s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 0 20px 0;
+            /* top & bottom padding only */
+        }
+        
+        .sidebar.open {
+            width: 200px;
+        }
+        
+        @media (max-width:600px) {
+            .sidebar.open {
+                width: 80vw;
+            }
+        }
+        /* Sidebar back button */
+        
+        .sidebar-back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 12px 20px;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .sidebar-back-button:hover {
+            color: #60a5fa;
+        }
+        /* Sidebar links */
+        
+        .sidebar a {
+            text-decoration: none;
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .sidebar a:hover {
+            color: #60a5fa;
+        }
+        /* Reduced right padding & aligned right */
+        
+        .sidebar a.about-support {
+            padding-left: 20px;
+            /* reduced from 40px */
+            text-align: left;
+            margin-top: 30px;
+        }
+        /* Search bar */
+        
+        #searchBar {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            display: block;
+            padding: 12px 20px;
+            border: 2px solid #2563eb;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        /* Categories grid */
+        
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .category {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            flex: 1 1 calc(25% - 40px);
+            max-width: 360px;
+            text-align: center;
+            transition: 0.3s ease;
+        }
+        
+        .category:hover {
+            transform: scale(1.05);
+        }
+        
+        .slider-img {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .category h3 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+        /* Back-to-home button */
+        
+        .back-btn {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .back-btn a {
+            text-decoration: none;
+            color: #2563eb;
+            font-weight: bold;
+        }
+        /* Responsive categories layout */
+        
+        @media (max-width: 1200px) {
+            .category {
+                flex: 1 1 calc(33.33% - 40px);
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .category {
+                flex: 1 1 calc(50% - 40px);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .category {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button id="backBtn" class="sidebar-back-button"></button>
+        <a href="aboutus.html" class="about-support">About Us</a>
+        <a href="support page.html" class="about-support">Support Us</a>
+		<a href="contact us.html" class="about-support">Contact Us</a>
+		<a href="orders.html" class="about-support">Orders</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <header>
+            <div class="menu-icon" id="menuBtn">
+                <span></span><span></span><span></span>
+            </div>
+            <h1>🛒AI Smart Store</h1>
+        </header>
+
+        <section class="categories">
+            <div class="category">
+                <img class="slider-img" id="furnitureImg" src="http://www.aertsen.in/wp-content/uploads/2022/11/Weaved-Luxury-in-Living-Room-Design.jpg" alt="Furniture" />
+                <a href="Furniture.html" class="login-button">Furniture</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="electronicsImg" src="https://fscl01.fonpit.de/userfiles/7687254/image/NextPit_Best_Camera_Phones_2023.jpg" alt="Electronics" />
+                <a href="ELectronics.html" class="login-button">Electronics</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="fashionImg" src="https://media.gq-magazine.co.uk/photos/6513fc12401a20d55139ab8b/16:9/w_2560%2Cc_limit/best-clothing-brands-for-men.jpg" alt="Fashion" />
+                <a href="Fashion.html" class="login-button">Fashion</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="footwearImg" src="https://cdn.shopclues.com/images/thumbnails/53037/320/320/IMG48731484499525.jpg" alt="Footwear" />
+                <a href="FootWear.html" class="login-button">Footwear</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="beautyImg" src="https://keikolynn.com/wp-content/uploads/2018/03/skin-care-all.jpg" alt="Beauty" />
+                <a href="beauty_and_personalcare.html" class="login-button">Beauty</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="homeImg" src="https://tse2.mm.bing.net/th/id/OIP.qjuraqWPLyzKtSyKzFYxPgHaFj?w=1200&h=900&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Home & Kitchen" />
+                <a href="Home_and_kitchen.html" class="login-button">Home & Kitchen</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="groceryImg" src="https://www.lalpathlabs.com/blog/wp-content/uploads/2019/01/Fruits-and-Vegetables.jpg" alt="Groceries" />
+                <a href="Groceries.html" class="login-button">Groceries</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="booksImg" src="https://tse1.mm.bing.net/th/id/OIP.bW0pOV1mMVkTRUgCrUknCQHaFj?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Books & Stationery" />
+                <a href="books_and_stationary.html" class="login-button">Books & Stationery</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="sportsImg" src="https://th.bing.com/th/id/OIP.BoLRrjl1yheZyN6skct1MwHaEt?w=350&h=184" alt="Sports & Fitness" />
+                <a href="sports&fitness.html" class="login-button">Sports & Fitness</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="toysImg" src="https://th.bing.com/th/id/OIP.BH0yj2G1U0OuiWaCJah8FwHaE4" alt="Toys" />
+                <a href="toys.html" class="login-button">Toys</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="automotiveImg" src="https://th.bing.com/th/id/OIP.ot1BSTGOw-iVWmPe_JN1xgHaEo" alt="Automotive" />
+                <a href="Automative.html" class="login-button">Automotive</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="petImg" src="https://cdn.britannica.com/29/121829-050-911F77EC/freshwater-aquarium.jpg" alt="Pet Supplies" />
+                <a href="Pet_supplies.html" class="login-button">Pet Supplies</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="jewelryImg" src="https://blog.snapdeal.com/wp-content/uploads/2023/06/jewel.jpg" alt="Jewelry & Accessories" />
+                <a href="jewelry & accessories.html" class="login-button">Jewelry & Accessories</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="gamingImg" src="https://www.rollingstone.com/wp-content/uploads/2021/05/8Bitdo-Sn30-Pro-USB-Gamepad-1.jpg?w=970&h=600&crop=1" alt="Gaming" />
+                <a href="Gaming.html" class="login-button">Gaming</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="travelImg" src="https://luxebook.in/wp-content/uploads/2023/12/american-green-travel-nGz8rTToXto-unsplash.jpg" alt="Travel & Luggage" />
+                <a href="travel_luggage_store.html" class="login-button">Travel & Luggage</a>
+            </div>
+            <div class="category">
+                <img class="slider-img" id="healthImg" src="https://api.time.com/wp-content/uploads/2022/04/vitamins-nutrition-supplements.jpg" alt="Health" />
+                <a href="health.html" class="login-button">Health</a>
+            </div>
+        </section>
+
+        <div class="back-btn">
+            <a href="home.html">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const backBtn = document.getElementById('backBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        backBtn.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+        });
+
+        function startSlider(imageElementId, imageUrls) {
+            let currentIndex = 0;
+            const imgElement = document.getElementById(imageElementId);
+            imgElement.src = imageUrls[currentIndex];
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % imageUrls.length;
+                imgElement.style.opacity = 0;
+                setTimeout(() => {
+                    imgElement.src = imageUrls[currentIndex];
+                    imgElement.style.opacity = 1;
+                }, 430);
+            }, 3000);
+        }
+
+        // Initialize sliders for your categories
+        startSlider("furnitureImg", [
+            "http://www.aertsen.in/wp-content/uploads/2022/11/Weaved-Luxury-in-Living-Room-Design.jpg",
+            "https://foyr.com/learn/wp-content/uploads/2022/09/best-master-bedroom-design-ideas-1024x576.jpg",
+            "https://i.pinimg.com/originals/0a/b7/89/0ab78938591cf5cf93979368f61eb4ce.jpg"
+        ]);
+        startSlider("electronicsImg", [
+            "https://fscl01.fonpit.de/userfiles/7687254/image/NextPit_Best_Camera_Phones_2023.jpg",
+            "https://digitogy.com/wp-content/uploads/2018/11/laptops.jpg",
+            "https://cdn.mos.cms.futurecdn.net/91b9e1fed3cc797650b42eefd0df94e5-1920-80.jpg"
+        ]);
+        startSlider("fashionImg", [
+            "https://media.gq-magazine.co.uk/photos/6513fc12401a20d55139ab8b/16:9/w_2560%2Cc_limit/best-clothing-brands-for-men.jpg",
+            "http://www.stepbystep.com/wp-content/uploads/2012/07/best-clothing-brands-for-women.png",
+            "http://thejewishlady.com/wp-content/uploads/2016/10/clothes.jpg"
+        ]);
+        startSlider("footwearImg", [
+            "https://cdn.shopclues.com/images/thumbnails/53037/320/320/IMG48731484499525.jpg",
+            "https://orionfootwearltd.com/images/media/2024/01/eL1xI17803.jpg",
+            "https://www.jiomart.com/images/product/500x630/rvx3fjtyrj/foot-stair-navy-casual-shoes-for-men-product-images-rvx3fjtyrj-0-202209230406.jpg"
+        ]);
+        startSlider("beautyImg", [
+            "https://keikolynn.com/wp-content/uploads/2018/03/skin-care-all.jpg",
+            "https://cdn.britannica.com/35/222035-050-C68AD682/makeup-cosmetics.jpg",
+            "https://www.byrdie.com/thmb/KUMs21Junq7plj9rBiAwQLASVmY=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/best-haircare-brands-6714aaf8e42f42568745de559596c3c3.jpg"
+        ]);
+        startSlider("homeImg", [
+            "https://tse2.mm.bing.net/th/id/OIP.qjuraqWPLyzKtSyKzFYxPgHaFj?w=1200&h=900&rs=1&pid=ImgDetMain&o=7&rm=3",
+            "https://th.bing.com/th/id/OIP.T4Fi_y5Kto7Law6BaOUMrwHaHI?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+            "https://tse4.mm.bing.net/th/id/OIP.6IDTDVYInw1c0qXj6Gb2pwHaE8?rs=1&pid=ImgDetMain&o=7&rm=3"
+        ]);
+        startSlider("groceryImg", [
+            "https://www.lalpathlabs.com/blog/wp-content/uploads/2019/01/Fruits-and-Vegetables.jpg",
+            "https://www.2foodtrippers.com/wp-content/uploads/2023/02/American-Snacks.jpg",
+            "https://www.mensjournal.com/.image/t_share/MTk2MTM2MDcxOTQ5Mzk1NDYx/mj-618_348_the-most-caffeinated-energy-drinks.jpg"
+        ]);
+        startSlider("booksImg", [
+            "https://tse1.mm.bing.net/th/id/OIP.bW0pOV1mMVkTRUgCrUknCQHaFj?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+            "https://tse2.mm.bing.net/th/id/OIP.FxD16_dkIwnbi673wc325gHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+            "https://thumbs.dreamstime.com/z/school-office-supplies-11166444.jpg"
+        ]);
+        startSlider("sportsImg", [
+            "https://th.bing.com/th/id/OIP.BoLRrjl1yheZyN6skct1MwHaEt?w=350&h=184",
+            "https://th.bing.com/th/id/OIP.GSQGWjuH6pzBkB3R9RgtAAHaFK",
+            "https://th.bing.com/th/id/OIP.dAicDgof_KXTxQsXsMuwkQHaE8"
+        ]);
+        startSlider("toysImg", [
+            "https://th.bing.com/th/id/OIP.BH0yj2G1U0OuiWaCJah8FwHaE4",
+            "https://th.bing.com/th/id/OIP.ZaUGuKAdv20hmf6uTYyiDgHaDr",
+            "https://th.bing.com/th/id/OIP.1alj8sEhL6FpE-mSfHTv_gHaFw"
+        ]);
+        startSlider("automotiveImg", [
+            "https://th.bing.com/th/id/OIP.ot1BSTGOw-iVWmPe_JN1xgHaEo",
+            "https://th.bing.com/th/id/OIP.LsDtF2Iq3KaKFzZxMztnHAHaIu",
+            "https://th.bing.com/th/id/OIP.jiBA4QS7X8tL0lp939c-gAHaE8"
+        ]);
+        startSlider("petImg", [
+            "https://cdn.britannica.com/29/121829-050-911F77EC/freshwater-aquarium.jpg",
+            "https://images.ctfassets.net/82d3r48zq721/r0ScftLsdRn5wEbSM7nUY/f28472f52a22defbd3791988935830a6/Puppy-chewing-dog-toy_resized.jpg?w=800&q=50",
+            "https://weareallaboutcats.com/wp-content/uploads/2023/03/AdobeStock_140702978-min.jpg"
+        ]);
+        startSlider("jewelryImg", [
+            "https://blog.snapdeal.com/wp-content/uploads/2023/06/jewel.jpg",
+            "https://astrotalk.com/astrology-blog/wp-content/uploads/2023/08/Premium-Photo-_-Festive-composition-set-accessories-jewelry-gifts.jpeg",
+            "https://www.shutterstock.com/image-photo/jewelry-box-stylish-golden-bijouterie-260nw-2093098621.jpg"
+        ]);
+        startSlider("gamingImg", [
+            "https://www.rollingstone.com/wp-content/uploads/2021/05/8Bitdo-Sn30-Pro-USB-Gamepad-1.jpg?w=970&h=600&crop=1",
+            "https://cdn.mos.cms.futurecdn.net/wdysHUZGPiFkZSgEsysPah.jpg",
+            "https://i.extremetech.com/imagery/content-types/02kXhViCVHZUrcu8USJ6Ggv/hero-image.fill.size_1200x675.jpg"
+        ]);
+        startSlider("travelImg", [
+            "https://luxebook.in/wp-content/uploads/2023/12/american-green-travel-nGz8rTToXto-unsplash.jpg",
+            "https://www.hindustantimes.com/ht-img/img/2024/11/15/550x309/women_with_bags_1731644723118_1731644734057.jpg",
+            "https://sc04.alicdn.com/kf/H830780756a2a47079fbaa4eb53b3041dw.jpg"
+        ]);
+        startSlider("healthImg", [
+            "https://api.time.com/wp-content/uploads/2022/04/vitamins-nutrition-supplements.jpg",
+            "https://img.freepik.com/premium-photo/medical-equipment-images_1169838-1144.jpg",
+            "https://www.happiesthealth.com/wp-content/uploads/2022/09/MicrosoftTeams-image.jpg"
+        ]);
+    </script>
+
+</body>
+
+</html>

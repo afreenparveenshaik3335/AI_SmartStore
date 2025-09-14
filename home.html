@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SVCK Connect – Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            font-family: 'Poppins', sans-serif;
+        }
+        /* Base background with gradient animation */
+        
+        body::before,
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background-size: 200% 200%;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+            opacity: 0.75;
+            border-radius: 0;
+        }
+        /* First animated gradient layer */
+        
+        body::before {
+            background: linear-gradient(45deg, #a9afbb, #a0b6c5, #93c5fd, #859de3);
+            animation-name: gradientShift1;
+            animation-duration: 20s;
+        }
+        /* Second animated gradient layer with different colors and direction */
+        
+        body::after {
+            background: linear-gradient(135deg, #3f443d, #fde68a, #cbbed2, #ea580c);
+            animation-name: gradientShift2;
+            animation-duration: 0.1s;
+        }
+        
+        @keyframes gradientShift1 {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+        
+        @keyframes gradientShift2 {
+            0% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        .container {
+            max-width: 600px;
+            background: gray;
+            padding: 40px;
+            border-radius: 20px;
+            text-shadow: #8a8f99;
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background-color: #e9eef9;
+            color: rgb(114, 51, 51);
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: #bbc2c7;
+        }
+        
+        .container {
+            max-width: 600px;
+            background: linear-gradient(270deg, #8a8f99, #cfdddb, #789ec5);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: containerBgShift 10s ease infinite;
+        }
+        
+        @keyframes containerBgShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Welcome to ALL in Website</h1>
+        <p>
+            Explore our all-in-one store with top categories like Furniture, Groceries, Beauty Products, Electronics, and Clothing. In Clothing, find exclusive collections for Men, Women, and Kids — all at your fingertips.
+        </p>
+        <a href="categories.html" class="btn">Get Started</a>
+    </div>
+</body>
+
+
+</html>

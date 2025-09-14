@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel & Luggage Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: #f5f5f5;
+        }
+        /* Sidebar */
+        
+        .sidebar {
+            width: 200px;
+            background-color: 	#008080;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: white;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: 	#004D4D;
+        }
+        /* Main Content */
+        
+        .main {
+            margin-left: 200px;
+            flex: 1;
+        }
+        
+        .search-bar-wrapper {
+            position: sticky;
+            top: 0;
+            background: 	#4DB8B8;
+            padding: 10px;
+            z-index: 100;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .search-container img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .products {
+            padding: 20px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-section h2 {
+            margin-bottom: 15px;
+        }
+        
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .product {
+            background: white;
+            width: 180px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .product h3 {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        .product p {
+            font-weight: bold;
+            color: 	#004D4D;
+        }
+        
+        .buy-btn {
+            background-color: 	#004D4D;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .buy-btn:hover {
+            background: #388E3C;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        /* Modal overlays */
+        
+        .modal-overlay,
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active,
+        .success-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 420px;
+            width: 90%;
+            padding: 20px 30px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .modal p {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        
+        .close-btn,
+        .success-close-btn {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .close-btn:hover,
+        .success-close-btn:hover {
+            color: #333;
+        }
+        
+        #addressBlock {
+            background: #f7f7f7;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin-bottom: 18px;
+            text-align: left;
+            font-size: 15px;
+        }
+        
+        .address-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .address-btns button {
+            flex: 1;
+            padding: 8px;
+            font-weight: 700;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #fff;
+        }
+        
+        .address-btns .modify {
+            background: #ff9800;
+        }
+        
+        .address-btns .add {
+            background: #03A9F4;
+        }
+        
+        .address-btns .modify:hover {
+            background: #e65100;
+        }
+        
+        .address-btns .add:hover {
+            background: #0277bd;
+        }
+        
+        #addressForm {
+            text-align: left;
+            margin-top: 14px;
+            max-width: 340px;
+            margin: auto;
+        }
+        
+        #addressForm h3 {
+            color: #388E3C;
+            font-size: 18px;
+        }
+        
+        #addressForm label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600;
+        }
+        
+        #addressForm input {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+        }
+        
+        #addressForm input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .submit-address-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .submit-address-btn:hover {
+            background: #388E3C;
+        }
+        
+        .payment-options {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        
+        .payment-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 3px solid #4CAF50;
+            border-radius: 30px;
+            background: white;
+            font-weight: 700;
+            color: #4CAF50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .payment-btn:hover:not(:disabled) {
+            background: #4CAF50;
+            color: #fff;
+        }
+        
+        .payment-btn:disabled {
+            background: #ccc !important;
+            color: #888 !important;
+            cursor: not-allowed;
+        }
+        
+        .wallet-section {
+            margin: 16px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .wallet-section.visible {
+            display: flex;
+            animation: popIn 0.4s;
+        }
+        
+        .wallet-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .wallet-btn {
+            flex: 1;
+            border: 2px solid #2196f3;
+            background: #fff;
+            color: #2196f3;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .wallet-btn:hover {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 18px;
+            max-width: 340px;
+            width: 90%;
+            padding: 25px 22px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+            animation: fadeIn 0.5s;
+        }
+        
+        .success-check {
+            font-size: 70px;
+            color: #19af56;
+            margin-bottom: 10px;
+            animation: tickBlink 1.4s linear infinite;
+        }
+        
+        @keyframes tickBlink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .success-text-main {
+            font-size: 22px;
+            color: #19af56;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 4px 0 12px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .success-address {
+            margin-top: 14px;
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+		/* Back Button Styles */
+.back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #5D4037 0%, #4DB8B8 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transform: translateZ(0);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.back-btn .back-icon {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+    transform: translateX(0);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+}
+
+.back-btn .back-text {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    background: linear-gradient(135deg, /* Back Button Styles */
+.back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #5D4037 0%, #8D6E63 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transform: translateZ(0);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.back-btn .back-icon {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+    transform: translateX(0);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+}
+
+.back-btn .back-text {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+     background: linear-gradient(135deg, #5D4037 0%, #4DB8B8 100%);
+}
+
+.back-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.back-btn:hover .back-icon {
+    transform: translateX(-3px);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 9px 14px;
+    }
+    .back-btn .back-text {
+        font-size: 13px;
+    }
+} 0%, #795548 100%);
+}
+
+.back-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.back-btn:hover .back-icon {
+    transform: translateX(-3px);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 9px 14px;
+    }
+    .back-btn .back-text {
+        font-size: 13px;
+    }
+}
+    /* AI Assistant Panel */
+        
+        .ai-panel {
+            width: 340px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+            border-left: 2px solid #bdbdbd;
+            padding: 28px 20px 20px 20px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1300;
+            box-shadow: -4px 0 24px rgba(90, 64, 55, 0.10);
+            transition: transform 0.3s, box-shadow 0.2s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: slideInRight 0.4s;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .ai-panel h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #5D4037;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel textarea {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            border: 1.5px solid #bdbdbd;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: vertical;
+            box-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel button {
+            background: linear-gradient(90deg, #008080 0%, #004D4D 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3eeff;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .ai-panel button:hover {
+            background: linear-gradient(90deg, #008080 0%, #004D4D 100%);
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 2.2rem;
+            color: #8D6E63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .ai-close-btn:hover {
+            color: #388E3C;
+        }
+        
+        #aiResponse {
+            margin-top: 18px;
+            min-height: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-family: inherit;
+        }
+        
+        .ai-panel #aiResponse {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .ai-panel .ai-clone {
+            width: calc(50% - 10px);
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        /* Responsive for mobile */
+        
+        @media (max-width: 600px) {
+            .ai-panel .ai-clone {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 16px 8px;
+            }
+        }
+        /* ...existing code... */
+        
+        .ai-open-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1200;
+            background: #004D4D;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ai-open-btn:hover {
+            background: #388E3C;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- AI Assistant Button -->
+    <button id="aiOpenBtn" class="ai-open-btn" title="AI Assistance">🤖</button>
+
+    <!-- AI Assistant Sidebar -->
+    <div class="ai-panel hidden" id="aiPanel">
+        <span class="ai-close-btn" id="aiCloseBtn">&times;</span>
+        <h2>AI Assistance ✨</h2>
+        <textarea id="aiInput" placeholder="Ask me anything..."></textarea>
+        <button onclick="handleAI()">Ask AI</button>
+        <div id="aiResponse" style="margin-top:15px;"></div>
+    </div>
+   <button class="back-btn" id="backBtn" aria-label="Go back" onclick="window.location.href='categories.html'">
+    <span class="back-icon" aria-hidden="true">←</span>
+    <span class="back-text">Back</span>
+</button>
+
+    <div class="sidebar">
+        <a href="#" class="active" onclick="filterCategory('all', this)">All</a>
+        <a href="#" onclick="filterCategory('suitcases', this)">Suitcases & Trolleys</a>
+        <a href="#" onclick="filterCategory('backpacks', this)">Backpacks & Travel Bags</a>
+        <a href="#" onclick="filterCategory('accessories', this)">Travel Accessories</a>
+        <a href="#" onclick="filterCategory('camping', this)">Camping & Outdoor Gear</a>
+    </div>
+
+    <div class="main">
+        <div class="search-bar-wrapper">
+            <div class="search-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Search">
+                <input type="text" id="searchInput" placeholder="Search for travel gear...">
+				
+                <span id="searchClearBtn" style="display:none;cursor:pointer;font-size:20px;margin-left:8px;">&#10005;</span>
+            </div>
+        </div>
+
+        <div class="products" id="productContainer">
+
+            <!-- Suitcases & Trolleys -->
+            <div class="category-section" data-category="suitcases&trolleys">
+
+                <div class="product-list">
+                    <script>
+                        const suitcaseNames = [
+                            "Hard-Shell Suitcase", "Soft-Shell Suitcase", "Cabin Trolley Bag", "Medium Trolley Bag", "Large Trolley Bag",
+                            "Expandable Luggage Bag", "Lightweight Trolley Bag", "ABS Luggage Bag", "Spinner Trolley Bag", "Polycarbonate Suitcase",
+                            "Business Trolley Bag", "Kids’ Travel Trolley", "Waterproof Suitcase", "Premium Luggage Set", "Smart Luggage Bag"
+                        ];
+                        const suitcaseImages = [
+                            "https://i5.walmartimages.com/asr/c2d1eb04-0f78-45e3-9425-e7938d0cecdf_1.08f64f743f21802d447cbcc3f39a66ec.jpeg",
+                            "https://tse3.mm.bing.net/th/id/OIP.gycr0js38i9tMvwOEDf4ZwAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+                            "https://th.bing.com/th/id/OIP.mwwld4K3egjwNgk_2xFduAHaJ4?w=146&h=194&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.kzsIiIawd1LWaj0baurdmQHaJ4?w=208&h=278&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.e_15_PGSLz_7JPGS5Mc2rAHaHa?w=207&h=207&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.75K_-4_XnJpvhyHP17P_HgHaM_?w=115&h=192&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.ZJXBX0WyeStJ246hddSLmQHaHa?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.H6WX11WpwEz1WRX99S3MlgHaHZ?w=197&h=196&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.QM2a9WcHNcaZS8-Hi-1DMwHaHa?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.2QJ2ztjr9M2qFGT13wGs5wHaFl?w=243&h=182&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.XPEJ6kB2ckhEN9NNdyPjswHaHa?w=179&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.qc-KCcr5Gof51k0D9My5qwHaHb?w=181&h=182&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.UTxe4_wmBlxY5bxFQ1UFqwHaEK?w=278&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.E771DSJLBas359qz3QJAzgHaHa?w=197&h=197&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.WMGLltYErNYh4e_PMSc0uwHaFk?w=243&h=183&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                        ];
+                        for (let i = 0; i < suitcaseNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${suitcaseNames[i].toLowerCase()}">
+<img src="${suitcaseImages[i]}" alt="${suitcaseNames[i]}">
+<h3>${suitcaseNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*5000)+3000}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <!-- Backpacks & Travel Bags -->
+            <div class="category-section" data-category="backpacks&travelbags">
+
+                <div class="product-list">
+                    <script>
+                        const backpackNames = [
+                            "Laptop Backpack", "Hiking Backpack", "Anti-Theft Backpack", "Foldable Travel Backpack", "Duffel Travel Bag",
+                            "Sports Travel Bag", "Cabin Duffel Bag", "Rolling Backpack", "Convertible Backpack", "Gym & Travel Bag",
+                            "Travel Tote Bag", "Large Capacity Travel Bag", "Lightweight Daypack", "Casual Travel Backpack", "Premium Leather Backpack"
+                        ];
+                        const backpackImages = [
+                            "https://th.bing.com/th/id/OIP.aXm-HPQO-cCAGh8eDjjBuQHaHa?w=201&h=200&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.rJ4u0jVekNgpPATC7eZScwHaHa?w=193&h=193&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.shbwpYjSxva7-dsEO7hUoQHaHa?w=186&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.ROmJNTetxMkMrPnRIVnweAHaHa?w=179&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.ybjY3zfl1PNKVEBHGIhZwAAAAA?w=180&h=190&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.Ml_Kw8eCOk7LewgXD36N1QHaHa?w=207&h=207&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.y30Bfy5SEvVgaXpT7Kfz-gHaJe?w=208&h=265&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.nVxy0bVw1iyhSqlTTeTuhQHaHa?w=192&h=192&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.B2LIpKCh5kL63QgiaDOfggHaF7?w=250&h=200&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.c6-lc-e5hkFvyZM4o4JtjAHaHJ?w=200&h=193&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.LbiZ8JrJpcHIfHPdZGgp0AHaH7?w=184&h=197&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.oyS6YLNCrX7YKJFxJf4AsAHaGJ?w=246&h=204&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+                            "https://th.bing.com/th/id/OIP.5nE0Caf12JBfSeO5g-mwwgHaJc?w=164&h=209&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.BBmT5yS_Tz9fyxgmywj8dgHaGR?w=240&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.5Nop84lhHrcz7qZKc436uAHaIG?w=171&h=188&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                        ];
+                        for (let i = 0; i < backpackNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${backpackNames[i].toLowerCase()}">
+<img src="${backpackImages[i]}" alt="${backpackNames[i]}">
+<h3>${backpackNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*4000)+1500}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <!-- Travel Accessories -->
+            <div class="category-section" data-category="travelaccessories">
+
+                <div class="product-list">
+                    <script>
+                        const accessoryNames = [
+                            "Travel Pillow", "Eye Mask", "Travel Blanket", "Luggage Tags", "Packing Cubes Set",
+                            "Shoe Bags for Travel", "Travel Toiletry Bag", "Passport Holder", "Money Belt", "Compression Packing Bags",
+                            "Travel Organizer Pouch", "Waterproof Document Holder", "Universal Travel Adapter", "Foldable Travel Water Bottle", "Cable Organizer"
+                        ];
+                        const accessoryImages = [
+                            "https://th.bing.com/th/id/OIP.bKnR_LwAkbTW8MGE7SETMAHaHa?w=191&h=191&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.k6NbWU5HfdQdi8ZxE0gbWAHaHa?w=186&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.EIe9jhSptILorGdBD6GWtQHaHa?w=177&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.lZKv7hhDvnIsAuj1IWupbwHaHa?w=178&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.yXpeOAQ-AE0CJRaBAkSx6QHaHa?w=196&h=196&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.i1eYYhcFU0SHMd4vwzOY9wHaHa?w=177&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.oWKDO-Zge2jMMKfnMFu7gwHaGB?w=212&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.5pDqKjlH13rYCIQ-g6AGIQHaHa?w=190&h=190&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.4MHlnKif5aWJxR6zuGEhLwHaFa?w=248&h=181&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.TD8I8QoY5X-9RWg6-X72kwHaHa?w=199&h=200&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.JQWIHLsykgh51Bk3ju4HbAHaHT?w=191&h=188&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.zOViyREZees0MqIPgGqaigHaHa?w=198&h=198&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.IPk9dXUPVn4Kpxjw7C0V_AHaKh?w=139&h=198&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.Z32UvI1Ri1-y0jFoWYltZgHaHq?w=194&h=200&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.jdyBBGD1k4bkTcOrYrAJsQHaHa?w=178&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                        ];
+                        for (let i = 0; i < accessoryNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${accessoryNames[i].toLowerCase()}">
+<img src="${accessoryImages[i]}" alt="${accessoryNames[i]}">
+<h3>${accessoryNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*1500)+300}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <!-- Camping & Outdoor Gear -->
+            <div class="category-section" data-category="camping&outdoorgear">
+
+                <div class="product-list">
+                    <script>
+                        const campingNames = [
+                            "Sleeping Bag", "Camping Tent", "Portable Camping Chair", "Hiking Stick", "Camping Lantern",
+                            "Outdoor Cooking Set", "Inflatable Mattress", "Camping Stove", "Water Filter Bottle", "Solar Power Bank",
+                            "Outdoor Backpack", "Campfire Grill", "Multi-Tool Knife", "Rain Poncho", "First Aid Kit for Travel"
+                        ];
+                        const campingImages = [
+                            "https://th.bing.com/th/id/OIP.bK2hEFw20z1p7B-xIWeccwHaHa?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.ys6-puYtdgvK_efmOPiSowHaHa?w=193&h=193&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.vDRKG6vROwSAetynqkIrOQHaHa?w=183&h=183&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.LG9c4q7aMWqIo9WoR94KIQHaHa?w=198&h=198&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.nGHM-SjX9LCxSXskefrgIQHaHa?w=181&h=181&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.7JlfykfMhzFPs-mUGQlO7wHaHa?w=197&h=197&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.MHj7XIRlrhyYsfnQY2gb8QHaHa?w=199&h=199&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.KBsR7Rqjz-JwEw6qHqeengHaHa?w=170&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.S9JbOy6asHuytjgHZhSDgAHaFY?w=204&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.eQfNFb2Hy3ODJ-EQ25gk_wHaJC?w=144&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP._vpghdm4fMZKEUTKe9_H6wHaJt?w=143&h=187&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.eMQBwjDnvx6T30LrlUOfiQHaEx?w=287&h=184&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.mrEKc3EtFi11MV8KKLkxzQHaHa?w=197&h=197&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.OYDQDPG8Wbh_PwanYsqX2AHaHa?w=187&h=187&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.F4NDZVGjKACPt9eb70A6QgHaHa?w=190&h=190&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                        ];
+                        for (let i = 0; i < campingNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${campingNames[i].toLowerCase()}">
+<img src="${campingImages[i]}" alt="${campingNames[i]}">
+<h3>${campingNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*5000)+800}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    
+   <!-- Modal (Address/Payment Flow) -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-btn" id="closeModal">&#10005;</span>
+            <h2 id="modalProductName">Product Name</h2>
+            <p id="modalProductPrice">Price</p>
+            <div id="addressBlock" class="hidden"></div>
+            <div class="address-btns hidden" id="addressBtns">
+                <button class="modify">Modify Address</button>
+                <button class="add">Add New Address</button>
+            </div>
+            <form id="addressForm" class="hidden" novalidate>
+                <h3>Delivery Address</h3>
+                <label>House/Flat Number*</label>
+                <input type="text" name="houseNumber" required />
+                <label>Landmark</label>
+                <input type="text" name="landmark" />
+                <label>City*</label>
+                <input type="text" name="city" required />
+                <label>State*</label>
+                <input type="text" name="state" required />
+                <label>Pin Code*</label>
+                <input type="text" name="pin" pattern="\d{6}" required />
+                <button type="submit" class="submit-address-btn">Save Address</button>
+            </form>
+            <div id="paymentSection" class="hidden">
+                <p>Please select a payment method:</p>
+                <div class="payment-options">
+                    <button class="payment-btn" data-payment="Online Payment">💳 Online Payment</button>
+                    <button class="payment-btn" data-payment="Cash on Delivery">🏠 Cash on Delivery</button>
+                </div>
+            </div>
+            <div class="wallet-section" id="walletSection">
+                <p>Select a payment wallet:</p>
+                <div class="wallet-options">
+                    <button class="wallet-btn" data-wallet="PhonePe">📲 PhonePe</button>
+                    <button class="wallet-btn" data-wallet="Google Pay">💙 Google Pay</button>
+                    <button class="wallet-btn" data-wallet="Paytm">🟦 Paytm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <span class="success-close-btn" id="successCloseBtn">&#10005;</span>
+            <div class="success-check">✔</div>
+            <div class="success-text-main">Order Placed Successfully!</div>
+            <div class="success-message" id="orderPlacedDetails"></div>
+            <div class="success-address" id="orderPlacedAddress"></div>
+        </div>
+    </div>
+
+    <script>
+	    	    // ...existing code...
+                function showOrderPlacedModal(paySource) {
+                    successModalOverlay.classList.add('active');
+                    orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+// ...existing code...let currentProductName = "";
+        let currentProductPrice = "";
+        let selectedPaymentMethod = null;
+        let savedAddress = null;
+
+        // Modal elements
+        const modalOverlay = document.getElementById('modalOverlay'),
+            modalProductName = document.getElementById('modalProductName'),
+            modalProductPrice = document.getElementById('modalProductPrice'),
+            addressBlock = document.getElementById('addressBlock'),
+            addressBtns = document.getElementById('addressBtns'),
+            addressForm = document.getElementById('addressForm'),
+            paymentSection = document.getElementById('paymentSection'),
+            walletSection = document.getElementById('walletSection'),
+            successModalOverlay = document.getElementById('successModalOverlay'),
+            successCloseBtn = document.getElementById('successCloseBtn'),
+            orderPlacedDetails = document.getElementById('orderPlacedDetails'),
+            orderPlacedAddress = document.getElementById('orderPlacedAddress');
+
+        // Open modal for product
+        function openModalForProduct(product) {
+            currentProductName = product.querySelector('h3').textContent;
+            currentProductPrice = product.querySelector('p').textContent;
+            modalProductName.textContent = currentProductName;
+            modalProductPrice.textContent = currentProductPrice;
+            walletSection.classList.remove('visible');
+
+            if (loadSavedAddress()) {
+                renderSavedAddress();
+                showPaymentStep();
+                togglePaymentButtons(true);
+            } else {
+                showAddressStep();
+                togglePaymentButtons(false);
+            }
+        }
+
+        // Attach buy button for AI clones
+        function attachBuyForClone(card) {
+            const btn = card.querySelector('.buy-btn');
+            if (!btn) return;
+            btn.addEventListener('click', (e) => {
+                const p = e.target.closest('.product');
+                openModalForProduct(p);
+            });
+        }
+
+        // AI Assistant logic
+        function handleAI() {
+            const inputEl = document.getElementById("aiInput");
+            const responseBox = document.getElementById("aiResponse");
+            const input = (inputEl.value || "").trim().toLowerCase();
+
+            responseBox.innerHTML = "";
+
+            if (!input) {
+                responseBox.innerText = "⚠️ Please type something first!";
+                return;
+            }
+
+            const products = document.querySelectorAll("#productContainer .product");
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = input.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = input.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = input.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "products", "product"
+            ]);
+            const words = input
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            const matches = [];
+
+            products.forEach(product => {
+                const nameEl = product.querySelector("h3");
+                const priceEl = product.querySelector("p");
+                if (!nameEl || !priceEl) return;
+
+                const name = nameEl.innerText.toLowerCase();
+                const priceText = priceEl.innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+
+                const nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+
+                if (nameMatch && priceOK) matches.push({
+                    product,
+                    price
+                });
+            });
+
+            if (matches.length === 0) {
+                responseBox.innerText = "🤖 Sorry, no matching products found!";
+                return;
+            }
+
+            if (maxPrice != null && minPrice == null) {
+                matches.sort((a, b) => a.price - b.price);
+            } else if (minPrice != null && maxPrice == null) {
+                matches.sort((a, b) => b.price - a.price);
+            } else {
+                matches.sort((a, b) => a.price - b.price);
+            }
+
+            matches.forEach((hit, i) => {
+                const clone = hit.product.cloneNode(true);
+                clone.classList.add('ai-clone');
+                responseBox.appendChild(clone);
+                attachBuyForClone(clone);
+                setTimeout(() => clone.classList.add('show'), i * 120);
+            });
+        }
+
+        // Category filter
+        function filterCategory(category, link) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(sec => {
+                sec.classList.toggle('hidden',
+                    category !== 'all' && sec.dataset.category !== category);
+            });
+            document.getElementById('searchInput').value = '';
+            filterSearch('');
+        }
+
+        // Search filter
+        function filterSearch(query) {
+            query = query.toLowerCase().trim();
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = query.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = query.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = query.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "product", "products"
+            ]);
+            const words = query
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            // Always search across all categories for search
+            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('hidden'));
+
+            document.querySelectorAll('.product').forEach(p => {
+                const name = p.querySelector('h3').innerText.toLowerCase();
+                const priceText = p.querySelector('p').innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+                let nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+                p.classList.toggle('hidden', !(nameMatch && priceOK));
+
+            });
+
+            // Hide category-section if all products inside are hidden
+            document.querySelectorAll('.category-section').forEach(section => {
+                const products = section.querySelectorAll('.product');
+                const visible = Array.from(products).some(p => !p.classList.contains('hidden'));
+                section.classList.toggle('hidden', !visible);
+            });
+
+            // Show humble message if nothing matches
+            let anyVisible = !!document.querySelector('.product:not(.hidden)');
+            let msgId = 'searchNoMatchMsg';
+            let container = document.getElementById('productContainer');
+            let oldMsg = document.getElementById(msgId);
+            if (!anyVisible) {
+                if (!oldMsg) {
+                    let msg = document.createElement('div');
+                    msg.id = msgId;
+                    msg.style = "text-align:center; font-size:1.2rem; color:#555; margin:40px 0;";
+                    msg.innerText = "🙏 Sorry, no products found matching your search.";
+                    container.appendChild(msg);
+                }
+            } else if (oldMsg) {
+                oldMsg.remove();
+            }
+        }
+
+        // Address logic
+        function loadSavedAddress() {
+            let s = localStorage.getItem('userAddress');
+            savedAddress = s ? JSON.parse(s) : null;
+            return !!savedAddress;
+        }
+
+        function saveAddress(addr) {
+            savedAddress = addr;
+            localStorage.setItem('userAddress', JSON.stringify(addr));
+        }
+
+        function renderSavedAddress() {
+            if (!savedAddress) {
+                addressBlock.classList.add('hidden');
+                addressBtns.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            } else {
+                addressBlock.classList.remove('hidden');
+                addressBlock.innerHTML = `<strong>Address:</strong><br>${savedAddress.houseNumber}` +
+                    (savedAddress.landmark ? `, ${savedAddress.landmark}` : '') + `
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+                addressBtns.classList.remove('hidden');
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
+        function togglePaymentButtons(enabled) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function showAddressStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.add('hidden');
+            addressBtns.classList.add('hidden');
+            addressForm.classList.remove('hidden');
+            paymentSection.classList.add('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        function showPaymentStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.remove('hidden');
+            addressBtns.classList.remove('hidden');
+            addressForm.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        // Buy button logic
+        document.querySelectorAll('.buy-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                const product = e.target.closest('.product');
+                openModalForProduct(product);
+            });
+        });
+
+        // Address buttons
+        addressBtns.querySelector('.modify').onclick = function() {
+            addressForm.houseNumber.value = savedAddress.houseNumber || '';
+            addressForm.landmark.value = savedAddress.landmark || '';
+            addressForm.city.value = savedAddress.city || '';
+            addressForm.state.value = savedAddress.state || '';
+            addressForm.pin.value = savedAddress.pin || '';
+            showAddressStep();
+        };
+        addressBtns.querySelector('.add').onclick = function() {
+            addressForm.reset();
+            showAddressStep();
+        };
+
+        // Address form submit
+        addressForm.onsubmit = function(e) {
+            e.preventDefault();
+            if (!addressForm.checkValidity()) {
+                addressForm.reportValidity();
+                return;
+            }
+            const fd = new FormData(addressForm);
+            const newAddr = {
+                houseNumber: fd.get('houseNumber').trim(),
+                landmark: fd.get('landmark').trim(),
+                city: fd.get('city').trim(),
+                state: fd.get('state').trim(),
+                pin: fd.get('pin').trim()
+            };
+            saveAddress(newAddr);
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        };
+
+        // Payment button logic
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedPaymentMethod = btn.dataset.payment;
+                if (selectedPaymentMethod === "Online Payment") {
+                    walletSection.classList.add('visible');
+                } else {
+                    showOrderPlacedModal("Cash on Delivery");
+                    modalOverlay.classList.remove('active');
+                }
+            };
+        });
+
+        // Wallet button logic
+        document.querySelectorAll('.wallet-btn').forEach(btn => {
+            btn.onclick = function() {
+                walletSection.classList.remove('visible');
+                showOrderPlacedModal(btn.dataset.wallet);
+                modalOverlay.classList.remove('active');
+            };
+        });
+
+        function showOrderPlacedModal(paySource) {
+            successModalOverlay.classList.add('active');
+            orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// Success modal close
+successCloseBtn.onclick = () => successModalOverlay.classList.remove('active');
+successModalOverlay.addEventListener('click', e => {
+    if (e.target === successModalOverlay) successModalOverlay.classList.remove('active');
+});
+
+// AI Panel toggle
+const aiPanel = document.getElementById('aiPanel');
+const aiOpenBtn = document.getElementById('aiOpenBtn');
+const aiCloseBtn = document.getElementById('aiCloseBtn');
+
+aiOpenBtn.onclick = () => {
+    aiPanel.classList.remove('hidden');
+    document.body.classList.add('ai-open');
+};
+aiCloseBtn.onclick = () => {
+    aiPanel.classList.add('hidden');
+    document.body.classList.remove('ai-open');
+};
+document.addEventListener('click', function(e) {
+    if (!aiPanel.classList.contains('hidden') &&
+        !aiPanel.contains(e.target) &&
+        e.target !== aiOpenBtn) {
+        aiPanel.classList.add('hidden');
+        document.body.classList.remove('ai-open');
+    }
+});
+
+// Search input event
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    filterSearch(e.target.value);
+});
+
+document.getElementById('closeModal').onclick = () => {
+    // If address form is visible, just hide it and show previous step
+    if (!addressForm.classList.contains('hidden')) {
+        addressForm.classList.add('hidden');
+        if (loadSavedAddress()) {
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        } else {
+            modalOverlay.classList.remove('active');
+        }
+    } else {
+        modalOverlay.classList.remove('active');
+        walletSection.classList.remove('visible');
+    }
+};const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', function() {
+    searchClearBtn.style.display = searchInput.value ? 'inline' : 'none';
+});
+
+searchClearBtn.onclick = function() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterSearch('');
+};
+            </script>
+</body>
+
+</html>
+
+</html>

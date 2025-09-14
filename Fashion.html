@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale =1.0" />
+    <title>Smart Grocery Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: #f5f5f5;
+        }
+        /* Sidebar */
+        
+        .sidebar {
+            width: 200px;
+            background-color: #8E3B82;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: white;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #5C2754;
+        }
+        /* Main Content */
+        
+        .main {
+            margin-left: 200px;
+            flex: 1;
+        }
+        
+        .search-bar-wrapper {
+            position: sticky;
+            top: 0;
+            background: #D7A9CF;
+            padding: 10px;
+            z-index: 100;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .search-container img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .products {
+            padding: 20px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-section h2 {
+            margin-bottom: 15px;
+        }
+        
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .product {
+            background: white;
+            width: 180px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .product h3 {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        .product p {
+            font-weight: bold;
+            color: #5C2754;
+        }
+        
+        .buy-btn {
+            background-color: #5C2754;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .buy-btn:hover {
+            background: #388E3C;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        /* Modal overlays */
+        
+        .modal-overlay,
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active,
+        .success-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 420px;
+            width: 90%;
+            padding: 20px 30px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .modal p {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        
+        .close-btn,
+        .success-close-btn {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .close-btn:hover,
+        .success-close-btn:hover {
+            color: #333;
+        }
+        
+        #addressBlock {
+            background: #f7f7f7;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin-bottom: 18px;
+            text-align: left;
+            font-size: 15px;
+        }
+        
+        .address-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .address-btns button {
+            flex: 1;
+            padding: 8px;
+            font-weight: 700;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #fff;
+        }
+        
+        .address-btns .modify {
+            background: #ff9800;
+        }
+        
+        .address-btns .add {
+            background: #03A9F4;
+        }
+        
+        .address-btns .modify:hover {
+            background: #e65100;
+        }
+        
+        .address-btns .add:hover {
+            background: #0277bd;
+        }
+        
+        #addressForm {
+            text-align: left;
+            margin-top: 14px;
+            max-width: 340px;
+            margin: auto;
+        }
+        
+        #addressForm h3 {
+            color: #388E3C;
+            font-size: 18px;
+        }
+        
+        #addressForm label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600;
+        }
+        
+        #addressForm input {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+        }
+        
+        #addressForm input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .submit-address-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .submit-address-btn:hover {
+            background: #388E3C;
+        }
+        
+        .payment-options {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        
+        .payment-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 3px solid #4CAF50;
+            border-radius: 30px;
+            background: white;
+            font-weight: 700;
+            color: #4CAF50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .payment-btn:hover:not(:disabled) {
+            background: #4CAF50;
+            color: #fff;
+        }
+        
+        .payment-btn:disabled {
+            background: #ccc !important;
+            color: #888 !important;
+            cursor: not-allowed;
+        }
+        
+        .wallet-section {
+            margin: 16px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .wallet-section.visible {
+            display: flex;
+            animation: popIn 0.4s;
+        }
+        
+        .wallet-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .wallet-btn {
+            flex: 1;
+            border: 2px solid #2196f3;
+            background: #fff;
+            color: #2196f3;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .wallet-btn:hover {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 18px;
+            max-width: 340px;
+            width: 90%;
+            padding: 25px 22px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+            animation: fadeIn 0.5s;
+        }
+        
+        .success-check {
+            font-size: 70px;
+            color: #19af56;
+            margin-bottom: 10px;
+            animation: tickBlink 1.4s linear infinite;
+        }
+        
+        @keyframes tickBlink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .success-text-main {
+            font-size: 22px;
+            color: #19af56;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 4px 0 12px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .success-address {
+            margin-top: 14px;
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+        
+        .size-buttons {
+            margin-top: 8px;
+        }
+        
+        .size-btn {
+            border: 1px solid #ccc;
+            background: white;
+            padding: 6px 12px;
+            margin: 3px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .size-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .size-btn.selected {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1100;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #8E3B82 0%, #D7A9CF 100%);
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            transform: translateZ(0);
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+            background: linear-gradient(135deg, #5C2754 0%, #3A1834 100%);
+        }
+        
+        .ai-panel {
+            width: 340px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+            border-left: 2px solid #bdbdbd;
+            padding: 28px 20px 20px 20px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1300;
+            box-shadow: -4px 0 24px rgba(90, 64, 55, 0.10);
+            transition: transform 0.3s, box-shadow 0.2s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: slideInRight 0.4s;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .ai-panel h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #5D4037;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel textarea {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            border: 1.5px solid #bdbdbd;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: vertical;
+            box-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel button {
+            background: linear-gradient(90deg, #8E3B82 0%, #5C2754 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3eeff;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .ai-panel button:hover {
+            background: linear-gradient(90deg, #8E3B82 0%, #5C2754 100%);
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 2.2rem;
+            color: #8D6E63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .ai-close-btn:hover {
+            color: #388E3C;
+        }
+        
+        #aiResponse {
+            margin-top: 18px;
+            min-height: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-family: inherit;
+        }
+        
+        .ai-panel #aiResponse {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .ai-panel .ai-clone {
+            width: calc(50% - 10px);
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel .ai-clone {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 16px 8px;
+            }
+        }
+        
+        .ai-open-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1200;
+            background: #5C2754;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ai-open-btn:hover {
+            background: #388E3C;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- AI Assistant Button -->
+    <button id="aiOpenBtn" class="ai-open-btn" title="AI Assistance">🤖</button>
+    <!-- AI Assistant Sidebar -->
+    <div class="ai-panel hidden" id="aiPanel">
+        <span class="ai-close-btn" id="aiCloseBtn">&times;</span>
+        <h2>AI Assistance ✨</h2>
+        <textarea id="aiInput" placeholder="Ask me anything..."></textarea>
+        <button onclick="handleAI()">Ask AI</button>
+        <div id="aiResponse" style="margin-top:15px;"></div>
+    </div>
+
+    <button class="back-btn" id="backBtn" aria-label="Go back" onclick="window.location.href='categories.html'">
+        <span class="back-icon" aria-hidden="true">←</span>
+        <span class="back-text">Back</span>
+    </button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="active" onclick="filterCategory('all', this)">All</a>
+        <a href="#" onclick="filterCategory('mens', this)">Men Wears</a>
+        <a href="#" onclick="filterCategory('womens', this)">Women Wears</a>
+        <a href="#" onclick="filterCategory('kids', this)">Kid Wears</a>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <!-- Search -->
+        <div class="search-bar-wrapper">
+            <div class="search-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Search Icon">
+                <input type="text" id="searchInput" placeholder="Search for fashion...">
+                <span id="searchClearBtn" style="display:none;cursor:pointer;font-size:20px;margin-left:8px;">&#10005;</span>
+            </div>
+        </div>
+        <!-- Products -->
+        <div class="products" id="productContainer">
+            <!-- Mens Wear -->
+            <div class="category-section" data-category="menwears">
+
+                <div class="product-list">
+                    <div class="product" data-name="urban blazer">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.4WWdSbw79C_f3xTWNu07BAHaLH?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Urban Blazer">
+                        <h3>Urban Blazer</h3>
+                        <p>₹1,699</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="casual denim">
+                        <img src="https://wallpaperaccess.com/full/1448056.jpg" alt="Casual Denim">
+                        <h3>Casual Denim</h3>
+                        <p>₹1,199</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="runway suit">
+                        <img src="https://media.gq.com/photos/5873faf2b745bdd2729582ff/master/pass/170107_LCMFW17_DR07-6736.jpg" alt="Runway Suit">
+                        <h3>Runway Suit</h3>
+                        <p>₹2,499</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="classic combo">
+                        <img src="https://th.bing.com/th/id/R.a47d226d0272d5830f8c3e98b6b7b995?rik=fvdfw%2b4%2bM%2bQc8w&riu=http%3a%2f%2fmenscraze.com%2fwp-content%2fuploads%2f2016%2f05%2fclassic-mens-fashion.jpg&ehk=nlqCzItBNSAAlSmtJ%2bhhMRob2p34gqRkaMkRO7QDP2c%3d&risl=&pid=ImgRaw&r=0"
+                            alt="Classic Combo">
+                        <h3>Classic Combo</h3>
+                        <p>₹1,549</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="street style">
+                        <img src="https://www.outfittrends.com/wp-content/uploads/2014/02/Men-street-fashion-blog-Pictures.jpg" alt="Street Style">
+                        <h3>Street Style</h3>
+                        <p>₹999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="summer fit">
+                        <img src="https://th.bing.com/th/id/R.1f0c176740137c75e6bb809ae8561ca9?rik=XnQL7ddxNaG5Rg&riu=http%3a%2f%2fmenscraze.com%2fwp-content%2fuploads%2f2016%2f05%2fMens-Casual-Fashion-2.jpg&ehk=qth3iXPf8V9xoWdVbke4NqZGIAK61kFwxmVHPla4ChM%3d&risl=&pid=ImgRaw&r=0"
+                            alt="Summer Fit">
+                        <h3>Summer Fit</h3>
+                        <p>₹849</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="chic jacket">
+                        <img src="https://i.pinimg.com/originals/e5/6b/79/e56b799b365e63c41041feb38fb7e965.jpg" alt="Chic Jacket">
+                        <h3>Chic Jacket</h3>
+                        <p>₹1,899</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="london vibe">
+                        <img src="https://theimpression.com/wp-content/uploads/2017/06/london-m-str-rs18-2629.jpg" alt="London Vibe">
+                        <h3>London Vibe</h3>
+                        <p>₹2,199</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="funky mood">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.uHITpNjUwsVe5gunAh4hwgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Funky Mood">
+                        <h3>Funky Mood</h3>
+                        <p>₹1,399</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="pexels style">
+                        <img src="https://images.pexels.com/photos/1300550/pexels-photo-1300550.jpeg?cs=srgb&dl=pexels-the-lazy-artist-gallery-1300550.jpg&fm=jpg" alt="Pexels Style">
+                        <h3>Pexels Style</h3>
+                        <p>₹1,049</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="gray look">
+                        <img src="https://images.pexels.com/photos/878358/pexels-photo-878358.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" alt="Gray Look">
+                        <h3>Gray Look</h3>
+                        <p>₹1,249</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="street wear">
+                        <img src="https://images.pexels.com/photos/2897529/pexels-photo-2897529.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260" alt="Street Wear">
+                        <h3>Street Wear</h3>
+                        <p>₹1,749</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="studio-fit">
+                        <img src="https://media.istockphoto.com/id/1425659954/photo/lifestyle-and-luxury-businessman-fashion-model-in-studio-photoshoot-for-wealthy-and-rich.jpg?b=1&s=170667a&w=0&k=20&c=279yVUji5fkmxDm6pACStKqDk0DEn7FZB_iJQqumeIw=" alt="Studio Fit">
+                        <h3>Studio Fit</h3>
+                        <p>₹2,299</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="winter black">
+                        <img src="https://wallpapercave.com/wp/wp6326369.jpg" alt="Winter Black">
+                        <h3>Winter Black</h3>
+                        <p>₹1,599</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="unsplash look">
+                        <img src="https://images.unsplash.com/photo-1552573102-2b44b44d85b5?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9" alt="Unsplash Look">
+                        <h3>Unsplash Look</h3>
+                        <p>₹1,449</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="leather charm">
+                        <img src="https://i.pinimg.com/originals/ec/85/d1/ec85d1aa08a6194d31542066b2e270dc.jpg" alt="Leather Charm">
+                        <h3>Leather Charm</h3>
+                        <p>₹1,599</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="hooded winter">
+                        <img src="https://i.pinimg.com/originals/14/21/af/1421af0eb476830bd981e45f8a2aa142.jpg" alt="Hooded Winter">
+                        <h3>Hooded Winter</h3>
+                        <p>₹1,899</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="fall fashion">
+                        <img src="https://www.instaloverz.com/wp-content/uploads/2016/07/18-mens-fashion-fall.jpg" alt="Fall Fashion">
+                        <h3>Fall Fashion</h3>
+                        <p>₹1,349</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="autumn look">
+                        <img src="https://instaloverz.com/wp-content/uploads/2016/07/23-mens-fashion-fall.jpg" alt="Autumn Look">
+                        <h3>Autumn Look</h3>
+                        <p>₹1,599</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="casual mix">
+                        <img src="https://www.outfittrends.com/wp-content/uploads/2015/02/men-casual-accessories.jpg" alt="Casual Mix">
+                        <h3>Casual Mix</h3>
+                        <p>₹949</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="beige vibes">
+                        <img src="https://th.bing.com/th/id/R.f47d8dd47ab4c23dbb9a9335e33dca12?rik=oz0btwmZ%2fYLgbg&riu=http%3a%2f%2fimages.unsplash.com%2fphoto-1617113930975-f9c7243ae527%3fcrop%3dentropy%26cs%3dtinysrgb%26fit%3dmax%26fm%3djpg%26ixid%3dMnwxMjA3fDB8MXxzZWFyY2h8NHx8ZmFzaGlvbiUyMG1lbnx8MHx8fHwxNjI2OTUwNjcw%26ixlib%3drb-1.2.1%26q%3d80%26w%3d1080&ehk=CzGxlOJttHcI8NWSbzTYle7Mv3jxkVSM7UHeyuOwNPw%3d&risl=&pid=ImgRaw&r=0"
+                            alt="Beige Vibes">
+                        <h3>Beige Vibes</h3>
+                        <p>₹1,199</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-section" data-category="womenwears">
+
+                <div class="product-list">
+                    <div class="product" data-name="contemporary glam">
+                        <img src="https://images.pexels.com/photos/17817342/pexels-photo-17817342.jpeg?cs=srgb&dl=pexels-moss-studio-17817342.jpg&fm=jpg" alt="Style 1">
+                        <h3>Contemporary Glam</h3>
+                        <p>₹3,499</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="classic summer">
+                        <img src="https://images.pexels.com/photos/1055691/pexels-photo-1055691.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" alt="Style 2">
+                        <h3>Classic Summer</h3>
+                        <p>₹2,499</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="street chic">
+                        <img src="https://cdn.pixabay.com/photo/2022/12/04/07/03/woman-7633843_1280.jpg" alt="Style 3">
+                        <h3>Street Chic</h3>
+                        <p>₹2,899</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="modern ethnic">
+                        <img src="https://cdn.pixabay.com/photo/2023/02/22/01/51/fashion-7805504_640.jpg" alt="Style 4">
+                        <h3>Modern Ethnic</h3>
+                        <p>₹3,299</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="w5">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.yday_vu0kbSvZRp3azfsBwHaLG?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Style 5">
+                        <h3>Vintage Vibe</h3>
+                        <p>₹3,599</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="w6">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.jSwUq0xO3q-L3C_7e7p6CAAAAA?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Style 6">
+                        <h3>Floral Classic</h3>
+                        <p>₹2,999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="w7">
+                        <img src="https://i.pinimg.com/originals/80/e7/bc/80e7bca43b46fd42da51525cd44c6030.jpg" alt="Style 7">
+                        <h3>Desi Diva</h3>
+                        <p>₹4,199</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="w8">
+                        <img src="https://dvanza.com/wp-content/uploads/womens-South-Indian-Woven-saree-in-Pink-dvz0002991.jpg" alt="Style 8">
+                        <h3>South Indian Saree</h3>
+                        <p>₹5,000</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="w9">
+                        <img src="https://i.pinimg.com/originals/be/53/92/be53924ac029d6e492585313554a4914.jpg" alt="Style 9">
+                        <h3>Designer Wear</h3>
+                        <p>₹4,800</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="w10">
+                        <img src="https://cdn.sareeka.com/image/data2020/embroidered-silk-saree-141027.jpg" alt="Style 10">
+                        <h3>Silk Saree</h3>
+                        <p>₹6,499</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="w12">
+                        <img src="https://fashionjackson.com/wp-content/uploads/2023/01/Featured-Image-3.jpg" alt="Style 12">
+                        <h3>Monochrome Edit</h3>
+                        <p>₹3,999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="w13">
+                        <img src="https://img.freepik.com/premium-photo/elegant-female-fashion-model-red-coat-jeans_899449-408738.jpg" alt="Style 13">
+                        <h3>Red Coat Look</h3>
+                        <p>₹4,299</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="w14">
+                        <img src="https://i.pinimg.com/originals/b6/a4/a4/b6a4a456bcee0ed6b181fa906dd12d67.jpg" alt="Style 14">
+                        <h3>Casual Floral</h3>
+                        <p>₹2,899</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="w15">
+                        <img src="https://i.pinimg.com/originals/c8/6f/87/c86f87722d0a25a188ee0e8adb027e05.jpg" alt="Style 15">
+                        <h3>Daily Designer</h3>
+                        <p>₹3,199</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="category-section" data-category="kids">
+
+                <div class="product-list">
+
+                    <div class="product" data-name="ethnicdressgirl">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.XkdERq6aRK2G1GH2de_EjQHaJ2?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Ethnic Dress Girl">
+                        <h3>Ethnic Dress Girl</h3>
+                        <p>₹1,899</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="stylishgirl">
+                        <img src="https://i.pinimg.com/originals/25/ea/93/25ea93212fa964b90112624b493b4eaa.jpg" alt="Stylish Girl Outfit">
+                        <h3>Stylish Girl Outfit</h3>
+                        <p>₹2,250</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="pinkfrock">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP._Q3HkE4Eye7iD4qEB90hLQHaHa?w=1600&h=1600&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Pink Frock">
+                        <h3>Pink Frock</h3>
+                        <p>₹1,450</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="floralethnic">
+                        <img src="https://i.pinimg.com/originals/df/09/df/df09dfce328a66304b9281c2a7f725a7.jpg" alt="Floral Ethnic Wear">
+                        <h3>Floral Ethnic Wear</h3>
+                        <p>₹1,799</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="twinsdress">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.Dv339g5hKF_0GGiuZnbvHgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Twins Dress Set">
+                        <h3>Twins Dress Set</h3>
+                        <p>₹2,499</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="blueethnicboy">
+                        <img src="https://www.anerianand.com/VendorAssets/1043/StoreImages/Large/1392AN-1920-P-BLUE-ETHNIC.jpg" alt="Blue Ethnic Wear Boy">
+                        <h3>Blue Ethnic Wear Girl</h3>
+                        <p>₹1,999</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="formalsuitboy">
+                        <img src="https://m.media-amazon.com/images/I/718wN4Z-0EL._AC_UY1100_.jpg" alt="Formal Suit for Boy">
+                        <h3>Formal Suit for Boy</h3>
+                        <p>₹3,499</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="cutegirlfrock">
+                        <img src="https://i.pinimg.com/736x/ff/46/d7/ff46d73e5c9fb9810c970f0a8ffb1713.jpg" alt="Cute Girl Frock">
+                        <h3>Cute Girl Frock</h3>
+                        <p>₹1,250</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="boytraditional">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.g0EvLbfiCG-qAhTfSVT8HQHaLH?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Traditional Outfit Boy">
+                        <h3>Traditional Outfit Boy</h3>
+                        <p>₹1,799</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="casualkidswear">
+                        <img src="https://th.bing.com/th/id/R.3c9d3a371fec330f51aa14a7996496a3?rik=jTZDBep6A1MUmw&riu=http%3a%2f%2fwww.thedaycollections.com%2fwp-content%2fuploads%2f2017%2f07%2fboy-kids-fashion.png&ehk=qwUKNZ2d4TyRuAKBFdKpZLkDIXwqR7DnkMggN%2be67c4%3d&risl=&pid=ImgRaw&r=0"
+                            alt="Casual Kids Wear">
+                        <h3>Casual Kids Wear</h3>
+                        <p>₹1,150</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="babyboytshirt">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.8aaRNxGMTE9n5JPdnc1UOAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Baby Boy T-Shirt">
+                        <h3>Baby Girl Frock</h3>
+                        <p>₹599</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+				<div class="category-section" data-category="kidwears">
+					<div class="product-list">
+						<div class="product" data-name="kidsdressedup">
+                        <img src="https://1.bp.blogspot.com/-8f6lyjqsvp8/T6Youh8zo4I/AAAAAAAAECw/HdYgOgV6jS8/s1600/fahion+dress+kids.jpg" alt="Kids Dressed Up">
+                        <h3>Kids Dressed Up</h3>
+                        <p>₹2,699</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="twinninglook">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.OdRpRhVr-WgkqqMGijd-UgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Twinning Look">
+                        <h3>Twinning Look</h3>
+                        <p>₹3,050</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="blackgownkid">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.H77ANfXDgJfr8DN-CSWUPwHaHa?w=1000&h=1000&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Black Gown for Kid">
+                        <h3>Black Gown for Kid</h3>
+                        <p>₹2,499</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="pinkethnicgirl">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.-82xaFB2OKmkLFC9750AdAHaLH?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Pink Ethnic Girl">
+                        <h3>Pink Ethnic Girl</h3>
+                        <p>₹2,250</p>
+                        <div class="size-buttons">
+                            <button type="button" class="size-btn">S</button>
+                            <button type="button" class="size-btn">M</button>
+                            <button type="button" class="size-btn">L</button>
+                            <button type="button" class="size-btn">XL</button>
+                            <button type="button" class="size-btn">XXL</button>
+                        </div>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+    <!-- Modal (Address/Payment Flow) -->
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-btn" id="closeModal">&#10005;</span>
+            <h2 id="modalProductName">Product Name</h2>
+            <p id="modalProductPrice">Price</p>
+            <div id="addressBlock" class="hidden"></div>
+            <div class="address-btns hidden" id="addressBtns">
+                <button class="modify">Modify Address</button>
+                <button class="add">Add New Address</button>
+            </div>
+            <form id="addressForm" class="hidden" novalidate>
+                <h3>Delivery Address</h3>
+                <label>House/Flat Number*</label>
+                <input type="text" name="houseNumber" required />
+                <label>Landmark</label>
+                <input type="text" name="landmark" />
+                <label>City*</label>
+                <input type="text" name="city" required />
+                <label>State*</label>
+                <input type="text" name="state" required />
+                <label>Pin Code*</label>
+                <input type="text" name="pin" pattern="\d{6}" required />
+                <button type="submit" class="submit-address-btn">Save Address</button>
+            </form>
+            <div id="paymentSection" class="hidden">
+                <p>Please select a payment method:</p>
+                <div class="payment-options">
+                    <button class="payment-btn" data-payment="Online Payment">💳 Online Payment</button>
+                    <button class="payment-btn" data-payment="Cash on Delivery">🏠 Cash on Delivery</button>
+                </div>
+            </div>
+            <div class="wallet-section" id="walletSection">
+                <p>Select a payment wallet:</p>
+                <div class="wallet-options">
+                    <button class="wallet-btn" data-wallet="PhonePe">📲 PhonePe</button>
+                    <button class="wallet-btn" data-wallet="Google Pay">💙 Google Pay</button>
+                    <button class="wallet-btn" data-wallet="Paytm">🟦 Paytm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <span class="success-close-btn" id="successCloseBtn">&#10005;</span>
+            <div class="success-check">✔</div>
+            <div class="success-text-main">Order Placed Successfully!</div>
+            <div class="success-message" id="orderPlacedDetails"></div>
+            <div class="success-address" id="orderPlacedAddress"></div>
+        </div>
+    </div>
+<script>
+        // ...existing code...
+                function showOrderPlacedModal(paySource) {
+                    successModalOverlay.classList.add('active');
+                    orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+// ...existing code...let currentProductName = "";
+        let currentProductPrice = "";
+        let selectedPaymentMethod = null;
+        let savedAddress = null;
+
+        // Modal elements
+        const modalOverlay = document.getElementById('modalOverlay'),
+            modalProductName = document.getElementById('modalProductName'),
+            modalProductPrice = document.getElementById('modalProductPrice'),
+            addressBlock = document.getElementById('addressBlock'),
+            addressBtns = document.getElementById('addressBtns'),
+            addressForm = document.getElementById('addressForm'),
+            paymentSection = document.getElementById('paymentSection'),
+            walletSection = document.getElementById('walletSection'),
+            successModalOverlay = document.getElementById('successModalOverlay'),
+            successCloseBtn = document.getElementById('successCloseBtn'),
+            orderPlacedDetails = document.getElementById('orderPlacedDetails'),
+            orderPlacedAddress = document.getElementById('orderPlacedAddress');
+
+        // Open modal for product
+        function openModalForProduct(product) {
+            currentProductName = product.querySelector('h3').textContent;
+            currentProductPrice = product.querySelector('p').textContent;
+            modalProductName.textContent = currentProductName;
+            modalProductPrice.textContent = currentProductPrice;
+            walletSection.classList.remove('visible');
+
+            if (loadSavedAddress()) {
+                renderSavedAddress();
+                showPaymentStep();
+                togglePaymentButtons(true);
+            } else {
+                showAddressStep();
+                togglePaymentButtons(false);
+            }
+        }
+
+        // Attach buy button for AI clones
+        function attachBuyForClone(card) {
+            const btn = card.querySelector('.buy-btn');
+            if (!btn) return;
+            btn.addEventListener('click', (e) => {
+                const p = e.target.closest('.product');
+                openModalForProduct(p);
+            });
+        }
+
+        // AI Assistant logic
+        function handleAI() {
+            const inputEl = document.getElementById("aiInput");
+            const responseBox = document.getElementById("aiResponse");
+            const input = (inputEl.value || "").trim().toLowerCase();
+
+            responseBox.innerHTML = "";
+
+            if (!input) {
+                responseBox.innerText = "⚠️ Please type something first!";
+                return;
+            }
+
+            const products = document.querySelectorAll("#productContainer .product");
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = input.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = input.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = input.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "products", "product"
+            ]);
+            const words = input
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            const matches = [];
+
+            products.forEach(product => {
+                const nameEl = product.querySelector("h3");
+                const priceEl = product.querySelector("p");
+                if (!nameEl || !priceEl) return;
+
+                const name = nameEl.innerText.toLowerCase();
+                const priceText = priceEl.innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+
+                const nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+
+                if (nameMatch && priceOK) matches.push({
+                    product,
+                    price
+                });
+            });
+
+            if (matches.length === 0) {
+                responseBox.innerText = "🤖 Sorry, no matching products found!";
+                return;
+            }
+
+            if (maxPrice != null && minPrice == null) {
+                matches.sort((a, b) => a.price - b.price);
+            } else if (minPrice != null && maxPrice == null) {
+                matches.sort((a, b) => b.price - a.price);
+            } else {
+                matches.sort((a, b) => a.price - b.price);
+            }
+
+            matches.forEach((hit, i) => {
+                const clone = hit.product.cloneNode(true);
+                clone.classList.add('ai-clone');
+                responseBox.appendChild(clone);
+                attachBuyForClone(clone);
+                setTimeout(() => clone.classList.add('show'), i * 120);
+            });
+        }
+
+        // Category filter
+        function filterCategory(category, link) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(sec => {
+                sec.classList.toggle('hidden',
+                    category !== 'all' && sec.dataset.category !== category);
+            });
+            document.getElementById('searchInput').value = '';
+            filterSearch('');
+        }
+
+        // Search filter
+        function filterSearch(query) {
+            query = query.toLowerCase().trim();
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = query.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = query.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = query.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "product", "products"
+            ]);
+            const words = query
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            // Always search across all categories for search
+            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('hidden'));
+
+            document.querySelectorAll('.product').forEach(p => {
+                const name = p.querySelector('h3').innerText.toLowerCase();
+                const priceText = p.querySelector('p').innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+                let nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+                p.classList.toggle('hidden', !(nameMatch && priceOK));
+
+            });
+
+            // Hide category-section if all products inside are hidden
+            document.querySelectorAll('.category-section').forEach(section => {
+                const products = section.querySelectorAll('.product');
+                const visible = Array.from(products).some(p => !p.classList.contains('hidden'));
+                section.classList.toggle('hidden', !visible);
+            });
+
+            // Show humble message if nothing matches
+            let anyVisible = !!document.querySelector('.product:not(.hidden)');
+            let msgId = 'searchNoMatchMsg';
+            let container = document.getElementById('productContainer');
+            let oldMsg = document.getElementById(msgId);
+            if (!anyVisible) {
+                if (!oldMsg) {
+                    let msg = document.createElement('div');
+                    msg.id = msgId;
+                    msg.style = "text-align:center; font-size:1.2rem; color:#555; margin:40px 0;";
+                    msg.innerText = "🙏 Sorry, no products found matching your search.";
+                    container.appendChild(msg);
+                }
+            } else if (oldMsg) {
+                oldMsg.remove();
+            }
+        }
+
+        // Address logic
+        function loadSavedAddress() {
+            let s = localStorage.getItem('userAddress');
+            savedAddress = s ? JSON.parse(s) : null;
+            return !!savedAddress;
+        }
+
+        function saveAddress(addr) {
+            savedAddress = addr;
+            localStorage.setItem('userAddress', JSON.stringify(addr));
+        }
+
+        function renderSavedAddress() {
+            if (!savedAddress) {
+                addressBlock.classList.add('hidden');
+                addressBtns.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            } else {
+                addressBlock.classList.remove('hidden');
+                addressBlock.innerHTML = `<strong>Address:</strong><br>${savedAddress.houseNumber}` +
+                    (savedAddress.landmark ? `, ${savedAddress.landmark}` : '') + `
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+                addressBtns.classList.remove('hidden');
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
+        function togglePaymentButtons(enabled) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function showAddressStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.add('hidden');
+            addressBtns.classList.add('hidden');
+            addressForm.classList.remove('hidden');
+            paymentSection.classList.add('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        function showPaymentStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.remove('hidden');
+            addressBtns.classList.remove('hidden');
+            addressForm.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        // Buy button logic
+        document.querySelectorAll('.buy-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                const product = e.target.closest('.product');
+                openModalForProduct(product);
+            });
+        });
+
+        // Address buttons
+        addressBtns.querySelector('.modify').onclick = function() {
+            addressForm.houseNumber.value = savedAddress.houseNumber || '';
+            addressForm.landmark.value = savedAddress.landmark || '';
+            addressForm.city.value = savedAddress.city || '';
+            addressForm.state.value = savedAddress.state || '';
+            addressForm.pin.value = savedAddress.pin || '';
+            showAddressStep();
+        };
+        addressBtns.querySelector('.add').onclick = function() {
+            addressForm.reset();
+            showAddressStep();
+        };
+
+        // Address form submit
+        addressForm.onsubmit = function(e) {
+            e.preventDefault();
+            if (!addressForm.checkValidity()) {
+                addressForm.reportValidity();
+                return;
+            }
+            const fd = new FormData(addressForm);
+            const newAddr = {
+                houseNumber: fd.get('houseNumber').trim(),
+                landmark: fd.get('landmark').trim(),
+                city: fd.get('city').trim(),
+                state: fd.get('state').trim(),
+                pin: fd.get('pin').trim()
+            };
+            saveAddress(newAddr);
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        };
+
+        // Payment button logic
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedPaymentMethod = btn.dataset.payment;
+                if (selectedPaymentMethod === "Online Payment") {
+                    walletSection.classList.add('visible');
+                } else {
+                    showOrderPlacedModal("Cash on Delivery");
+                    modalOverlay.classList.remove('active');
+                }
+            };
+        });
+
+        // Wallet button logic
+        document.querySelectorAll('.wallet-btn').forEach(btn => {
+            btn.onclick = function() {
+                walletSection.classList.remove('visible');
+                showOrderPlacedModal(btn.dataset.wallet);
+                modalOverlay.classList.remove('active');
+            };
+        });
+
+        function showOrderPlacedModal(paySource) {
+            successModalOverlay.classList.add('active');
+            orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// Success modal close
+successCloseBtn.onclick = () => successModalOverlay.classList.remove('active');
+successModalOverlay.addEventListener('click', e => {
+    if (e.target === successModalOverlay) successModalOverlay.classList.remove('active');
+});
+
+// AI Panel toggle
+const aiPanel = document.getElementById('aiPanel');
+const aiOpenBtn = document.getElementById('aiOpenBtn');
+const aiCloseBtn = document.getElementById('aiCloseBtn');
+
+aiOpenBtn.onclick = () => {
+    aiPanel.classList.remove('hidden');
+    document.body.classList.add('ai-open');
+};
+aiCloseBtn.onclick = () => {
+    aiPanel.classList.add('hidden');
+    document.body.classList.remove('ai-open');
+};
+document.addEventListener('click', function(e) {
+    if (!aiPanel.classList.contains('hidden') &&
+        !aiPanel.contains(e.target) &&
+        e.target !== aiOpenBtn) {
+        aiPanel.classList.add('hidden');
+        document.body.classList.remove('ai-open');
+    }
+});
+
+// Search input event
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    filterSearch(e.target.value);
+});
+
+document.getElementById('closeModal').onclick = () => {
+    // If address form is visible, just hide it and show previous step
+    if (!addressForm.classList.contains('hidden')) {
+        addressForm.classList.add('hidden');
+        if (loadSavedAddress()) {
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        } else {
+            modalOverlay.classList.remove('active');
+        }
+    } else {
+        modalOverlay.classList.remove('active');
+        walletSection.classList.remove('visible');
+    }
+};const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', function() {
+    searchClearBtn.style.display = searchInput.value ? 'inline' : 'none';
+});
+
+searchClearBtn.onclick = function() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterSearch('');
+};
+    </script>
+</body>
+
+</html>

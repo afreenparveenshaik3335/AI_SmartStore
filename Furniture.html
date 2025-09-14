@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Furniture Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar */
+        
+        .sidebar {
+            width: 200px;
+            background-color: #A1887F;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            
+            color: white;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: 	#5D4037;
+        }
+        /* Main area */
+        
+        .main {
+            margin-left: 200px;
+            flex: 1;
+        }
+        /* Search bar */
+        
+        .search-bar-wrapper {
+            position: sticky;
+            top: 0;
+            background:#D7CCC8 ;
+            padding: 10px;
+            z-index: 100;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background-color: 	white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .search-container img {
+            width: 24px;
+            margin-right: 10px;
+        }
+        
+        .products {
+            padding: 20px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .product {
+            background: white;
+            width: 180px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .product h3 {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        .product p {
+            font-weight: bold;
+            color: #5D4037;
+            margin: 8px 0;
+        }
+        
+        .buy-btn {
+            background-color: 		#5D4037;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .buy-btn:hover {
+            background: #388E3C;
+        }
+        
+        .hidden {
+            display: none!important;
+        }
+        /* Modal overlays */
+        
+        .modal-overlay,
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active,
+        .success-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 420px;
+            width: 90%;
+            padding: 20px 30px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .modal p {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        
+        .close-btn,
+        .success-close-btn {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .close-btn:hover,
+        .success-close-btn:hover {
+            color: #333;
+        }
+        /* Address block/buttons */
+        
+        #addressBlock {
+            background: #f7f7f7;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin-bottom: 18px;
+            text-align: left;
+            font-size: 15px;
+        }
+        
+        .address-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .address-btns button {
+            flex: 1;
+            padding: 8px;
+            font-weight: 700;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            transition: background .3s;
+            color: #fff;
+        }
+        
+        .address-btns .modify {
+            background: #ff9800;
+        }
+        
+        .address-btns .add {
+            background: #03A9F4;
+        }
+        
+        .address-btns .modify:hover {
+            background: #e65100;
+        }
+        
+        .address-btns .add:hover {
+            background: #0277bd;
+        }
+        /* Address form */
+        
+        #addressForm {
+            text-align: left;
+            margin-top: 14px;
+            max-width: 340px;
+            margin: auto;
+        }
+        
+        #addressForm h3 {
+            color: #388E3C;
+            font-size: 18px;
+        }
+        
+        #addressForm label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600;
+        }
+        
+        #addressForm input {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+        }
+        
+        #addressForm input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .submit-address-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .submit-address-btn:hover {
+            background: #388E3C;
+        }
+        /* Payment buttons */
+        
+        .payment-options {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        
+        .payment-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 3px solid #4CAF50;
+            border-radius: 30px;
+            background: white;
+            font-weight: 700;
+            color: #4CAF50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .payment-btn:hover:not(:disabled) {
+            background: #4CAF50;
+            color: #fff;
+        }
+        
+        .payment-btn:disabled {
+            background: #ccc!important;
+            color: #888!important;
+            cursor: not-allowed;
+        }
+        /* Wallet section */
+        
+        .wallet-section {
+            margin: 16px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .wallet-section.visible {
+            display: flex;
+            animation: popIn 0.4s;
+        }
+        
+        .wallet-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .wallet-btn {
+            flex: 1;
+            border: 2px solid #2196f3;
+            background: #fff;
+            color: #2196f3;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .wallet-btn:hover {
+            background: #2196f3;
+            color: white;
+        }
+        /* Success modal */
+        
+        .success-modal {
+            background: white;
+            border-radius: 18px;
+            max-width: 340px;
+            width: 90%;
+            padding: 25px 22px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+            animation: fadeIn 0.5s;
+        }
+        
+        .success-check {
+            font-size: 70px;
+            color: #19af56;
+            margin-bottom: 10px;
+            animation: tickBlink 1.4s linear infinite;
+        }
+        
+        @keyframes tickBlink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .success-text-main {
+            font-size: 22px;
+            color: #19af56;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 4px 0 12px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .success-address {
+            margin-top: 14px;
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+		/* Back Button Styles */
+.back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #5D4037 0%, #8D6E63 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transform: translateZ(0);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.back-btn .back-icon {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+    transform: translateX(0);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+}
+
+.back-btn .back-text {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    background: linear-gradient(135deg, #4E342E 0%, #795548 100%);
+}
+
+.back-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.back-btn:hover .back-icon {
+    transform: translateX(-3px);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 9px 14px;
+    }
+    .back-btn .back-text {
+        font-size: 13px;
+    }
+}
+    /* AI Assistant Panel */
+        
+        .ai-panel {
+            width: 340px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+            border-left: 2px solid #bdbdbd;
+            padding: 28px 20px 20px 20px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1300;
+            box-shadow: -4px 0 24px rgba(90, 64, 55, 0.10);
+            transition: transform 0.3s, box-shadow 0.2s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: slideInRight 0.4s;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .ai-panel h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #5D4037;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel textarea {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            border: 1.5px solid #bdbdbd;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: vertical;
+            box-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel button {
+            background: linear-gradient(90deg, #5D4037 0%, #5D4037 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3eeff;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .ai-panel button:hover {
+            background: linear-gradient(90deg, #5D4037 0%, #5D4037 100%);
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 2.2rem;
+            color: #8D6E63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .ai-close-btn:hover {
+            color: #388E3C;
+        }
+        
+        #aiResponse {
+            margin-top: 18px;
+            min-height: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-family: inherit;
+        }
+        
+        .ai-panel #aiResponse {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .ai-panel .ai-clone {
+            width: calc(50% - 10px);
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        /* Responsive for mobile */
+        
+        @media (max-width: 600px) {
+            .ai-panel .ai-clone {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 16px 8px;
+            }
+        }
+        /* ...existing code... */
+        
+        .ai-open-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1200;
+            background: #5D4037;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ai-open-btn:hover {
+            background: #388E3C;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- AI Assistant Button -->
+    <button id="aiOpenBtn" class="ai-open-btn" title="AI Assistance">🤖</button>
+
+    <!-- AI Assistant Sidebar -->
+    <div class="ai-panel hidden" id="aiPanel">
+        <span class="ai-close-btn" id="aiCloseBtn">&times;</span>
+        <h2>AI Assistance ✨</h2>
+        <textarea id="aiInput" placeholder="Ask me anything..."></textarea>
+        <button onclick="handleAI()">Ask AI</button>
+        <div id="aiResponse" style="margin-top:15px;"></div>
+    </div>
+	<button class="back-btn" id="backBtn" aria-label="Go back" onclick="window.location.href='categories.html'">
+    <span class="back-icon" aria-hidden="true">←</span>
+    <span class="back-text">Back</span>
+</button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="active" onclick="filterCategory('all', this)">All</a>
+        <a href="#" onclick="filterCategory('bedroom', this)">Bedroom Furniture</a>
+        <a href="#" onclick="filterCategory('kitchen', this)">Kitchen Furniture</a>
+        <a href="#" onclick="filterCategory('dresser', this)">Dresser</a>
+        <a href="#" onclick="filterCategory('livingroom', this)">Living Room</a>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <!-- Search -->
+        <div class="search-bar-wrapper">
+            <div class="search-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Search Icon">
+                <input type="text" id="searchInput" placeholder="Search for furniture...🪑">
+				
+                <span id="searchClearBtn" style="display:none;cursor:pointer;font-size:20px;margin-left:8px;">&#10005;</span>
+            </div>
+        </div>
+
+        <!-- Products -->
+        <div class="products" id="productContainer">
+
+            <!-- Bedroom Furniture -->
+            <div class="category-section" data-category="bedroomfurniture">
+                <div class="product-list">
+                    <div class="product" data-name="bed frame">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.JQ-VXNevS2ydQR36IENrkAHaGa?pid=Api&P=0&h=180" alt="Bed Frame">
+                        <h3>Bunk Bed with Storage</h3>
+                        <p>₹122,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wardrobe">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.ieE9-RTGc_O1elvjI6hbDAHaFO?pid=Api&P=0&h=180" alt="Wardrobe">
+                        <h3>Upholstered Platform Bed</h3>
+                        <p>₹128,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="dressing table">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.h38bnjpDZ4Aj_qdbNNvTIAHaG2?pid=Api&P=0&h=180" alt="Dressing Table">
+                        <h3>Royal Upholstered Bed</h3>
+                        <p>₹82,700</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="nightstand">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.I22X08cwQn-i45J2OpwfggAAAA?pid=Api&P=0&h=180" alt="Nightstand">
+                        <h3>Panel-Headboard Bed</h3>
+                        <p>₹344,200</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="bookshelf">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.Uwv-r64DfE-s-kA3JCu0cwHaEp?pid=Api&P=0&h=180" alt="Bookshelf">
+                        <h3>Modern Wooden Bed</h3>
+                        <p>₹125,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="chest of drawers">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.X9riVsEp-ziTTHgC124PnwHaE8?pid=Api&P=0&h=180" alt="Chest of Drawers">
+                        <h3>Hand-Carved Wooden Bed</h3>
+                        <p>₹237,300</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wall mirror">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.xaE6ecUmkEcHy2dkVIClBAHaIY?pid=Api&P=0&h=180" alt="Wall Mirror">
+                        <h3>White Bunk Bed</h3>
+                        <p>₹122,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="closet organizer">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.9EnTLiGSln8zjLi4gxDKbgHaEM?pid=Api&P=0&h=180" alt="Closet Organizer">
+                        <h3>Wardrobe / Closet Set</h3>
+                        <p>₹233,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="storage bench">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.0Hutz3weOKUzW_zi2PLYtgHaEK?pid=Api&P=0&h=180" alt="Storage Bench">
+                        <h3>Tufted Sofa Set</h3>
+                        <p>₹214,200</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="vanity table">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.0tIYFGVuBmpYRkO0I---OgHaE7?pid=Api&P=0&h=180" alt="Vanity Table">
+                        <h3>Daybed / Chaise</h3>
+                        <p>₹126,800</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="armoire">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.vxgbJltDcDsrvRwk9AHdwwHaEB?pid=Api&P=0&h=180" alt="Armoire">
+                        <h3>Twin Beds Set</h3>
+                        <p>₹117,800</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="bunk bed">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.OdTpKfRVzGCb6D7QMlSmKwHaE8?pid=Api&P=0&h=180" alt="Bunk Bed">
+                        <h3>Upholstered Queen Bed</h3>
+                        <p>₹111,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="recliner chair">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.wNvdp4Yiy2nowcK3deFUFwHaEf?pid=Api&P=0&h=180" alt="Recliner Chair">
+                        <h3>Modern Wooden Bed with Side Table</h3>
+                        <p>₹19,300</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="modern bed frame">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.xaE6ecUmkEcHy2dkVIClBAHaIY?pid=Api&P=0&h=180" alt="Modern Bed Frame">
+                        <h3>White Bunk Bed with Storage</h3>
+                        <p>₹621,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="king size headboard">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.9EnTLiGSln8zjLi4gxDKbgHaEM?pid=Api&P=0&h=180" alt="King Size Headboard">
+                        <h3>Wardrobe and Dressing Table Set</h3>
+                        <p>₹514,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="classic dresser drawers">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.0Hutz3weOKUzW_zi2PLYtgHaEK?pid=Api&P=0&h=180" alt="Classic Dresser Drawers">
+                        <h3>Luxury Sofa Set</h3>
+                        <p>₹446,999</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="mirror dresser set">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.0tIYFGVuBmpYRkO0I---OgHaE7?pid=Api&P=0&h=180" alt="Mirror Dresser Set">
+                        <h3>Daybed / Chaise with Cushions</h3>
+                        <p>₹318,300</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="bedside tablel amp">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.vxgbJltDcDsrvRwk9AHdwwHaEB?pid=Api&P=0&h=180" alt="Bedside Table with Lamp">
+                        <h3>Twin Wooden Bed Set</h3>
+                        <p>₹123,200</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="upholstered sofa corner">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.OdTpKfRVzGCb6D7QMlSmKwHaE8?pid=Api&P=0&h=180" alt="Upholstered Sofa Corner">
+                        <h3>Upholstered Queen Bed</h3>
+                        <p>₹117,900</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="vanity mirrorwhite">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.wNvdp4Yiy2nowcK3deFUFwHaEf?pid=Api&P=0&h=180" alt="White Vanity with Mirror">
+                        <h3>Contemporary Wooden Bed</h3>
+                        <p>₹139,800</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="accent chair">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.n2cyonR5MVRPG5n73BG_MwHaF7?pid=Api&P=0&h=180" alt="Accent Chair">
+                        <h3>Modern Bedroom Set</h3>
+                        <p>₹144,999</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wall shelf">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.G31Pc2SGKTxhEzKCtJK_wQHaF7?pid=Api&P=0&h=180" alt="Wall Shelf">
+                        <h3>Luxury Master Bedroom Interior</h3>
+                        <p>₹112,499</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Kitchen Furniture -->
+            <div class="category-section" data-category="kitchenfurniture">
+                <div class="product-list">
+                    <div class="product" data-name="slat bed frame">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.VigwHHCp_lrjuGEryDl78gHaFj?pid=Api&P=0&h=180" alt="Slat Bed Frame">
+                        <h3>Pink Modular Kitchen</h3>
+                        <p>₹115,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="upholstered headboard">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.Ml6onMPVPli6wHuPOPAYXgHaE7?pid=Api&P=0&h=180" alt="Upholstered Headboard">
+                        <h3>Wooden Modular Kitchen with Island</h3>
+                        <p>₹61,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="floating shelf unit">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.rkggQuzPLiIIEq7hWtV1NQHaEn?pid=Api&P=0&h=180" alt="Floating Shelf Unit">
+                        <h3>Modern Grey Modular Kitchen</h3>
+                        <p>₹12,800</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="accent armchair">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.GRBojoIEmUZfwiP_iRUKEwHaGL?pid=Api&P=0&h=180" alt="Accent Armchair">
+                        <h3>Contemporary Red Modular Kitchen</h3>
+                        <p>₹72,200</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="minimalist nightstand">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.KG_PK-w0dwxViRndvmMfSwHaFj?pid=Api&P=0&h=180" alt="Minimalist Nightstand">
+                        <h3>Minimalist Orange Modular Kitchen</h3>
+                        <p>₹32,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="scandinavian dresser">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.lZMuhj3sFDrKUllc31hCowHaFj?pid=Api&P=0&h=180" alt="Scandinavian Dresser">
+                        <h3>Scandinavian Style Kitchen</h3>
+                        <p>₹111,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wooden bench storage">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.Mv_Fj9Ylarlhoj4N5X_k0AHaGL?pid=Api&P=0&h=180" alt="Wooden Bench Storage">
+                        <h3>Traditional Wooden Kitchen</h3>
+                        <p>₹49,700</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="corner shelf unit">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.hnrWZbaWkv6rStyLInrpYwHaFG?pid=Api&P=0&h=180" alt="Corner Shelf Unit">
+                        <h3>White Modular Kitchen with Island</h3>
+                        <p>₹112,600</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="decorative wall panel">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.u5KpOGUClVtcIxEjAURTPwHaF7?pid=Api&P=0&h=180" alt="Decorative Wall Panel">
+                        <h3>Glossy White Modular Kitchen</h3>
+                        <p>₹15,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="luxury studded bed">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.7PnIrKWeYNvvlXpLvvr9PwHaF3?pid=Api&P=0&h=180" alt="Luxury Studded Bed">
+                        <h3>Designer Modular Kitchen with Floral Cabinets</h3>
+                        <p>₹28,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="storage headboard unit">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.ETzivcwJfV2RVXIzTHOdGAHaFj?pid=Api&P=0&h=180" alt="Storage Headboard Unit">
+                        <h3>Green Modular Kitchen</h3>
+                        <p>₹113,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="daybed with trundle">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.JTek4H6CAoodF8MKw7hb1AHaE7?pid=Api&P=0&h=180" alt="Daybed with Trundle">
+                        <h3>Wooden Modular Kitchen</h3>
+                        <p>₹161,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="upholstered sofa bed">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.p-AOizw7GDsZUsCtDOOrTAHaEv?pid=Api&P=0&h=180" alt="Upholstered Sofa Bed">
+                        <h3>Modern Grey Modular Kitchen</h3>
+                        <p>₹17,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wall mounted bookrack">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.Opm2N74xSh3LL0lVdkP5BwHaE8?pid=Api&P=0&h=180" alt="Wall Mounted Bookrack">
+                        <h3>Dual-Tone Modular Kitchen</h3>
+                        <p>₹13,900</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="rotating makeup dresser">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.rz-2m6dAdQcAyN4PVSjzWgHaFu?pid=Api&P=0&h=180" alt="Rotating Makeup Dresser">
+                        <h3>Wooden Finish Modular Kitchen</h3>
+                        <p>₹84,200</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="modern nightstand glass">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.WOpeTcT_g8nAC8NDmLtkvwHaEK?pid=Api&P=0&h=180" alt="Modern Nightstand Glass Top">
+                        <h3>White Contemporary Modular Kitchen</h3>
+                        <p>₹13,600</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="carved wooden side table">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.5H245suo6bePM8x_vDXbzQHaF7?pid=Api&P=0&h=180" alt="Carved Wooden Side Table">
+                        <h3>Grey & White Modular Kitchen</h3>
+                        <p>₹41,100</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="fold out bed drawer">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.BgCtTqGjZzFhGUJEAo11bAHaHa?pid=Api&P=0&h=180" alt="Fold-Out Bed Drawer">
+                        <h3>Luxury White Modular Kitchen</h3>
+                        <p>₹51,499</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="multi tier rack shelf">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.xT6jAeWyY5mKIqopWRMZ1gHaE8?pid=Api&P=0&h=180" alt="Multi‑Tier Rack Shelf">
+                        <h3>Dark Green Modular Kitchen</h3>
+                        <p>₹93,799</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="floating night ledge">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.EOfpZ1ht9gpjHv-tkxyKIQHaE7?pid=Api&P=0&h=180" alt="Floating Night Ledge">
+                        <h3>Classic Wooden Modular Kitchen</h3>
+                        <p>₹32,999</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="contemporary wall art bedside">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.v9QojTbbFMG2uSL8PjjLwAHaEK?pid=Api&P=0&h=180" alt="Contemporary Wall Art Bedside">
+                        <h3>Beige & Grey Modular Kitchen</h3>
+                        <p>₹32,300</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="round makeup table">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.A6gZIyfbMM6mQFMqoDMpXgHaE8?pid=Api&P=0&h=180" alt="Round Makeup Table">
+                        <h3>Modern Island Modular Kitchen</h3>
+                        <p>₹84,800</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="ottoman storage box">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.2JD6vW3NpV_jI1QvvETNgQHaEo?pid=Api&P=0&h=180" alt="Ottoman Storage Box">
+                        <h3>White Glossy Modular Kitchen</h3>
+                        <p>₹63,299</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="glass side night table">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.-KVq0-sT5qMl6LHpUqCgvgHaFP?pid=Api&P=0&h=180" alt="Glass Side Night Table">
+                        <h3>Luxury Bar-Style Modular Kitchen</h3>
+                        <p>₹93,900</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="carved bed headrest">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.j2zOXCLH64Ir0RjlTpJAXgHaFo?pid=Api&P=0&h=180" alt="Carved Bed Headrest">
+                        <h3>Carved Bed Headrest</h3>
+                        <p>₹55,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Dresser -->
+            <div class="category-section" data-category="dresser">
+                <div class="product-list">
+                    <div class="product" data-name="modern wooden chair">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.TtDwRjoKgBhH8WBhLkekiAHaHa?pid=Api&P=0&h=180" alt="Modern Wooden Chair">
+                        <h3>Wooden Storage Dresser</h3>
+                        <p>₹14,299</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="classic office chair">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.RJW-SqBn-sr5h1h9acZJYAHaHa?pid=Api&P=0&h=180" alt="Classic Office Chair">
+                        <h3>White Vintage Dresser</h3>
+                        <p>₹18,599</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="luxury leather sofa">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.6cjs8YCpfXOKrp8SPl0ZMQHaIm?pid=Api&P=0&h=180" alt="Luxury Leather Sofa">
+                        <h3>Mahogany Dresser with Mirror</h3>
+                        <p>₹48,900</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="modern study desk">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.KRd-miagk--WYafWqizdvgHaFe?pid=Api&P=0&h=180" alt="Modern Study Desk">
+                        <h3>Grey Wooden Chest of Drawers</h3>
+                        <p>₹22,799</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="glass center table">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.2CgHkkrUpIvOpBeSSsts8QHaE7?pid=Api&P=0&h=180" alt="Glass Center Table">
+                        <h3>Dark Brown Wooden Dresser</h3>
+                        <p>₹17,250</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wooden tv unit">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.UycPAVrIuOuqUjvb24163AHaHa?pid=Api&P=0&h=180" alt="Wooden TV Unit">
+                        <h3>Grey Storage Cabinet / Sideboard</h3>
+                        <p>₹34,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="recliner chair">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.1aabzjXR56gdyKwYJuX12wHaGR?pid=Api&P=0&h=180" alt="Recliner Chair">
+                        <h3>Dark Grey Wooden Dresser</h3>
+                        <p>₹27,990</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="kids study table">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.SldjYQGx4RDwzVvlJT8_awHaFN?pid=Api&P=0&h=180" alt="Kids Study Table">
+                        <h3>Wooden Chest of Drawers</h3>
+                        <p>₹9,450</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="multi storage cabinet">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.4ZT40hvPn-kSZZgLK06FigHaH_?pid=Api&P=0&h=180" alt="Multi Storage Cabinet">
+                        <h3>White Dressing Cabinet with Mirror</h3>
+                        <p>₹21,700</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="foldable bed">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.wIolS43riYQG1mgeMm3OYwHaHx?pid=Api&P=0&h=180" alt="Foldable Bed">
+                        <h3>Classic Wooden Dresser with Mirror</h3>
+                        <p>₹25,400</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="round stool">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.QROeHFVFh-h62hgT6pY5rwAAAA?pid=Api&P=0&h=180" alt="Round Stool">
+                        <h3>White Chest of Drawers</h3>
+                        <p>₹3,299</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wooden book rack">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.w7EAb85m23fV8tWXvAcGagHaHa?pid=Api&P=0&h=180" alt="Wooden Book Rack">
+                        <h3>White Dresser with Mirror</h3>
+                        <p>₹12,800</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="corner table">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.CmHAnbpItfcNN11_A2_G-gHaFj?pid=Api&P=0&h=180" alt="Corner Table">
+                        <h3>Dark Brown Wooden Dresser</h3>
+                        <p>₹7,450</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="metal chair">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.3tVU8HzL4gcJybNBp8-UzAHaHa?pid=Api&P=0&h=180" alt="Metal Chair">
+                        <h3>White Tallboy Storage Cabinet</h3>
+                        <p>₹6,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="vanity dresser">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.DWm7C6DJLvnlJwJPj3A8AgHaE8?pid=Api&P=0&h=180" alt="Vanity Dresser">
+                        <h3>Modern Wooden Dresser 2-tone finish</h3>
+                        <p>₹15,900</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wardrobe closet">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.jHB2rZSHStqFxyoEc8hAMAHaKG?pid=Api&P=0&h=180" alt="Wardrobe Closet">
+                        <h3>Pink Decorative Dresser</h3>
+                        <p>₹38,600</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="coffee table">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP._YrQVpeBcQfiK9Oh263W0wHaHa?pid=Api&P=0&h=180" alt="Coffee Table">
+                        <h3>Compact Wooden Storage Chest</h3>
+                        <p>₹8,250</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="bunk bed">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.dSOVympycNy4FdQi-5SkNgHaJ4?pid=Api&P=0&h=180" alt="Bunk Bed">
+                        <h3>White Curved Wooden Dresser</h3>
+                        <p>₹45,999</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="folding dining table">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.vMbxQeABQr2pY7ZV81bKzwHaE-?pid=Api&P=0&h=180" alt="Folding Dining Table">
+                        <h3>Vintage Green Wooden Sideboard</h3>
+                        <p>₹18,299</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Living Room -->
+            <div class="category-section" data-category="livingroom">
+                <div class="product-list">
+                    <div class="product" data-name="luxury sofa set">
+                        <img src="https://s3.amazonaws.com/homestratosphere/wp-content/uploads/2016/01/27205035/13-Living-Room-Furniture-Sofas-iStock-.jpg" alt="Luxury Sofa Set">
+                        <h3>Luxury Sofa Set</h3>
+                        <p>₹56,900</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="larkinhurst">
+                        <img src="https://d9dvmj2a7k2dc.cloudfront.net/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/3/1/31901-38-35-t636_4.jpg" alt="larkinhurst">
+                        <h3>Traditional Sofa Set</h3>
+                        <p>₹46,999</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="emporium modern chair">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.nnchp9cvTRT6j9vXyejS1wHaFF?pid=Api&P=0&h=180" alt="Emporium Modern Chair">
+                        <h3>Modern Chair</h3>
+                        <p>₹16,800</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="velvet barrel armchair">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.6igfap3WOn-AOQGp4VfftQHaEX?pid=Api&P=0&h=180" alt="Velvet Barrel Armchair">
+                        <h3>Velvet Barrel Armchair</h3>
+                        <p>₹14,950</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="scandi fabric accent chair">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.vAeo5JcP2NQxU_xyiQnpUgHaHa?pid=Api&P=0&h=180" alt="Scandi Fabric Accent Chair">
+                        <h3>Sectional Sofa</h3>
+                        <p>₹11,200</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="midcentury lounge chair">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.tPQJY9tjMpSpEbDiyDo9dQHaDx?pid=Api&P=0&h=180" alt="Mid‑Century Lounge Chair">
+                        <h3>Sectional Sofa Set</h3>
+                        <p>₹19,500</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="lightwood modern chair">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.4jC36vlf-w9Ygw8bvqDxeAHaEo?pid=Api&P=0&h=180" alt="Lightwood Modern Chair">
+                        <h3>Classical Sofa Set</h3>
+                        <p>₹13,300</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="stylish recliner sofa">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.WxFN4CDfsgIezOem5meKcAHaDt?pid=Api&P=0&h=180" alt="Stylish Recliner Sofa">
+                        <h3>Recliner Sofa</h3>
+                        <p>₹58,400</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="modern office chair">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.7jrVvzQadafjUL4MhAuxHwHaEc?pid=Api&P=0&h=180" alt="Modern Office Chair">
+                        <h3>Living Room Sofa Set</h3>
+                        <p>₹9,950</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="premium tv cabinet">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.j49D0yaGuRbbkMr2jNxCOQHaE8?pid=Api&P=0&h=180" alt="Premium TV Cabinet">
+                        <h3>Living Room Cabinet</h3>
+                        <p>₹21,899</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="compact study desk">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.4OU0HW3DgaV_U5GO7tzEgQHaE8?pid=Api&P=0&h=180" alt="Compact Study Desk">
+                        <h3>Living Room Sofa Set</h3>
+                        <p>₹6,799</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="wooden sideboard">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.XSSkTLlVLs_npuO5ExBRUAHaEp?pid=Api&P=0&h=180" alt="Wooden Sideboard">
+                        <h3>Wooden Sideboard</h3>
+                        <p>₹18,950</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="leather chaise lounge">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.mP7G6jMlm0nUtkGXR5EtkwHaDu?pid=Api&P=0&h=180" alt="Leather Chaise Lounge">
+                        <h3>Chaise Lounge Sofa</h3>
+                        <p>₹33,300</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal (Address/Payment Flow) -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-btn" id="closeModal">&#10005;</span>
+            <h2 id="modalProductName">Product Name</h2>
+            <p id="modalProductPrice">Price</p>
+            <div id="addressBlock" class="hidden"></div>
+            <div class="address-btns hidden" id="addressBtns">
+                <button class="modify">Modify Address</button>
+                <button class="add">Add New Address</button>
+            </div>
+            <form id="addressForm" class="hidden" novalidate>
+                <h3>Delivery Address</h3>
+                <label>House/Flat Number*</label><input type="text" name="houseNumber" required>
+                <label>Landmark</label><input type="text" name="landmark">
+                <label>City*</label><input type="text" name="city" required>
+                <label>State*</label><input type="text" name="state" required>
+                <label>Pin Code*</label><input type="text" name="pin" pattern="\d{6}" required>
+                <button type="submit" class="submit-address-btn">Save Address</button>
+            </form>
+            <div id="paymentSection" class="hidden">
+                <p>Please select a payment method:</p>
+                <div class="payment-options">
+                    <button class="payment-btn" data-payment="Online Payment">💳 Online Payment</button>
+                    <button class="payment-btn" data-payment="Cash on Delivery">🏠 Cash on Delivery</button>
+                </div>
+            </div>
+            <div class="wallet-section" id="walletSection">
+                <p>Select a payment wallet:</p>
+                <div class="wallet-options">
+                    <button class="wallet-btn" data-wallet="PhonePe">📲 PhonePe</button>
+                    <button class="wallet-btn" data-wallet="Google Pay">💙 Google Pay</button>
+                    <button class="wallet-btn" data-wallet="Paytm">🟦 Paytm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <span class="success-close-btn" id="successCloseBtn">&#10005;</span>
+            <div class="success-check">✔</div>
+            <div class="success-text-main">Order Placed Successfully!</div>
+            <div class="success-message" id="orderPlacedDetails"></div>
+            <div class="success-address" id="orderPlacedAddress"></div>
+        </div>
+    </div>
+
+    <script>
+	// ...existing code...
+                function showOrderPlacedModal(paySource) {
+                    successModalOverlay.classList.add('active');
+                    orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+// ...existing code...let currentProductName = "";
+        let currentProductPrice = "";
+        let selectedPaymentMethod = null;
+        let savedAddress = null;
+
+        // Modal elements
+        const modalOverlay = document.getElementById('modalOverlay'),
+            modalProductName = document.getElementById('modalProductName'),
+            modalProductPrice = document.getElementById('modalProductPrice'),
+            addressBlock = document.getElementById('addressBlock'),
+            addressBtns = document.getElementById('addressBtns'),
+            addressForm = document.getElementById('addressForm'),
+            paymentSection = document.getElementById('paymentSection'),
+            walletSection = document.getElementById('walletSection'),
+            successModalOverlay = document.getElementById('successModalOverlay'),
+            successCloseBtn = document.getElementById('successCloseBtn'),
+            orderPlacedDetails = document.getElementById('orderPlacedDetails'),
+            orderPlacedAddress = document.getElementById('orderPlacedAddress');
+
+        // Open modal for product
+        function openModalForProduct(product) {
+            currentProductName = product.querySelector('h3').textContent;
+            currentProductPrice = product.querySelector('p').textContent;
+            modalProductName.textContent = currentProductName;
+            modalProductPrice.textContent = currentProductPrice;
+            walletSection.classList.remove('visible');
+
+            if (loadSavedAddress()) {
+                renderSavedAddress();
+                showPaymentStep();
+                togglePaymentButtons(true);
+            } else {
+                showAddressStep();
+                togglePaymentButtons(false);
+            }
+        }
+
+        // Attach buy button for AI clones
+        function attachBuyForClone(card) {
+            const btn = card.querySelector('.buy-btn');
+            if (!btn) return;
+            btn.addEventListener('click', (e) => {
+                const p = e.target.closest('.product');
+                openModalForProduct(p);
+            });
+        }
+
+        // AI Assistant logic
+        function handleAI() {
+            const inputEl = document.getElementById("aiInput");
+            const responseBox = document.getElementById("aiResponse");
+            const input = (inputEl.value || "").trim().toLowerCase();
+
+            responseBox.innerHTML = "";
+
+            if (!input) {
+                responseBox.innerText = "⚠️ Please type something first!";
+                return;
+            }
+
+            const products = document.querySelectorAll("#productContainer .product");
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = input.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = input.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = input.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "products", "product"
+            ]);
+            const words = input
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            const matches = [];
+
+            products.forEach(product => {
+                const nameEl = product.querySelector("h3");
+                const priceEl = product.querySelector("p");
+                if (!nameEl || !priceEl) return;
+
+                const name = nameEl.innerText.toLowerCase();
+                const priceText = priceEl.innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+
+                const nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+
+                if (nameMatch && priceOK) matches.push({
+                    product,
+                    price
+                });
+            });
+
+            if (matches.length === 0) {
+                responseBox.innerText = "🤖 Sorry, no matching products found!";
+                return;
+            }
+
+            if (maxPrice != null && minPrice == null) {
+                matches.sort((a, b) => a.price - b.price);
+            } else if (minPrice != null && maxPrice == null) {
+                matches.sort((a, b) => b.price - a.price);
+            } else {
+                matches.sort((a, b) => a.price - b.price);
+            }
+
+            matches.forEach((hit, i) => {
+                const clone = hit.product.cloneNode(true);
+                clone.classList.add('ai-clone');
+                responseBox.appendChild(clone);
+                attachBuyForClone(clone);
+                setTimeout(() => clone.classList.add('show'), i * 120);
+            });
+        }
+
+        // Category filter
+        function filterCategory(category, link) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(sec => {
+                sec.classList.toggle('hidden',
+                    category !== 'all' && sec.dataset.category !== category);
+            });
+            document.getElementById('searchInput').value = '';
+            filterSearch('');
+        }
+
+        // Search filter
+        function filterSearch(query) {
+            query = query.toLowerCase().trim();
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = query.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = query.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = query.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "product", "products"
+            ]);
+            const words = query
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            // Always search across all categories for search
+            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('hidden'));
+
+            document.querySelectorAll('.product').forEach(p => {
+                const name = p.querySelector('h3').innerText.toLowerCase();
+                const priceText = p.querySelector('p').innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+                let nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+                p.classList.toggle('hidden', !(nameMatch && priceOK));
+
+            });
+
+            // Hide category-section if all products inside are hidden
+            document.querySelectorAll('.category-section').forEach(section => {
+                const products = section.querySelectorAll('.product');
+                const visible = Array.from(products).some(p => !p.classList.contains('hidden'));
+                section.classList.toggle('hidden', !visible);
+            });
+
+            // Show humble message if nothing matches
+            let anyVisible = !!document.querySelector('.product:not(.hidden)');
+            let msgId = 'searchNoMatchMsg';
+            let container = document.getElementById('productContainer');
+            let oldMsg = document.getElementById(msgId);
+            if (!anyVisible) {
+                if (!oldMsg) {
+                    let msg = document.createElement('div');
+                    msg.id = msgId;
+                    msg.style = "text-align:center; font-size:1.2rem; color:#555; margin:40px 0;";
+                    msg.innerText = "🙏 Sorry, no products found matching your search.";
+                    container.appendChild(msg);
+                }
+            } else if (oldMsg) {
+                oldMsg.remove();
+            }
+        }
+
+        // Address logic
+        function loadSavedAddress() {
+            let s = localStorage.getItem('userAddress');
+            savedAddress = s ? JSON.parse(s) : null;
+            return !!savedAddress;
+        }
+
+        function saveAddress(addr) {
+            savedAddress = addr;
+            localStorage.setItem('userAddress', JSON.stringify(addr));
+        }
+
+        function renderSavedAddress() {
+            if (!savedAddress) {
+                addressBlock.classList.add('hidden');
+                addressBtns.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            } else {
+                addressBlock.classList.remove('hidden');
+                addressBlock.innerHTML = `<strong>Address:</strong><br>${savedAddress.houseNumber}` +
+                    (savedAddress.landmark ? `, ${savedAddress.landmark}` : '') + `
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+                addressBtns.classList.remove('hidden');
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
+        function togglePaymentButtons(enabled) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function showAddressStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.add('hidden');
+            addressBtns.classList.add('hidden');
+            addressForm.classList.remove('hidden');
+            paymentSection.classList.add('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        function showPaymentStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.remove('hidden');
+            addressBtns.classList.remove('hidden');
+            addressForm.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        // Buy button logic
+        document.querySelectorAll('.buy-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                const product = e.target.closest('.product');
+                openModalForProduct(product);
+            });
+        });
+
+        // Address buttons
+        addressBtns.querySelector('.modify').onclick = function() {
+            addressForm.houseNumber.value = savedAddress.houseNumber || '';
+            addressForm.landmark.value = savedAddress.landmark || '';
+            addressForm.city.value = savedAddress.city || '';
+            addressForm.state.value = savedAddress.state || '';
+            addressForm.pin.value = savedAddress.pin || '';
+            showAddressStep();
+        };
+        addressBtns.querySelector('.add').onclick = function() {
+            addressForm.reset();
+            showAddressStep();
+        };
+
+        // Address form submit
+        addressForm.onsubmit = function(e) {
+            e.preventDefault();
+            if (!addressForm.checkValidity()) {
+                addressForm.reportValidity();
+                return;
+            }
+            const fd = new FormData(addressForm);
+            const newAddr = {
+                houseNumber: fd.get('houseNumber').trim(),
+                landmark: fd.get('landmark').trim(),
+                city: fd.get('city').trim(),
+                state: fd.get('state').trim(),
+                pin: fd.get('pin').trim()
+            };
+            saveAddress(newAddr);
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        };
+
+        // Payment button logic
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedPaymentMethod = btn.dataset.payment;
+                if (selectedPaymentMethod === "Online Payment") {
+                    walletSection.classList.add('visible');
+                } else {
+                    showOrderPlacedModal("Cash on Delivery");
+                    modalOverlay.classList.remove('active');
+                }
+            };
+        });
+
+        // Wallet button logic
+        document.querySelectorAll('.wallet-btn').forEach(btn => {
+            btn.onclick = function() {
+                walletSection.classList.remove('visible');
+                showOrderPlacedModal(btn.dataset.wallet);
+                modalOverlay.classList.remove('active');
+            };
+        });
+
+        function showOrderPlacedModal(paySource) {
+            successModalOverlay.classList.add('active');
+            orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// Success modal close
+successCloseBtn.onclick = () => successModalOverlay.classList.remove('active');
+successModalOverlay.addEventListener('click', e => {
+    if (e.target === successModalOverlay) successModalOverlay.classList.remove('active');
+});
+
+// AI Panel toggle
+const aiPanel = document.getElementById('aiPanel');
+const aiOpenBtn = document.getElementById('aiOpenBtn');
+const aiCloseBtn = document.getElementById('aiCloseBtn');
+
+aiOpenBtn.onclick = () => {
+    aiPanel.classList.remove('hidden');
+    document.body.classList.add('ai-open');
+};
+aiCloseBtn.onclick = () => {
+    aiPanel.classList.add('hidden');
+    document.body.classList.remove('ai-open');
+};
+document.addEventListener('click', function(e) {
+    if (!aiPanel.classList.contains('hidden') &&
+        !aiPanel.contains(e.target) &&
+        e.target !== aiOpenBtn) {
+        aiPanel.classList.add('hidden');
+        document.body.classList.remove('ai-open');
+    }
+});
+
+// Search input event
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    filterSearch(e.target.value);
+});
+
+document.getElementById('closeModal').onclick = () => {
+    // If address form is visible, just hide it and show previous step
+    if (!addressForm.classList.contains('hidden')) {
+        addressForm.classList.add('hidden');
+        if (loadSavedAddress()) {
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        } else {
+            modalOverlay.classList.remove('active');
+        }
+    } else {
+        modalOverlay.classList.remove('active');
+        walletSection.classList.remove('visible');
+    }
+};const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', function() {
+    searchClearBtn.style.display = searchInput.value ? 'inline' : 'none';
+});
+
+searchClearBtn.onclick = function() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterSearch('');
+};
+            </script>
+</body>
+
+</html>
+
+</html>

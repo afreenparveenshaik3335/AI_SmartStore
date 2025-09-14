@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Grocery Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: #f5f5f5;
+        }
+        /* Sidebar */
+        
+        .sidebar {
+            width: 200px;
+            background-color:	#4682B4;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: white;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color:	#3A6A94;
+        }
+        /* Main Content */
+        
+        .main {
+            margin-left: 200px;
+            flex: 1;
+        }
+        
+        .search-bar-wrapper {
+            position: sticky;
+            top: 0;
+            background: 	#5B9BCF;
+            padding: 10px;
+            z-index: 100;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .search-container img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .products {
+            padding: 20px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-section h2 {
+            margin-bottom: 15px;
+        }
+        
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .product {
+            background: white;
+            width: 180px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .product h3 {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        .product p {
+            font-weight: bold;
+            color: 	#3A6A94;
+        }
+        
+        .buy-btn {
+            background-color: 	#3A6A94;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .buy-btn:hover {
+            background: #388E3C;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        /* Modal overlays */
+        
+        .modal-overlay,
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active,
+        .success-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 420px;
+            width: 90%;
+            padding: 20px 30px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .modal p {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        
+        .close-btn,
+        .success-close-btn {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .close-btn:hover,
+        .success-close-btn:hover {
+            color: #333;
+        }
+        
+        #addressBlock {
+            background: #f7f7f7;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin-bottom: 18px;
+            text-align: left;
+            font-size: 15px;
+        }
+        
+        .address-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .address-btns button {
+            flex: 1;
+            padding: 8px;
+            font-weight: 700;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #fff;
+        }
+        
+        .address-btns .modify {
+            background: #ff9800;
+        }
+        
+        .address-btns .add {
+            background: #03A9F4;
+        }
+        
+        .address-btns .modify:hover {
+            background: #e65100;
+        }
+        
+        .address-btns .add:hover {
+            background: #0277bd;
+        }
+        
+        #addressForm {
+            text-align: left;
+            margin-top: 14px;
+            max-width: 340px;
+            margin: auto;
+        }
+        
+        #addressForm h3 {
+            color: #388E3C;
+            font-size: 18px;
+        }
+        
+        #addressForm label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600;
+        }
+        
+        #addressForm input {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+        }
+        
+        #addressForm input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .submit-address-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .submit-address-btn:hover {
+            background: #388E3C;
+        }
+        
+        .payment-options {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        
+        .payment-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 3px solid #4CAF50;
+            border-radius: 30px;
+            background: white;
+            font-weight: 700;
+            color: #4CAF50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .payment-btn:hover:not(:disabled) {
+            background: #4CAF50;
+            color: #fff;
+        }
+        
+        .payment-btn:disabled {
+            background: #ccc !important;
+            color: #888 !important;
+            cursor: not-allowed;
+        }
+        
+        .wallet-section {
+            margin: 16px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .wallet-section.visible {
+            display: flex;
+            animation: popIn 0.4s;
+        }
+        
+        .wallet-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .wallet-btn {
+            flex: 1;
+            border: 2px solid #2196f3;
+            background: #fff;
+            color: #2196f3;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .wallet-btn:hover {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 18px;
+            max-width: 340px;
+            width: 90%;
+            padding: 25px 22px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+            animation: fadeIn 0.5s;
+        }
+        
+        .success-check {
+            font-size: 70px;
+            color: #19af56;
+            margin-bottom: 10px;
+            animation: tickBlink 1.4s linear infinite;
+        }
+        
+        @keyframes tickBlink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .success-text-main {
+            font-size: 22px;
+            color: #19af56;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 4px 0 12px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .success-address {
+            margin-top: 14px;
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+		/* Back Button Styles */
+.back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #3A6A94 0%, #5B9BCF 100%);
+
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transform: translateZ(0);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.back-btn .back-icon {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+    transform: translateX(0);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+}
+
+.back-btn .back-text {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    background: linear-gradient(135deg, #69aee5 0%, #39a2e0 100%);
+;
+}
+
+.back-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.back-btn:hover .back-icon {
+    transform: translateX(-3px);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 9px 14px;
+    }
+    .back-btn .back-text {
+        font-size: 13px;
+    }
+}
+   /* AI Assistant Panel */
+        
+        .ai-panel {
+            width: 340px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+            border-left: 2px solid #bdbdbd;
+            padding: 28px 20px 20px 20px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1300;
+            box-shadow: -4px 0 24px rgba(90, 64, 55, 0.10);
+            transition: transform 0.3s, box-shadow 0.2s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: slideInRight 0.4s;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .ai-panel h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #5D4037;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel textarea {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            border: 1.5px solid #bdbdbd;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: vertical;
+            box-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel button {
+            background: linear-gradient(90deg, #3A6A94 0%, #4682B4 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3eeff;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .ai-panel button:hover {
+            background: linear-gradient(90deg, #3A6A94 0%, #4682B4 100%);
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 2.2rem;
+            color: #8D6E63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .ai-close-btn:hover {
+            color: #388E3C;
+        }
+        
+        #aiResponse {
+            margin-top: 18px;
+            min-height: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-family: inherit;
+        }
+        
+        .ai-panel #aiResponse {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .ai-panel .ai-clone {
+            width: calc(50% - 10px);
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        /* Responsive for mobile */
+        
+        @media (max-width: 600px) {
+            .ai-panel .ai-clone {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 16px 8px;
+            }
+        }
+        /* ...existing code... */
+        
+        .ai-open-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1200;
+            background: #3A6A94;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ai-open-btn:hover {
+            background: #388E3C;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- AI Assistant Button -->
+    <button id="aiOpenBtn" class="ai-open-btn" title="AI Assistance">🤖</button>
+
+    <!-- AI Assistant Sidebar -->
+    <div class="ai-panel hidden" id="aiPanel">
+        <span class="ai-close-btn" id="aiCloseBtn">&times;</span>
+        <h2>AI Assistance ✨</h2>
+        <textarea id="aiInput" placeholder="Ask me anything..."></textarea>
+        <button onclick="handleAI()">Ask AI</button>
+        <div id="aiResponse" style="margin-top:15px;"></div>
+    </div>
+    <button class="back-btn" id="backBtn" aria-label="Go back" onclick="window.location.href='categories.html'">
+    <span class="back-icon" aria-hidden="true">←</span>
+    <span class="back-text">Back</span>
+</button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="active" onclick="filterCategory('all', this)">All</a>
+        <a href="#" onclick="filterCategory('carautomotive', this)">Car Automotive</a>
+        <a href="#" onclick="filterCategory('bikeautomotive', this)">Bike Automotive</a>
+        <a href="#" onclick="filterCategory('truckautomotive', this)">Truck Automotive</a>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <!-- Search -->
+        <div class="search-bar-wrapper">
+            <div class="search-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Search Icon">
+                <input type="text" id="searchInput" placeholder="Search for automative...">
+                <span id="searchClearBtn" style="display:none;cursor:pointer;font-size:20px;margin-left:8px;">&#10005;</span>
+            </div>
+        </div>
+
+        <!-- Products -->
+        <div class="products" id="productContainer">
+
+            <!-- carautomotive -->
+            <div class="category-section" data-category="carautomotive">
+
+                <div class="product-list">
+
+                    <div class="product" data-name="metal materials for car parts">
+                        <img src="https://autoprotoway.com/wp-content/uploads/2022/11/metal-materials-for-car-parts.jpg" alt="Metal Materials for Car Parts">
+                        <h3>Metal Materials for Car Parts</h3>
+                        <p>3,459</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="different car fasteners">
+                        <img src="https://autoprotoway.com/wp-content/uploads/2023/03/different-car-fasteners.jpg" alt="Different Car Fasteners">
+                        <h3>Different Car Fasteners</h3>
+                        <p>1,999</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="toyota avalon quadrabeam headlamp">
+                        <img src="https://www.audiomotive.com/wp-content/uploads/2015/04/2014_Toyota_Avalon_Quadrabeam_Headlamp.jpg" alt="Toyota Avalon Quadrabeam Headlamp">
+                        <h3>Toyota Avalon Quadrabeam Headlamp</h3>
+                        <p>₹7,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="led car headlamp">
+                        <img src="https://eenews.cdnartwhere.eu/sites/default/files/images/01-picture-library/ChristophHammerschmidt/2019/2019-10-October/MAXIM_LED/figure_1_shutterstock_401503627-1.jpg" alt="LED Car Headlamp">
+                        <h3>LED Car Headlamp</h3>
+                        <p>₹5,000</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="automatic transmission system">
+                        <img src="https://carfromjapan.com/wp-content/uploads/2017/06/automatic-transmission-1.jpg" alt="Automatic Transmission System">
+                        <h3>Automatic Transmission System</h3>
+                        <p>₹35,000</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="car gear shift">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.e3lHxK9ZTn-EsXoWGmNN8QHaEN?pid=Api&P=0&h=180" alt="Car Gear Shift">
+                        <h3>Car Gear Shift</h3>
+                        <p>₹3,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="manual gear assembly">
+                        <img src="https://w7.pngwing.com/pngs/159/306/png-transparent-gray-and-brass-gear-car-manual-transmission-gear-automatic-transmission-auto-parts-driving-automobile-repair-shop-transport.png" alt="Manual Gear Assembly">
+                        <h3>Manual Gear Assembly</h3>
+                        <p>₹6,000</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="engine gear set">
+                        <img src="https://www.pngitem.com/pimgs/m/620-6205070_engine-gears-hd-png-download.png" alt="Engine Gear Set">
+                        <h3>Engine Gear Set</h3>
+                        <p>₹8,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="transmission parts diagram">
+                        <img src="https://i0.wp.com/www.engineeringchoice.com/wp-content/uploads/2021/02/parts-of-automatic-transmission.png?fit=720%2C405&ssl=1" alt="Transmission Parts Diagram">
+                        <h3>Transmission Parts Diagram</h3>
+                        <p>₹4,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="disc brake and pads">
+                        <img src="https://www.gotodobbs.com/wp-content/uploads/2016/08/disc-brake-and-pads-on-a-vehicle.jpg" alt="Disc Brake and Pads">
+                        <h3>Disc Brake and Pads</h3>
+                        <p>₹3,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="ventilated disc brake">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.TRdkbF8w8DiydA4hAwtirAHaE5?pid=Api&P=0&h=180" alt="Ventilated Disc Brake">
+                        <h3>Ventilated Disc Brake</h3>
+                        <p>₹3,800</p>
+						<button class="buy-btn">Buy Now</button>
+						
+                    </div>
+
+                    <div class="product" data-name="disc brake close view">
+                        <img src="https://just7.us/wp-content/uploads/2020/04/disc-brake-671x1024.png" alt="Disc Brake Close View">
+                        <h3>Disc Brake Close View</h3>
+                        <p>₹3,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="disc brake setup on vehicle">
+                        <img src="https://i.ytimg.com/vi/VYRB6nljWlo/maxresdefault.jpg" alt="Disc Brake Setup on Vehicle">
+                        <h3>Disc Brake Setup on Vehicle</h3>
+                        <p>₹4,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="car v-belt diagram">
+                        <img src="https://www.cstatic-images.com/original/srvc-gloss/1415726693459.png" alt="Car V-Belt Diagram">
+                        <h3>Car V-Belt Diagram</h3>
+                        <p>₹1,800</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="v belt system">
+                        <img src="https://res.cloudinary.com/yourmechanic/image/upload/dpr_auto,f_auto,q_auto/v1/article_images/v_belts_new" alt="V Belt System">
+                        <h3>V Belt System</h3>
+                        <p>₹1,950</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="serpentine belt">
+                        <img src="https://carfromjapan.com/wp-content/uploads/2019/06/serpentine-belt.jpeg" alt="Serpentine Belt">
+                        <h3>Serpentine Belt</h3>
+                        <p>₹2,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                    <div class="product" data-name="auto partes descripcion">
+                        <img src="https://siempreauto.com/wp-content/uploads/sites/9/2023/05/auto-partes-descripcion.jpg?resize=1200,740&quality=80" alt="Auto Partes Descripcion">
+                        <h3>Auto Parts Description</h3>
+                        <p>₹2,599</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="automotive composites">
+                        <img src="https://www.cf-composites.toray/products/processed/images/figure_automotive.jpg" alt="Automotive Composites">
+                        <h3>Automotive Composites</h3>
+                        <p>₹3,199</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="front bumper">
+                        <img src="https://cdn.shopify.com/s/files/1/0262/8786/5911/files/FrontBumper-min_1_866x650_696e9e24-b53f-475d-8d9a-83b877f194da_1024x1024.jpg?v=1594743387" alt="Front Bumper">
+                        <h3>Front Bumper</h3>
+                        <p>₹4,999</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="auto mechanic tools list">
+                        <img src="https://globalgarage.org/wp-content/uploads/2018/07/ultimate-auto-mechanic-tools-list.jpg" alt="Auto Mechanic Tools List">
+                        <h3>Auto Mechanic Tools List</h3>
+                        <p>₹1,299</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="technician tools">
+                        <img src="https://res.cloudinary.com/yourmechanic/image/upload/dpr_auto,f_auto,q_auto/v1/article_images/10_Tools_Every_Professional_Automotive_Technician_Needs_main_image" alt="Technician Tools">
+                        <h3>Technician Tools</h3>
+                        <p>₹1,699</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="car repair">
+                        <img src="https://www.motorera.com/wp-content/uploads/2017/10/best-car-repair.jpg" alt="Car Repair">
+                        <h3>Car Repair</h3>
+                        <p>₹2,899</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="car parts kit">
+                        <img src="https://m.media-amazon.com/images/I/81GzX3fOYjL._AC_SL1500_.jpg" alt="Car Parts Kit">
+                        <h3>Car Parts Kit</h3>
+                        <p>₹3,499</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="mechanic tools">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.p42orMVARfopQNTuiTRkxwHaE8?pid=Api&P=0&h=180" alt="Mechanic Tools">
+                        <h3>Mechanic Tools</h3>
+                        <p>₹1,099</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="vehiclewheel">
+                        <img src="https://www.ebaymotorsblog.com/motors/blog/wp-content/uploads/2023/10/parts_vehicle_wheel_1600-600x392.jpg" alt="Vehicle Wheel">
+                        <h3>Vehicle wheel</h3>
+                        <p>₹2,199</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                    <div class="product" data-name="wheelpng">
+                        <img src="https://i.pinimg.com/originals/22/15/0b/22150b46825e72577df35e72fbf1200b.png" alt="Wheel PNG">
+                        <h3>Car Alloy Wheel</h3>
+                        <p>₹7,499</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="wheelparts">
+                        <img src="https://crsautomotive.com/wp-content/uploads/2018/10/wheel-parts.jpg" alt="Wheel Parts">
+                        <h3>Wheel Parts</h3>
+                        <p>₹4,299</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="drivingwheel">
+                        <img src="https://superdrive-gaming.com/wp-content/uploads/2020/07/SA5578-DRIVING-WHEEL-PNG-CARRE-1.png" alt="Driving Wheel">
+                        <h3>Steering Wheel</h3>
+                        <p>₹6,999</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="ldrivingwheel">
+                        <img src="https://www.familyhandyman.com/wp-content/uploads/2019/05/08.jpg" alt="Car Seat 1">
+                        <h3>Leather Steering Wheel</h3>
+                        <p>₹1,499</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="blackdrivingwhee">
+                        <img src="https://www.bigw.com.au/medias/sys_master/images/images/h69/hbc/17124893130782.jpg" alt="Car Seat 2">
+                        <h3>Black Steering Wheel</h3>
+                        <p>₹9,499</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="carseat3">
+                        <img src="https://s1.cdn.autoevolution.com/images/news/gallery/this-is-how-car-seats-evolved-through-the-years-car-seats-now-have-more-featur_7.jpg" alt="Car Seat 3">
+                        <h3>Carseat3</h3>
+                        <p>₹2,499</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="toyota avalon quadrabeam headlamp">
+                        <img src="https://www.audiomotive.com/wp-content/uploads/2015/04/2014_Toyota_Avalon_Quadrabeam_Headlamp.jpg" alt="Toyota Avalon Quadrabeam Headlamp">
+                        <h3>Toyota avalon quadrabeam headlamp</h3>
+                        <p>₹7,299</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="maxim led headlight">
+                        <img src="https://eenews.cdnartwhere.eu/sites/default/files/images/01-picture-library/ChristophHammerschmidt/2019/2019-10-October/MAXIM_LED/figure_1_shutterstock_401503627-1.jpg" alt="Maxim LED Headlight">
+                        <h3>Maxim led headlight</h3>
+                        <p>₹6,499</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="carseat4">
+                        <img src="https://autohq.com/images/installation/anatomy-seat-front.jpg" alt="Car Seat 4">
+                        <h3>Carseat4</h3>
+                        <p>₹1,499</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="exhaustsystem1">
+                        <img src="https://www.fastcar.co.uk/wp-content/uploads/sites/2/2018/08/FAST-CAR-PERFORMANCE-EXHAUST-SYSTEM-COMPONENTS-GUIDE.jpg" alt="Exhaust System 1">
+                        <h3>Exhaustsystem1</h3>
+                        <p>₹6,99</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+					
+                </div>
+            </div>
+
+
+
+
+
+
+
+            <!-- Snacks -->
+            <div class="category-section " data-category="bikeautomotive">
+
+                <div class="product-list ">
+                    <div class="product" data-name="zongshen cb250r">
+                        <img src="https://image.made-in-china.com/2f0j00yPAoJSdlpuqG/Zongshen-CB250r-4-Valves-High-Performance-250cc-Engine-Assembly-Sohc-Dirt-Bike-250cc-Air-Cooling-off-Road-Motorcycle-Engine.jpg" alt="Zongshen CB250R Engine">
+                        <h3>Zongshen CB250R Engine</h3>
+                        <p>₹12,000+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="engine parts">
+                        <img src="https://img1.tongtool.com/s/a8acagdd8cabj7ah8cjajfbfecaiiabbhhg9tzqe.jpg" alt="Engine Parts">
+                        <h3>Engine Parts</h3>
+                        <p>₹3,000+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bike cylinder head">
+                        <img src="https://i.pinimg.com/originals/df/ef/c0/dfefc03b6cd8accfd049ecbf1e6ed160.jpg" alt="Bike Cylinder Head">
+                        <h3>Bike Cylinder Head</h3>
+                        <p>₹2,500+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="sunbeam petrol tank">
+                        <img src="https://img3.exportersindia.com/product_images/bc-full/dir_79/2364739/sunbeam-bike-petrol-tank-886949.jpg" alt="Sunbeam Bike Petrol Tank">
+                        <h3>Sunbeam Petrol Tank</h3>
+                        <p>₹1,800+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="motorcycle silencer">
+                        <img src="https://cdn11.bigcommerce.com/s-b804b/images/stencil/1280x1280/products/1340/17943/3__65553.1539680088.jpg?c=2" alt="Motorcycle Silencer">
+                        <h3>Motorcycle Silencer</h3>
+                        <p>₹1,200+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="motorcycle air filter">
+                        <img src="https://m.media-amazon.com/images/I/71FVDXDhw6L._AC_SL1500_.jpg" alt="Motorcycle Air Filter">
+                        <h3>Motorcycle Air Filter</h3>
+                        <p>₹850+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="motorcycle headlight">
+                        <img src="https://static-01.daraz.lk/p/d6264f8acdb2e8b57cbcbfc301191ad2.jpg" alt="Motorcycle Headlight">
+                        <h3>Motorcycle Headlight</h3>
+                        <p>₹1,500+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="splendor alloy wheels leaf">
+                        <img src="https://cpimg.tistatic.com/05202827/b/4/24-LEAF-WHEELS-FOR-SPLENDOR.jpg" alt="Splendor Alloy Wheels Leaf">
+                        <h3>Splendor Leaf Wheels</h3>
+                        <p>₹2,200+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="hero splendor alloy wheels">
+                        <img src="http://5.imimg.com/data5/SELLER/Default/2022/7/PZ/PK/MZ/156952141/hero-splendor-bike-alloy-wheels.jpg" alt="Hero Splendor Alloy Wheels">
+                        <h3>Hero Splendor Alloy Wheels</h3>
+                        <p>₹2,800+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="stylish alloy wheels">
+                        <img src="https://images.carandbike.com/bike-images/gallery/hero/splendor-pro/stylish-alloy-wheels.jpg" alt="Stylish Alloy Wheels">
+                        <h3>Stylish Alloy Wheels</h3>
+                        <p>₹3,000+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="full system exhaust">
+                        <img src="https://www.scorpion-exhausts.com/image/catalog/pages/full-system.png" alt="Full System Exhaust">
+                        <h3>Full System Exhaust</h3>
+                        <p>₹9,000</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="akrapovic r1m motorcycle universal racing exhaust for yamaha">
+                        <img src="https://rukminim2.flixcart.com/image/416/416/xif0q/bike-exhaust-system/n/w/w/1-akrapovic-r1m-motorcycle-universal-racing-exhaust-for-yamaha-original-imagpedwhun8he6k.jpeg?q=70" alt="Akrapovic R1M Motorcycle Universal Racing Exhaust For Yamaha">
+                        <h3>Akrapovic R1M Motorcycle Universal Racing Exhaust For Yamaha</h3>
+                        <p>₹13,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="activa wheel rim for 3g 4g 5g">
+                        <img src="https://5.imimg.com/data5/SELLER/Default/2025/4/505227376/QN/TK/TG/80843530/activa-wheel-rim-for-3g-4g-5g-500x500.jpeg" alt="Activa Wheel Rim for 3G 4G 5G">
+                        <h3>Activa Wheel Rim for 3G 4G 5G</h3>
+                        <p>₹1,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="digital speedometer for bajaj pulsar 150 bs4 abs">
+                        <img src="https://eauto.co.in/cdn/shop/products/pricol-digital-speedometer-for-bajaj-pulsar-150-classic-bs4-with-abs-2017-2020-model-472_1024x.jpg?v=1631389652" alt="Digital Speedometer for Bajaj Pulsar 150 BS4 ABS">
+                        <h3>Digital Speedometer for Bajaj Pulsar 150 BS4 ABS</h3>
+                        <p>₹2,700</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="analog speedometer for bajaj pulsar 150 dtsi old model">
+                        <img src="https://eauto.co.in/cdn/shop/products/pricol-analog-speedometer-for-bajaj-pulsar-150-dtsi-old-model-284_1024x.jpg?v=1631371850" alt="Analog Speedometer for Bajaj Pulsar 150 DTSI Old Model">
+                        <h3>Analog Speedometer for Bajaj Pulsar 150 DTSI Old Model</h3>
+                        <p>₹1,800</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="bajaj pulsar n160 handle bar">
+                        <img src="https://imgd.aeplcdn.com/1056x594/n/cw/ec/128918/bajaj-pulsar-n160-handle-bar52.jpeg?isig=0&wm=2&q=75&q=75" alt="bajaj pulsar n160 handle bar">
+                        <h3>Bajaj pulsar n160 handle bar</h3>
+                        <p>₹1,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bajaj pulsar n250 handle bar">
+                        <img src="https://imgd.aeplcdn.com/1056x594/n/cw/ec/147555/bajaj-pulsar-n250-handle-bar91.jpeg?isig=0&wm=3&q=80" alt="bajaj pulsar n250 handle bar">
+                        <h3>Bajaj pulsar n250 handle bar</h3>
+                        <p>₹1,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bajaj pulsar rear chrome plated seat handle">
+                        <img src="https://5.imimg.com/data5/VS/IV/MY-4176535/bajaj-pulsar-rear-chrome-plated-seat-handle-500x500.jpg" alt="bajaj pulsar rear chrome plated seat handle">
+                        <h3>Bajaj pulsar rear chrome plated seat handle</h3>
+                        <p>₹800</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bajaj pulsar rear seat handle">
+                        <img src="https://indianbikesspares.com/wp-content/uploads/2024/02/NAR0255.webp" alt="bajaj pulsar rear seat handle">
+                        <h3>Bajaj pulsar rear seat handle</h3>
+                        <p>₹750</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bajaj pulsar handle grip">
+                        <img src="https://5.imimg.com/data5/SELLER/Default/2021/5/KN/IH/KA/26834281/pulsar-handle-grip-500x500.jpg" alt="bajaj pulsar handle grip">
+                        <h3>Bajaj pulsar handle grip</h3>
+                        <p>₹200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bajaj pulsar 220 handlebar raisers">
+                        <img src="https://5.imimg.com/data5/SELLER/Default/2023/2/NX/FI/XW/9528346/220-handlebar-raisers-p3-2-500x500.jpg" alt="bajaj pulsar 220 handlebar raisers">
+                        <h3>Bajaj pulsar 220 handlebar raisers</h3>
+                        <p>₹950</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bajaj pulsar p150 handle bar">
+                        <img src="https://imgd.aeplcdn.com/1056x594/n/cw/ec/140199/bajaj-pulsar-p150-handle-bar75.jpeg?isig=0&wm=2&q=80&q=80" alt="bajaj pulsar p150 handle bar">
+                        <h3>Bajaj pulsar p150 handle bar</h3>
+                        <p>₹1,300</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bajaj pulsar handle bar classic">
+                        <img src="http://bikespares.in/cdn/shop/files/41ntZQa7-wL._SY300_SX300_QL70_FMwebp_600x.webp?v=1695796901" alt="bajaj pulsar handle bar classic">
+                        <h3>Bajaj pulsar handle bar classic</h3>
+                        <p>₹1,100</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="scorpion full system exhaust">
+                        <img src="https://www.scorpion-exhausts.com/image/catalog/pages/full-system.png" alt="Scorpion Full System Exhaust">
+                        <h3>Scorpion Full System Exhaust</h3>
+                        <p>₹12,000+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="akrapovic r1m exhaust">
+                        <img src="https://rukminim2.flixcart.com/image/416/416/xif0q/bike-exhaust-system/n/w/w/1-akrapovic-r1m-motorcycle-universal-racing-exhaust-for-yamaha-original-imagpedwhun8he6k.jpeg?q=70" alt="Akrapovic R1M Universal Racing Exhaust">
+                        <h3>Akrapovic R1M Universal Racing Exhaust</h3>
+                        <p>₹9,500+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="activa wheel rim">
+                        <img src="https://5.imimg.com/data5/SELLER/Default/2025/4/505227376/QN/TK/TG/80843530/activa-wheel-rim-for-3g-4g-5g-500x500.jpeg" alt="Activa Wheel Rim for 3G/4G/5G">
+                        <h3>Activa Wheel Rim</h3>
+                        <p>₹1,200+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="digital speedometer">
+                        <img src="https://eauto.co.in/cdn/shop/products/pricol-digital-speedometer-for-bajaj-pulsar-150-classic-bs4-with-abs-2017-2020-model-472_1024x.jpg?v=1631389652" alt="Digital Speedometer for Pulsar 150 BS4 ABS">
+                        <h3>Digital Speedometer</h3>
+                        <p>₹2,800+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="pulsar analog speedometer">
+                        <img src="https://eauto.co.in/cdn/shop/products/pricol-analog-speedometer-for-bajaj-pulsar-150-dtsi-old-model-284_1024x.jpg?v=1631371850" alt="Analog Speedometer for Pulsar 150 DTSI Old">
+                        <h3>Pulsar analog speedometer</h3>
+                        <p>₹1,600+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="pulsar gear indicator">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.tzqghCJiTbQ0PNCCNRC6owHaE_?pid=Api&P=0&h=180" alt="Pulsar Gear Indicator">
+                        <h3>Pulsar Gear Indicator</h3>
+                        <p>₹950+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="p150 gear shift indicator">
+                        <img src="https://imgd.aeplcdn.com/476x268/n/cw/ec/135579/pulsar-p150-gear-shift-indicator.jpeg?isig=0" alt="Pulsar P150 Gear Shift Indicator">
+                        <h3>P150 Gear Shift Indicator</h3>
+                        <p>₹1,400+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bike gear pedal">
+                        <img src="https://nipomotors.com/wp-content/uploads/2024/12/gear-padel.jpg" alt="Bike Gear Pedal">
+                        <h3>Bike Gear Pedal</h3>
+                        <p>₹500+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="shimano rear gear shifter">
+                        <img src="https://www.multinationalparts.com/pics/6834/Shifter_-_Rear_Gear_Shifter_Shimano_SL-TX50-7R_7-Speed_SHOK_Scooters_Pulsar_1.jpg" alt="Shimano SL-TX50 Rear Gear Shifter">
+                        <h3>Shimano Rear Gear Shifter</h3>
+                        <p>₹1,700+</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <!-- truck automotive -->
+            <div class="category-section " data-category="truckautomotive">
+
+                <div class="product-list ">
+                    <div class="product" data-name="truck tire uniroyal">
+                        <img src="https://www.uniroyaltrucktires.com/img/find-the-right-tire.jpg" alt="Truck Tire Uniroyal">
+                        <h3>Truck Tire Uniroyal</h3>
+                        <p>₹9,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="truck tire acme">
+                        <img src="https://www.acmetires.com/wp-content/uploads/2017/08/fq5ekr.jpg" alt="Truck Tire Acme">
+                        <h3>Truck Tire Acme</h3>
+                        <p>₹8,800</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="sinotruk brake shoe">
+                        <img src="https://image.made-in-china.com/2f0j00IZwEuQonClze/Sinotruk-HOWO-Truck-Parts-Brake-Shoe-AZ9100440018-.jpg" alt="Sinotruk Brake Shoe">
+                        <h3>Sinotruk Brake Shoe</h3>
+                        <p>₹3,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="isuzu truck brake set">
+                        <img src="https://eu.amcdn.co.za/trucks/isuzu-truck-spares-and-parts-brake-systems-brake-set-2022-id-78003787-type-thumb.jpg" alt="Isuzu Truck Brake Set">
+                        <h3>Isuzu Truck Brake Set</h3>
+                        <p>₹3,800</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="truck brake parts">
+                        <img src="https://5.imimg.com/data5/OS/MH/MY-39146870/truck-brake-parts-500x500.jpg" alt="Truck Brake Parts">
+                        <h3>Truck Brake Parts</h3>
+                        <p>₹2,900</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="truck brake component">
+                        <img src="https://otstr.com/wp-content/uploads/2022/08/1443E-11.jpg" alt="Truck Brake Component">
+                        <h3>Truck Brake Component</h3>
+                        <p>₹4,100</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="exhaust front pipe">
+                        <img src="https://cdn.ecommercedns.uk/files/2/244172/6/14104836/exhaust-system-front-pipes-related-parts.png" alt="Exhaust Front Pipe">
+                        <h3>Exhaust Front Pipe</h3>
+                        <p>₹6,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="diesel exhaust system">
+                        <img src="https://www.onallcylinders.com/wp-content/uploads/2015/09/Magnaflow-Pro-Series-Diesel-Performance-Exhaust-System.jpg" alt="Diesel Exhaust System">
+                        <h3>Diesel Exhaust System</h3>
+                        <p>₹8,000</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="exhaust brake unit">
+                        <img src="https://cdn.ecommercedns.uk/files/2/244172/1/14205281/exhaust-brake-units-related-parts.png" alt="Exhaust Brake Unit">
+                        <h3>Exhaust Brake Unit</h3>
+                        <p>₹4,700</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="exhaust system silencer">
+                        <img src="https://cdn.ecommercedns.uk/files/2/244172/1/14106081/exhaust-system-silencers-related-parts.png" alt="Exhaust System Silencer">
+                        <h3>Exhaust System Silencer</h3>
+                        <p>₹3,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="truck exhaust component">
+                        <img src="https://media.autoplicity.com/content/images/1427/14273510_0.jpg" alt="Truck Exhaust Component">
+                        <h3>Truck Exhaust Component</h3>
+                        <p>₹5,600</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="diesel exhaust part">
+                        <img src="https://cdn11.bigcommerce.com/s-0105d/images/stencil/2560w/products/5515/12896/6IA013__72337.1645023746.jpg?c=2" alt="Diesel Exhaust Part">
+                        <h3>Diesel Exhaust Part</h3>
+                        <p>₹6,900</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="sinotruk truck piston">
+                        <img src="https://image.made-in-china.com/2f0j00LNBcIgQGHUbA/China-Original-Heavy-Truck-Part-Sinotruk-HOWO-Shacman-Weichai-Engine-Parts-C2271A00012931-Truck-Piston.jpg" alt="Sinotruk Truck Piston">
+                        <h3>Sinotruk Truck Piston</h3>
+                        <p>₹3,000</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="metal truck piston">
+                        <img src="https://i.ebayimg.com/00/s/NTAwWDQ5Mg==/z/OtYAAOSw-KFXemG4/$_32.JPG" alt="Metal Truck Piston">
+                        <h3>Metal Truck Piston</h3>
+                        <p>₹2,700</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="heavy truck piston">
+                        <img src="https://tiimg.tistatic.com/fp/1/008/536/heavy-duty-and-corrosion-resistant-truck-piston-898.jpg" alt="Heavy Truck Piston">
+                        <h3>Heavy Truck Piston</h3>
+                        <p>₹3,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="truck bumper guard">
+                        <img src="https://www.ranchhand.com/media/images/front-bumpers/grille-guard-front-bumpers/sport.jpg" alt="Truck Bumper Guard">
+                        <h3>Truck Bumper Guard</h3>
+                        <p>₹7,800</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="truck bumper parts">
+                        <img src="https://cdn.shopify.com/s/files/1/1529/1333/files/bumper_diagram_infographic_labeled_cea18bfe-32a8-4c46-bec0-4efd51736e66_1024x1024.jpg?v=1562168090" alt="Truck Bumper Parts Diagram">
+                        <h3>Truck Bumper Parts</h3>
+                        <p>₹6,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="rbp truck tires">
+                        <img src="https://rbptires.com/wp-content/uploads/RBP-Tires-Graphic-2-1536x1264.jpg" alt="RBP Truck Tires">
+                        <h3>RBP Truck Tires</h3>
+                        <p>₹10,200</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="all terrain suv tires">
+                        <img src="https://5.imimg.com/data5/VM/IX/MY-41700344/all-terrain-tires-2c-off-road-tires-2c-4x4-suv-tires.jpg" alt="All Terrain SUV Tires">
+                        <h3>All Terrain SUV Tires</h3>
+                        <p>₹11,000</p>
+						<button class="buy-btn">Buy Now</button>
+						
+                    </div>
+
+                    <div class="product" data-name="goodyear light truck tire">
+                        <img src="https://i5.walmartimages.com/seo/Goodyear-Wrangler-Territory-AT-All-Terrain-275-60R20-115S-Light-Truck-Tire_ffeb84d5-e14c-4216-b3e7-5610778bd83f.5430d23ba1f7334a7dd63a2305eff0ff.jpeg" alt="Goodyear Light Truck Tire">
+                        <h3>Goodyear Light Truck Tire</h3>
+                        <p>₹12,600</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="giti truck tire">
+                        <img src="https://www.gititrucktires.com/wp-content/uploads/2018/08/Giti_GTL933FS_30_1500px.jpg" alt="Giti Truck Tire">
+                        <h3>Giti Truck Tire</h3>
+                        <p>₹9,900</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bridgestone ecopia tire">
+                        <img src="https://commercial.bridgestone.com/content/dam/bcs-sites/bridgestone-commercial/images/Ecopia/ecopia-tires-new.png" alt="Bridgestone Ecopia Tire">
+                        <h3>Bridgestone Ecopia Tire</h3>
+                        <p>₹13,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="truck transmission system">
+                        <img src="https://trisontarps.com/wp-content/uploads/2023/07/Transmission-Systems.jpg" alt="Truck Transmission System">
+                        <h3>Truck Transmission System</h3>
+                        <p>₹15,000</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="heavy truck gear lube">
+                        <img src="http://www.westtechmobile.com/uploads/5/8/1/9/58194135/when-should-i-change-my-heavy-truck-gear-lubes_orig.png" alt="Heavy Truck Gear Lube">
+                        <h3>Heavy Truck Gear Lube</h3>
+                        <p>₹3,800</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="scania truck gearbox">
+                        <img src="https://www.scania.com/content/dam/www/market/master/campaigns/hdg/HD_Gearbox_001_DN.png.transform/Rend_1200X630/image.jpg" alt="Scania Truck Gearbox">
+                        <h3>Scania Truck Gearbox</h3>
+                        <p>₹16,400</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="manual automatic gearboxes">
+                        <img src="https://cdn.ecommercedns.uk/files/2/244172/2/14206772/gearboxes-manual-and-automatic-units.png" alt="Manual Automatic Gearboxes">
+                        <h3>Manual Automatic Gearboxes</h3>
+                        <p>₹14,700</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="truck stalk mount">
+                        <img src="https://simracing-pc.de/wp-content/uploads/2024/02/Stalk-mounted.jpg" alt="Truck Stalk Mount">
+                        <h3>Truck Stalk Mount</h3>
+                        <p>₹2,600</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="truck simulator">
+                        <img src="https://hyperdrive.com.au/wp-content/uploads/2021/10/truck-simulator-01.850x567.jpg" alt="Truck Simulator">
+                        <h3>Truck Simulator</h3>
+                        <p>₹9,000</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="diesel truck engine">
+                        <img src="https://maxindoenterprise.com/wp-content/uploads/2021/10/diesel-engine.jpg" alt="Diesel Truck Engine">
+                        <h3>Diesel Truck Engine</h3>
+                        <p>₹22,000</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="caterpillar truck engine">
+                        <img src="https://s7d2.scene7.com/is/image/Caterpillar/CM20200610-54ed2-3ce8a" alt="Caterpillar Truck Engine">
+                        <h3>Caterpillar Truck Engine</h3>
+                        <p>₹24,500</p>
+						<button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                </div>
+            </div>
+ <!-- Modal (Address/Payment Flow) -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-btn" id="closeModal">&#10005;</span>
+            <h2 id="modalProductName">Product Name</h2>
+            <p id="modalProductPrice">Price</p>
+            <div id="addressBlock" class="hidden"></div>
+            <div class="address-btns hidden" id="addressBtns">
+                <button class="modify">Modify Address</button>
+                <button class="add">Add New Address</button>
+            </div>
+            <form id="addressForm" class="hidden" novalidate>
+                <h3>Delivery Address</h3>
+                <label>House/Flat Number*</label>
+                <input type="text" name="houseNumber" required />
+                <label>Landmark</label>
+                <input type="text" name="landmark" />
+                <label>City*</label>
+                <input type="text" name="city" required />
+                <label>State*</label>
+                <input type="text" name="state" required />
+                <label>Pin Code*</label>
+                <input type="text" name="pin" pattern="\d{6}" required />
+                <button type="submit" class="submit-address-btn">Save Address</button>
+            </form>
+            <div id="paymentSection" class="hidden">
+                <p>Please select a payment method:</p>
+                <div class="payment-options">
+                    <button class="payment-btn" data-payment="Online Payment">💳 Online Payment</button>
+                    <button class="payment-btn" data-payment="Cash on Delivery">🏠 Cash on Delivery</button>
+                </div>
+            </div>
+            <div class="wallet-section" id="walletSection">
+                <p>Select a payment wallet:</p>
+                <div class="wallet-options">
+                    <button class="wallet-btn" data-wallet="PhonePe">📲 PhonePe</button>
+                    <button class="wallet-btn" data-wallet="Google Pay">💙 Google Pay</button>
+                    <button class="wallet-btn" data-wallet="Paytm">🟦 Paytm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <span class="success-close-btn" id="successCloseBtn">&#10005;</span>
+            <div class="success-check">✔</div>
+            <div class="success-text-main">Order Placed Successfully!</div>
+            <div class="success-message" id="orderPlacedDetails"></div>
+            <div class="success-address" id="orderPlacedAddress"></div>
+        </div>
+    </div>
+
+    <script>
+	    // ...existing code...
+                function showOrderPlacedModal(paySource) {
+                    successModalOverlay.classList.add('active');
+                    orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+// ...existing code...let currentProductName = "";
+        let currentProductPrice = "";
+        let selectedPaymentMethod = null;
+        let savedAddress = null;
+
+        // Modal elements
+        const modalOverlay = document.getElementById('modalOverlay'),
+            modalProductName = document.getElementById('modalProductName'),
+            modalProductPrice = document.getElementById('modalProductPrice'),
+            addressBlock = document.getElementById('addressBlock'),
+            addressBtns = document.getElementById('addressBtns'),
+            addressForm = document.getElementById('addressForm'),
+            paymentSection = document.getElementById('paymentSection'),
+            walletSection = document.getElementById('walletSection'),
+            successModalOverlay = document.getElementById('successModalOverlay'),
+            successCloseBtn = document.getElementById('successCloseBtn'),
+            orderPlacedDetails = document.getElementById('orderPlacedDetails'),
+            orderPlacedAddress = document.getElementById('orderPlacedAddress');
+
+        // Open modal for product
+        function openModalForProduct(product) {
+            currentProductName = product.querySelector('h3').textContent;
+            currentProductPrice = product.querySelector('p').textContent;
+            modalProductName.textContent = currentProductName;
+            modalProductPrice.textContent = currentProductPrice;
+            walletSection.classList.remove('visible');
+
+            if (loadSavedAddress()) {
+                renderSavedAddress();
+                showPaymentStep();
+                togglePaymentButtons(true);
+            } else {
+                showAddressStep();
+                togglePaymentButtons(false);
+            }
+        }
+
+        // Attach buy button for AI clones
+        function attachBuyForClone(card) {
+            const btn = card.querySelector('.buy-btn');
+            if (!btn) return;
+            btn.addEventListener('click', (e) => {
+                const p = e.target.closest('.product');
+                openModalForProduct(p);
+            });
+        }
+
+        // AI Assistant logic
+        function handleAI() {
+            const inputEl = document.getElementById("aiInput");
+            const responseBox = document.getElementById("aiResponse");
+            const input = (inputEl.value || "").trim().toLowerCase();
+
+            responseBox.innerHTML = "";
+
+            if (!input) {
+                responseBox.innerText = "⚠️ Please type something first!";
+                return;
+            }
+
+            const products = document.querySelectorAll("#productContainer .product");
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = input.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = input.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = input.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "products", "product"
+            ]);
+            const words = input
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            const matches = [];
+
+            products.forEach(product => {
+                const nameEl = product.querySelector("h3");
+                const priceEl = product.querySelector("p");
+                if (!nameEl || !priceEl) return;
+
+                const name = nameEl.innerText.toLowerCase();
+                const priceText = priceEl.innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+
+                const nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+
+                if (nameMatch && priceOK) matches.push({
+                    product,
+                    price
+                });
+            });
+
+            if (matches.length === 0) {
+                responseBox.innerText = "🤖 Sorry, no matching products found!";
+                return;
+            }
+
+            if (maxPrice != null && minPrice == null) {
+                matches.sort((a, b) => a.price - b.price);
+            } else if (minPrice != null && maxPrice == null) {
+                matches.sort((a, b) => b.price - a.price);
+            } else {
+                matches.sort((a, b) => a.price - b.price);
+            }
+
+            matches.forEach((hit, i) => {
+                const clone = hit.product.cloneNode(true);
+                clone.classList.add('ai-clone');
+                responseBox.appendChild(clone);
+                attachBuyForClone(clone);
+                setTimeout(() => clone.classList.add('show'), i * 120);
+            });
+        }
+
+        // Category filter
+        function filterCategory(category, link) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(sec => {
+                sec.classList.toggle('hidden',
+                    category !== 'all' && sec.dataset.category !== category);
+            });
+            document.getElementById('searchInput').value = '';
+            filterSearch('');
+        }
+
+        // Search filter
+        function filterSearch(query) {
+            query = query.toLowerCase().trim();
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = query.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = query.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = query.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "product", "products"
+            ]);
+            const words = query
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            // Always search across all categories for search
+            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('hidden'));
+
+            document.querySelectorAll('.product').forEach(p => {
+                const name = p.querySelector('h3').innerText.toLowerCase();
+                const priceText = p.querySelector('p').innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+                let nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+                p.classList.toggle('hidden', !(nameMatch && priceOK));
+
+            });
+
+            // Hide category-section if all products inside are hidden
+            document.querySelectorAll('.category-section').forEach(section => {
+                const products = section.querySelectorAll('.product');
+                const visible = Array.from(products).some(p => !p.classList.contains('hidden'));
+                section.classList.toggle('hidden', !visible);
+            });
+
+            // Show humble message if nothing matches
+            let anyVisible = !!document.querySelector('.product:not(.hidden)');
+            let msgId = 'searchNoMatchMsg';
+            let container = document.getElementById('productContainer');
+            let oldMsg = document.getElementById(msgId);
+            if (!anyVisible) {
+                if (!oldMsg) {
+                    let msg = document.createElement('div');
+                    msg.id = msgId;
+                    msg.style = "text-align:center; font-size:1.2rem; color:#555; margin:40px 0;";
+                    msg.innerText = "🙏 Sorry, no products found matching your search.";
+                    container.appendChild(msg);
+                }
+            } else if (oldMsg) {
+                oldMsg.remove();
+            }
+        }
+
+        // Address logic
+        function loadSavedAddress() {
+            let s = localStorage.getItem('userAddress');
+            savedAddress = s ? JSON.parse(s) : null;
+            return !!savedAddress;
+        }
+
+        function saveAddress(addr) {
+            savedAddress = addr;
+            localStorage.setItem('userAddress', JSON.stringify(addr));
+        }
+
+        function renderSavedAddress() {
+            if (!savedAddress) {
+                addressBlock.classList.add('hidden');
+                addressBtns.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            } else {
+                addressBlock.classList.remove('hidden');
+                addressBlock.innerHTML = `<strong>Address:</strong><br>${savedAddress.houseNumber}` +
+                    (savedAddress.landmark ? `, ${savedAddress.landmark}` : '') + `
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+                addressBtns.classList.remove('hidden');
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
+        function togglePaymentButtons(enabled) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function showAddressStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.add('hidden');
+            addressBtns.classList.add('hidden');
+            addressForm.classList.remove('hidden');
+            paymentSection.classList.add('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        function showPaymentStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.remove('hidden');
+            addressBtns.classList.remove('hidden');
+            addressForm.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        // Buy button logic
+        document.querySelectorAll('.buy-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                const product = e.target.closest('.product');
+                openModalForProduct(product);
+            });
+        });
+
+        // Address buttons
+        addressBtns.querySelector('.modify').onclick = function() {
+            addressForm.houseNumber.value = savedAddress.houseNumber || '';
+            addressForm.landmark.value = savedAddress.landmark || '';
+            addressForm.city.value = savedAddress.city || '';
+            addressForm.state.value = savedAddress.state || '';
+            addressForm.pin.value = savedAddress.pin || '';
+            showAddressStep();
+        };
+        addressBtns.querySelector('.add').onclick = function() {
+            addressForm.reset();
+            showAddressStep();
+        };
+
+        // Address form submit
+        addressForm.onsubmit = function(e) {
+            e.preventDefault();
+            if (!addressForm.checkValidity()) {
+                addressForm.reportValidity();
+                return;
+            }
+            const fd = new FormData(addressForm);
+            const newAddr = {
+                houseNumber: fd.get('houseNumber').trim(),
+                landmark: fd.get('landmark').trim(),
+                city: fd.get('city').trim(),
+                state: fd.get('state').trim(),
+                pin: fd.get('pin').trim()
+            };
+            saveAddress(newAddr);
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        };
+
+        // Payment button logic
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedPaymentMethod = btn.dataset.payment;
+                if (selectedPaymentMethod === "Online Payment") {
+                    walletSection.classList.add('visible');
+                } else {
+                    showOrderPlacedModal("Cash on Delivery");
+                    modalOverlay.classList.remove('active');
+                }
+            };
+        });
+
+        // Wallet button logic
+        document.querySelectorAll('.wallet-btn').forEach(btn => {
+            btn.onclick = function() {
+                walletSection.classList.remove('visible');
+                showOrderPlacedModal(btn.dataset.wallet);
+                modalOverlay.classList.remove('active');
+            };
+        });
+
+        function showOrderPlacedModal(paySource) {
+            successModalOverlay.classList.add('active');
+            orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// Success modal close
+successCloseBtn.onclick = () => successModalOverlay.classList.remove('active');
+successModalOverlay.addEventListener('click', e => {
+    if (e.target === successModalOverlay) successModalOverlay.classList.remove('active');
+});
+
+// AI Panel toggle
+const aiPanel = document.getElementById('aiPanel');
+const aiOpenBtn = document.getElementById('aiOpenBtn');
+const aiCloseBtn = document.getElementById('aiCloseBtn');
+
+aiOpenBtn.onclick = () => {
+    aiPanel.classList.remove('hidden');
+    document.body.classList.add('ai-open');
+};
+aiCloseBtn.onclick = () => {
+    aiPanel.classList.add('hidden');
+    document.body.classList.remove('ai-open');
+};
+document.addEventListener('click', function(e) {
+    if (!aiPanel.classList.contains('hidden') &&
+        !aiPanel.contains(e.target) &&
+        e.target !== aiOpenBtn) {
+        aiPanel.classList.add('hidden');
+        document.body.classList.remove('ai-open');
+    }
+});
+
+// Search input event
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    filterSearch(e.target.value);
+});
+
+document.getElementById('closeModal').onclick = () => {
+    // If address form is visible, just hide it and show previous step
+    if (!addressForm.classList.contains('hidden')) {
+        addressForm.classList.add('hidden');
+        if (loadSavedAddress()) {
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        } else {
+            modalOverlay.classList.remove('active');
+        }
+    } else {
+        modalOverlay.classList.remove('active');
+        walletSection.classList.remove('visible');
+    }
+};const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', function() {
+    searchClearBtn.style.display = searchInput.value ? 'inline' : 'none';
+});
+
+searchClearBtn.onclick = function() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterSearch('');
+};
+            </script>
+</body>
+
+</html>
+
+</html>

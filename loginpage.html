@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login & Sign Up</title>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, rgba(102,126,234,0.7), rgba(118,75,162,0.7)), 
+                    url('https://static.vecteezy.com/system/resources/previews/021/997/554/non_2x/dark-blue-abstract-lines-background-vector.jpg') no-repeat center center/cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        flex-direction: column;
+    }
+    .container {
+        background-color: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        width: 350px;
+        text-align: center;
+        transition: transform 0.5s, opacity 0.5s;
+        z-index: 10;
+    }
+    .container.hide {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    h2 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+    input {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        transition: border-color 0.3s;
+    }
+    input:focus {
+        border-color: #764ba2;
+        outline: none;
+    }
+    button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        background-color: #764ba2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    button:hover {
+        background-color: #667eea;
+        transform: translateY(-2px);
+    }
+    .toggle {
+        color: #764ba2;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+    .error-msg {
+        color: red;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    .success-msg {
+        color: green;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    /* ✅ Success Modal */
+    .success-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+    }
+    .success-box {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        color: white;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        animation: fadeIn 0.4s ease-in-out;
+    }
+    .checkmark {
+        font-size: 50px;
+        color: #00ffae;
+        animation: bounce 0.6s;
+    }
+    @keyframes bounce {
+        0% { transform: scale(0.5); opacity: 0; }
+        60% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(1); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    /* ✅ Back Button (bottom) */
+    .back-btn {
+        margin-top: 20px;
+    }
+    .back-btn button {
+        padding: 8px 20px;
+        background-color: transparent;
+        border: 2px solid #fff;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .back-btn button:hover {
+        background-color: #fff;
+        color: #764ba2;
+    }
+</style>
+</head>
+<body>
+
+<div class="container" id="login-form">
+    <h2>Login</h2>
+    <input type="text" id="login-username" placeholder="Email or Username" required>
+    <input type="password" id="login-password" placeholder="Password" required>
+    <button onclick="login()">Login</button>
+    <p>Don't have an account? <span class="toggle" onclick="showSignUp()">Sign Up</span></p>
+    <p id="login-error" class="error-msg"></p>
+</div>
+
+<div class="container" id="signup-form" style="display:none;">
+    <h2>Sign Up</h2>
+    <input type="text" id="signup-username" placeholder="Username" required>
+    <input type="email" id="signup-email" placeholder="Email" required>
+    <input type="password" id="signup-password" placeholder="Password (letters & numbers)" required>
+    <button onclick="signup()">Sign Up</button>
+    <p>Already have an account? <span class="toggle" onclick="showLogin()">Login</span></p>
+    <p id="signup-error" class="error-msg"></p>
+    <p id="signup-success" class="success-msg"></p>
+</div>
+
+<!-- ✅ Back Button at bottom -->
+<div class="back-btn">
+    <button onclick="goBack()">⬅ Back</button>
+</div>
+
+<!-- ✅ Success Modal -->
+<div class="success-modal" id="successModal">
+    <div class="success-box">
+        <div class="checkmark">✅</div>
+        <h2>Login Successful!</h2>
+        <p>Redirecting...</p>
+    </div>
+</div>
+
+<script>
+    async function hashPassword(password) {
+        const msgBuffer = new TextEncoder().encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    function showSignUp() {
+        document.getElementById('login-form').classList.add('hide');
+        setTimeout(() => {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'block';
+            document.getElementById('signup-form').classList.remove('hide');
+            document.getElementById('signup-error').textContent = '';
+            document.getElementById('signup-success').textContent = '';
+        }, 500);
+    }
+    function showLogin() {
+        document.getElementById('signup-form').classList.add('hide');
+        setTimeout(() => {
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('login-form').classList.remove('hide');
+            document.getElementById('login-error').textContent = '';
+        }, 500);
+    }
+    async function signup() {
+        const username = document.getElementById('signup-username').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        document.getElementById('signup-error').textContent = '';
+        document.getElementById('signup-success').textContent = '';
+        if (!username || !email || !password) {
+            document.getElementById('signup-error').textContent = "All fields are required";
+            return;
+        }
+        const passRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+        if(!passRegex.test(password)) {
+            document.getElementById('signup-error').textContent = "Password must contain letters & numbers (min 6 chars)";
+            return;
+        }
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        if(users.find(u => u.email === email)) {
+            document.getElementById('signup-error').textContent = "Email already registered";
+            return;
+        }
+        if(users.find(u => u.username === username)) {
+            document.getElementById('signup-error').textContent = "Username already taken";
+            return;
+        }
+        const hashedPassword = await hashPassword(password);
+        users.push({username, email, password: hashedPassword});
+        localStorage.setItem('users', JSON.stringify(users));
+        document.getElementById('signup-success').textContent = "Account created successfully! Please login.";
+        setTimeout(showLogin, 1200);
+    }
+    async function login() {
+        const usernameOrEmail = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value;
+        document.getElementById('login-error').textContent = '';
+        if (!usernameOrEmail || !password) {
+            document.getElementById('login-error').textContent = "All fields are required";
+            return;
+        }
+        const hashedPassword = await hashPassword(password);
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const user = users.find(u =>
+            (u.email === usernameOrEmail || u.username === usernameOrEmail) &&
+            u.password === hashedPassword
+        );
+        if(user) {
+            document.getElementById("successModal").style.display = "flex";
+            setTimeout(() => {
+                window.location.href = "home.html"; 
+            }, 2000);
+        } else {
+            document.getElementById('login-error').textContent = "Invalid username/email or password";
+        }
+    }
+    function goBack() {
+        window.location.href = "welcomepage.html";
+    }
+</script>
+</body>
+</html>

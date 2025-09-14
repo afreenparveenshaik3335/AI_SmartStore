@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books & Stationery Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: #f5f5f5;
+        }
+        /* Sidebar */
+        
+        .sidebar {
+            width: 200px;
+            background-color: 	#A23E48;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: white;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: 	#6E282F;
+        }
+        /* Main Content */
+        
+        .main {
+            margin-left: 200px;
+            flex: 1;
+        }
+        
+        .search-bar-wrapper {
+            position: sticky;
+            top: 0;
+            background: 	#E6B0B5;
+            padding: 10px;
+            z-index: 100;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .search-container img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .products {
+            padding: 20px;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-section h2 {
+            margin-bottom: 15px;
+        }
+        
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .product {
+            background: white;
+            width: 180px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .product h3 {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        .product p {
+            font-weight: bold;
+            color: 	#6E282F;
+        }
+        
+        .buy-btn {
+            background-color: 	#6E282F;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .buy-btn:hover {
+            background: #388E3C;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        /* Modal overlays */
+        
+        .modal-overlay,
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active,
+        .success-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 420px;
+            width: 90%;
+            padding: 20px 30px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .modal p {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        
+        .close-btn,
+        .success-close-btn {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .close-btn:hover,
+        .success-close-btn:hover {
+            color: #333;
+        }
+        
+        #addressBlock {
+            background: #f7f7f7;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin-bottom: 18px;
+            text-align: left;
+            font-size: 15px;
+        }
+        
+        .address-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .address-btns button {
+            flex: 1;
+            padding: 8px;
+            font-weight: 700;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #fff;
+        }
+        
+        .address-btns .modify {
+            background: #ff9800;
+        }
+        
+        .address-btns .add {
+            background: #03A9F4;
+        }
+        
+        .address-btns .modify:hover {
+            background: #e65100;
+        }
+        
+        .address-btns .add:hover {
+            background: #0277bd;
+        }
+        
+        #addressForm {
+            text-align: left;
+            margin-top: 14px;
+            max-width: 340px;
+            margin: auto;
+        }
+        
+        #addressForm h3 {
+            color: #388E3C;
+            font-size: 18px;
+        }
+        
+        #addressForm label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600;
+        }
+        
+        #addressForm input {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+        }
+        
+        #addressForm input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .submit-address-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .submit-address-btn:hover {
+            background: #388E3C;
+        }
+        
+        .payment-options {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        
+        .payment-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 3px solid #4CAF50;
+            border-radius: 30px;
+            background: white;
+            font-weight: 700;
+            color: #4CAF50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .payment-btn:hover:not(:disabled) {
+            background: #4CAF50;
+            color: #fff;
+        }
+        
+        .payment-btn:disabled {
+            background: #ccc !important;
+            color: #888 !important;
+            cursor: not-allowed;
+        }
+        
+        .wallet-section {
+            margin: 16px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .wallet-section.visible {
+            display: flex;
+            animation: popIn 0.4s;
+        }
+        
+        .wallet-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .wallet-btn {
+            flex: 1;
+            border: 2px solid #2196f3;
+            background: #fff;
+            color: #2196f3;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .wallet-btn:hover {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 18px;
+            max-width: 340px;
+            width: 90%;
+            padding: 25px 22px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+            animation: fadeIn 0.5s;
+        }
+        
+        .success-check {
+            font-size: 70px;
+            color: #19af56;
+            margin-bottom: 10px;
+            animation: tickBlink 1.4s linear infinite;
+        }
+        
+        @keyframes tickBlink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .success-text-main {
+            font-size: 22px;
+            color: #19af56;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 4px 0 12px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .success-address {
+            margin-top: 14px;
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+		/* Back Button Styles */
+.back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6E282F 0%, #E6B0B5 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transform: translateZ(0);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.back-btn .back-icon {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+    transform: translateX(0);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+}
+
+.back-btn .back-text {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    background: linear-gradient(135deg, #4E342E 0%, #795548 100%);
+}
+
+.back-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.back-btn:hover .back-icon {
+    transform: translateX(-3px);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 9px 14px;
+    }
+    .back-btn .back-text {
+        font-size: 13px;
+    }
+}
+    /* AI Assistant Panel */
+        
+        .ai-panel {
+            width: 340px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+            border-left: 2px solid #bdbdbd;
+            padding: 28px 20px 20px 20px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1300;
+            box-shadow: -4px 0 24px rgba(90, 64, 55, 0.10);
+            transition: transform 0.3s, box-shadow 0.2s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: slideInRight 0.4s;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .ai-panel h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #5D4037;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel textarea {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            border: 1.5px solid #bdbdbd;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: vertical;
+            box-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel button {
+            background: linear-gradient(90deg, #A23E48 0%, #6E282F 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3eeff;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .ai-panel button:hover {
+            background: linear-gradient(90deg, #A23E48 0%, #6E282F 100%);
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 2.2rem;
+            color: #8D6E63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .ai-close-btn:hover {
+            color: #388E3C;
+        }
+        
+        #aiResponse {
+            margin-top: 18px;
+            min-height: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-family: inherit;
+        }
+        
+        .ai-panel #aiResponse {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .ai-panel .ai-clone {
+            width: calc(50% - 10px);
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        /* Responsive for mobile */
+        
+        @media (max-width: 600px) {
+            .ai-panel .ai-clone {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 16px 8px;
+            }
+        }
+        /* ...existing code... */
+        
+        .ai-open-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1200;
+            background: #6E282F;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ai-open-btn:hover {
+            background: #388E3C;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- AI Assistant Button -->
+    <button id="aiOpenBtn" class="ai-open-btn" title="AI Assistance">🤖</button>
+
+    <!-- AI Assistant Sidebar -->
+    <div class="ai-panel hidden" id="aiPanel">
+        <span class="ai-close-btn" id="aiCloseBtn">&times;</span>
+        <h2>AI Assistance ✨</h2>
+        <textarea id="aiInput" placeholder="Ask me anything..."></textarea>
+        <button onclick="handleAI()">Ask AI</button>
+        <div id="aiResponse" style="margin-top:15px;"></div>
+    </div>
+<button class="back-btn" id="backBtn" aria-label="Go back" onclick="window.location.href='categories.html'">
+    <span class="back-icon" aria-hidden="true">←</span>
+    <span class="back-text">Back</span>
+</button>
+
+    <div class="sidebar">
+        <a href="#" class="active" onclick="filterCategory('all', this)">All</a>
+        <a href="#" onclick="filterCategory('academic', this)">Academic & Educational Books</a>
+        <a href="#" onclick="filterCategory('fiction', this)">Fiction Books</a>
+        <a href="#" onclick="filterCategory('nonfiction', this)">Non-Fiction Books</a>
+        <a href="#" onclick="filterCategory('writing', this)">Writing Instruments</a>
+        <a href="#" onclick="filterCategory('paper', this)">Paper Products</a>
+        <a href="#" onclick="filterCategory('art', this)">Art & Craft Supplies</a>
+    </div>
+
+    <div class="main">
+        <div class="search-bar-wrapper">
+            <div class="search-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Search">
+                <input type="text" id="searchInput" placeholder="Search for books or stationery...">
+				
+                <span id="searchClearBtn" style="display:none;cursor:pointer;font-size:20px;margin-left:8px;">&#10005;</span>
+            </div>
+        </div>
+
+        <div class="products" id="productContainer">
+
+            <!-- Academic & Educational Books -->
+            <div class="category-section" data-category="academic&educationalbooks">
+
+                <div class="product-list">
+                    <script>
+                        const academicNames = [
+                            "Mathematics Textbook", "Physics Textbook", "Chemistry Textbook", "Biology Textbook", "Computer Science Book",
+                            "Engineering Drawing Book", "History Textbook", "Geography Book", "Political Science Book",
+                            "Medical Science Book", "Law Reference Book", "Architecture Book", "Statistics Book", "Education Theory Book"
+                        ];
+                        const academicImages = [
+                            "https://th.bing.com/th/id/OIP.Czk7ByCgjH1u15KehHVG9QHaHa?w=208&h=208&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.a3JiRaDCCev5-0HMATz4QgHaIz?w=208&h=247&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.8FenslcNsoXkqlqX_mgsAwHaJ8?w=208&h=280&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.ib1TmXxKq9AaeM8HoLzf9QHaJ2?w=208&h=277&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.bVAypvu9Lfpburzm_waTcAHaHn?w=208&h=214&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.3OFIt5jwYA06gr4uNm1qgAHaJ5?w=208&h=277&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.Hgb6IRjzyaaNal-q5l2e0gHaHy?w=208&h=219&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.F8HAiAM1aaNNkbBbJygcIQHaJw?w=208&h=274&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.Th4Kj3CV_SA5KmHDSmpZ-gHaHa?w=186&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.tBlFJahXX_59bZkDTDgy8AHaJV?w=139&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.V_d3UiXgB-dk033at0IcxgHaKk?w=208&h=297&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.70LfZurjsVt4IuiiJUKHRQHaKk?w=208&h=297&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.PWr4YEHiYLia-HmW89WL4wHaLU?w=202&h=309&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.gXCoMtHbRj1VuAcAFW9oHAAAAA?w=208&h=268&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                        ];
+                        for (let i = 0; i < academicNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${academicNames[i].toLowerCase()}">
+<img src="${academicImages[i]}" alt="${academicNames[i]}">
+<h3>${academicNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*800)+500}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <!-- Fiction Books -->
+            <div class="category-section" data-category="fictionbooks">
+
+                <div class="product-list">
+                    <script>
+                        const fictionNames = [
+                            "Romantic Novel", "Thriller Novel", "Fantasy Novel", "Mystery Novel", "Classic Literature",
+                            "Drama Novel", "Crime Fiction", "Adventure Novel", "Young Adult Novel", "Horror Novel"
+                        ];
+                        const fictionImages = [
+                            "https://images-na.ssl-images-amazon.com/images/I/81t2CVWEsUL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/91uwocAMtSL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/91bYsX41DVL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/81gepf1eMqL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/81OthjkJBuL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/81-349iYbfL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/71KilybDOoL.jpg",
+                            "https://th.bing.com/th/id/OIP.3VNh_21DWxUiWEhm6XdE2wHaLs?w=208&h=311&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://images-na.ssl-images-amazon.com/images/I/81YOuOGFCJL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/91SZSW8qSsL.jpg"
+                        ];
+                        for (let i = 0; i < fictionNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${fictionNames[i].toLowerCase()}">
+<img src="${fictionImages[i]}" alt="${fictionNames[i]}">
+<h3>${fictionNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*500)+350}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <!-- Non-Fiction Books -->
+            <div class="category-section" data-category="non-fictionbooks">
+
+                <div class="product-list">
+                    <script>
+                        const nonfictionNames = [
+                            "Biography", "Self-Help Book", "Business Book", "Cookbook", "History Book",
+                            "Science Book", "Philosophy Book", "True Crime Book", "Education Book", "Technology Book"
+                        ];
+                        const nonfictionImages = [
+                            "https://images-na.ssl-images-amazon.com/images/I/81eB+7+CkUL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/81-QB7nDh4L.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/81WcnNQ-TBL.jpg",
+                            "https://th.bing.com/th/id/OIP.fP6J0d7U4qjBoVrIcAOQ0wAAAA?w=155&h=200&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://images-na.ssl-images-amazon.com/images/I/91HHqVTAJQL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/81WojUxbbFL.jpg",
+                            "https://images-na.ssl-images-amazon.com/images/I/91xrEMcvmQL.jpg",
+                            "https://th.bing.com/th/id/OIP.uhkac1i9M8u6eFJsk_JiogHaJl?w=186&h=241&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+                            "https://th.bing.com/th/id/OIP.-vYGYGmcMu4xV3Q4kPgT-QHaGb?w=157&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.NTysc_EarHIFpwJW_LsG8AHaLR?w=202&h=308&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                        ];
+                        for (let i = 0; i < nonfictionNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${nonfictionNames[i].toLowerCase()}">
+<img src="${nonfictionImages[i]}" alt="${nonfictionNames[i]}">
+<h3>${nonfictionNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*600)+400}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <!-- Writing Instruments -->
+            <div class="category-section" data-category="writinginstruments">
+
+                <div class="product-list">
+                    <script>
+                        const writingNames = [
+                            "Ballpoint Pen", "Gel Pen", "Fountain Pen", "Mechanical Pencil", "Marker Set",
+                            "Highlighter", "Calligraphy Pen", "Permanent Marker", "Whiteboard Marker", "Fineliner Pen"
+                        ];
+                        const writingImages = [
+                            "https://th.bing.com/th/id/OIP.DuL-EHfBz4Ha4ItHnb4OngHaE8?w=283&h=189&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.GsH2jGvgJIa3AjK839jTjAHaFA?w=289&h=195&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.UuofiNGppdahYqIrRrZ-_QHaHG?w=205&h=195&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.Jf8JAgIAVsCYEX4kB0DmDAHaHa?w=198&h=198&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.95dL7dL8lkZKPZihM7ouIwHaHa?w=196&h=196&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.4Zi75aSNFWX8fGgEE1-l9AHaHa?w=184&h=184&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.B8P5nnc41g_vIddPtUXorgHaE8?w=290&h=194&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.nnQik9lmb9m3d7hb_cq9CgHaHa?w=188&h=188&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.4WKI_wMHqQQi8nSWQqcLJQHaHN?w=211&h=205&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+                            "https://th.bing.com/th/id/OIP.JwNydPnpqDypJHzhcuHdRwHaHa?w=209&h=209&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                        ];
+                        for (let i = 0; i < writingNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${writingNames[i].toLowerCase()}">
+<img src="${writingImages[i]}" alt="${writingNames[i]}">
+<h3>${writingNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*200)+50}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <!-- Paper Products -->
+            <div class="category-section" data-category="paperproducts">
+
+                <div class="product-list">
+                    <script>
+                        const paperNames = [
+                            "Notebook", "Diary", "Sticky Notes", "Drawing Pad", "Sketchbook",
+                            "Notepad", "Graph Paper", "Planner", "Project Paper", "Index Cards"
+                        ];
+                        const paperImages = [
+                            "https://images-na.ssl-images-amazon.com/images/I/71HMyqG6MRL.jpg",
+                            "https://ts1.mm.bing.net/th?id=OIP.FJ0bJNEhTaMXqe9Z1Uir7AHaHa&pid=15.1",
+                            "https://th.bing.com/th/id/OIP.L0AU9y6FFYSVInweH3IZ6QHaE7?w=278&h=185&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+                            "https://th.bing.com/th/id/OIP.V0_tB7LklbLyndOnA2038AHaGb?w=223&h=194&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.MTzBMModLjV6qhjOPH2bJAHaE8?w=278&h=185&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.xwuoNe8azkbACmly2Yqu3QHaHa?w=196&h=196&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.S0EJc-IYaf_62QoaC6UhNwHaJl?w=208&h=270&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+                            "https://th.bing.com/th/id/OIP.l1drj2-yfK491sp7rotfNAHaE7?w=279&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.Yw8sm_z0Mua9VJeukXNb-QHaKW?w=208&h=291&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.VJQwR1VFlbem39K2aPAWJAHaHa?w=200&h=200&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                        ];
+                        for (let i = 0; i < paperNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${paperNames[i].toLowerCase()}">
+<img src="${paperImages[i]}" alt="${paperNames[i]}">
+<h3>${paperNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*300)+100}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <!-- Art & Craft Supplies -->
+            <div class="category-section" data-category="art&craftsupplies">
+                <div class="product-list">
+                    <script>
+                        const artNames = [
+                            "Acrylic Paint Set", "Watercolor Paint Set", "Paint Brushes", "Drawing Pencils", "Canvas Board",
+                            "Charcoal Sticks", "Oil Pastels", "Craft Paper", "Glue Gun", "Beads Set"
+                        ];
+                        const artImages = [
+                            "https://th.bing.com/th/id/OIP.DrLSzPDYvFH2KaaWhV_FHAHaHc?w=186&h=187&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.miacpziorLVBSkaxWCmBlQHaHa?w=186&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.PDlgYgAI8eNJewP3aTGxGAHaHa?w=185&h=184&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.Q9ORfSLq3VOHQpbQDQXRlQHaEK?w=283&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.ciftBqVGvOH_3awbpx5xUAHaE8?w=296&h=198&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.p4CdGrgE0C1navObTdw7zwHaHa?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.yolAMQbM4dJWhlBtT04XqwHaHa?w=144&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.QGiduWDbGlJFGAOUeFrKOgHaGw?w=206&h=187&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP._SWcHzgT8ovuUK6RYP_MkAHaHa?w=191&h=191&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+                            "https://th.bing.com/th/id/OIP.w6yYKKPTsVOWc3_UEoJbOAHaHo?w=191&h=197&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                        ];
+                        for (let i = 0; i < artNames.length; i++) {
+                            document.write(`
+<div class="product" data-name="${artNames[i].toLowerCase()}">
+<img src="${artImages[i]}" alt="${artNames[i]}">
+<h3>${artNames[i]}</h3>
+<p>₹${Math.floor(Math.random()*500)+150}</p>
+<button class="buy-btn">Buy Now</button>
+</div>
+`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+   <!-- Modal (Address/Payment Flow) -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-btn" id="closeModal">&#10005;</span>
+            <h2 id="modalProductName">Product Name</h2>
+            <p id="modalProductPrice">Price</p>
+            <div id="addressBlock" class="hidden"></div>
+            <div class="address-btns hidden" id="addressBtns">
+                <button class="modify">Modify Address</button>
+                <button class="add">Add New Address</button>
+            </div>
+            <form id="addressForm" class="hidden" novalidate>
+                <h3>Delivery Address</h3>
+                <label>House/Flat Number*</label>
+                <input type="text" name="houseNumber" required />
+                <label>Landmark</label>
+                <input type="text" name="landmark" />
+                <label>City*</label>
+                <input type="text" name="city" required />
+                <label>State*</label>
+                <input type="text" name="state" required />
+                <label>Pin Code*</label>
+                <input type="text" name="pin" pattern="\d{6}" required />
+                <button type="submit" class="submit-address-btn">Save Address</button>
+            </form>
+            <div id="paymentSection" class="hidden">
+                <p>Please select a payment method:</p>
+                <div class="payment-options">
+                    <button class="payment-btn" data-payment="Online Payment">💳 Online Payment</button>
+                    <button class="payment-btn" data-payment="Cash on Delivery">🏠 Cash on Delivery</button>
+                </div>
+            </div>
+            <div class="wallet-section" id="walletSection">
+                <p>Select a payment wallet:</p>
+                <div class="wallet-options">
+                    <button class="wallet-btn" data-wallet="PhonePe">📲 PhonePe</button>
+                    <button class="wallet-btn" data-wallet="Google Pay">💙 Google Pay</button>
+                    <button class="wallet-btn" data-wallet="Paytm">🟦 Paytm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <span class="success-close-btn" id="successCloseBtn">&#10005;</span>
+            <div class="success-check">✔</div>
+            <div class="success-text-main">Order Placed Successfully!</div>
+            <div class="success-message" id="orderPlacedDetails"></div>
+            <div class="success-address" id="orderPlacedAddress"></div>
+        </div>
+    </div>
+
+    <script>
+	// ...existing code...
+                function showOrderPlacedModal(paySource) {
+                    successModalOverlay.classList.add('active');
+                    orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+// ...existing code...let currentProductName = "";
+        let currentProductPrice = "";
+        let selectedPaymentMethod = null;
+        let savedAddress = null;
+
+        // Modal elements
+        const modalOverlay = document.getElementById('modalOverlay'),
+            modalProductName = document.getElementById('modalProductName'),
+            modalProductPrice = document.getElementById('modalProductPrice'),
+            addressBlock = document.getElementById('addressBlock'),
+            addressBtns = document.getElementById('addressBtns'),
+            addressForm = document.getElementById('addressForm'),
+            paymentSection = document.getElementById('paymentSection'),
+            walletSection = document.getElementById('walletSection'),
+            successModalOverlay = document.getElementById('successModalOverlay'),
+            successCloseBtn = document.getElementById('successCloseBtn'),
+            orderPlacedDetails = document.getElementById('orderPlacedDetails'),
+            orderPlacedAddress = document.getElementById('orderPlacedAddress');
+
+        // Open modal for product
+        function openModalForProduct(product) {
+            currentProductName = product.querySelector('h3').textContent;
+            currentProductPrice = product.querySelector('p').textContent;
+            modalProductName.textContent = currentProductName;
+            modalProductPrice.textContent = currentProductPrice;
+            walletSection.classList.remove('visible');
+
+            if (loadSavedAddress()) {
+                renderSavedAddress();
+                showPaymentStep();
+                togglePaymentButtons(true);
+            } else {
+                showAddressStep();
+                togglePaymentButtons(false);
+            }
+        }
+
+        // Attach buy button for AI clones
+        function attachBuyForClone(card) {
+            const btn = card.querySelector('.buy-btn');
+            if (!btn) return;
+            btn.addEventListener('click', (e) => {
+                const p = e.target.closest('.product');
+                openModalForProduct(p);
+            });
+        }
+
+        // AI Assistant logic
+        function handleAI() {
+            const inputEl = document.getElementById("aiInput");
+            const responseBox = document.getElementById("aiResponse");
+            const input = (inputEl.value || "").trim().toLowerCase();
+
+            responseBox.innerHTML = "";
+
+            if (!input) {
+                responseBox.innerText = "⚠️ Please type something first!";
+                return;
+            }
+
+            const products = document.querySelectorAll("#productContainer .product");
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = input.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = input.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = input.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "products", "product"
+            ]);
+            const words = input
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            const matches = [];
+
+            products.forEach(product => {
+                const nameEl = product.querySelector("h3");
+                const priceEl = product.querySelector("p");
+                if (!nameEl || !priceEl) return;
+
+                const name = nameEl.innerText.toLowerCase();
+                const priceText = priceEl.innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+
+                const nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+
+                if (nameMatch && priceOK) matches.push({
+                    product,
+                    price
+                });
+            });
+
+            if (matches.length === 0) {
+                responseBox.innerText = "🤖 Sorry, no matching products found!";
+                return;
+            }
+
+            if (maxPrice != null && minPrice == null) {
+                matches.sort((a, b) => a.price - b.price);
+            } else if (minPrice != null && maxPrice == null) {
+                matches.sort((a, b) => b.price - a.price);
+            } else {
+                matches.sort((a, b) => a.price - b.price);
+            }
+
+            matches.forEach((hit, i) => {
+                const clone = hit.product.cloneNode(true);
+                clone.classList.add('ai-clone');
+                responseBox.appendChild(clone);
+                attachBuyForClone(clone);
+                setTimeout(() => clone.classList.add('show'), i * 120);
+            });
+        }
+
+        // Category filter
+        function filterCategory(category, link) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(sec => {
+                sec.classList.toggle('hidden',
+                    category !== 'all' && sec.dataset.category !== category);
+            });
+            document.getElementById('searchInput').value = '';
+            filterSearch('');
+        }
+
+        // Search filter
+        function filterSearch(query) {
+            query = query.toLowerCase().trim();
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = query.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = query.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = query.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "product", "products"
+            ]);
+            const words = query
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            // Always search across all categories for search
+            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('hidden'));
+
+            document.querySelectorAll('.product').forEach(p => {
+                const name = p.querySelector('h3').innerText.toLowerCase();
+                const priceText = p.querySelector('p').innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+                let nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+                p.classList.toggle('hidden', !(nameMatch && priceOK));
+
+            });
+
+            // Hide category-section if all products inside are hidden
+            document.querySelectorAll('.category-section').forEach(section => {
+                const products = section.querySelectorAll('.product');
+                const visible = Array.from(products).some(p => !p.classList.contains('hidden'));
+                section.classList.toggle('hidden', !visible);
+            });
+
+            // Show humble message if nothing matches
+            let anyVisible = !!document.querySelector('.product:not(.hidden)');
+            let msgId = 'searchNoMatchMsg';
+            let container = document.getElementById('productContainer');
+            let oldMsg = document.getElementById(msgId);
+            if (!anyVisible) {
+                if (!oldMsg) {
+                    let msg = document.createElement('div');
+                    msg.id = msgId;
+                    msg.style = "text-align:center; font-size:1.2rem; color:#555; margin:40px 0;";
+                    msg.innerText = "🙏 Sorry, no products found matching your search.";
+                    container.appendChild(msg);
+                }
+            } else if (oldMsg) {
+                oldMsg.remove();
+            }
+        }
+
+        // Address logic
+        function loadSavedAddress() {
+            let s = localStorage.getItem('userAddress');
+            savedAddress = s ? JSON.parse(s) : null;
+            return !!savedAddress;
+        }
+
+        function saveAddress(addr) {
+            savedAddress = addr;
+            localStorage.setItem('userAddress', JSON.stringify(addr));
+        }
+
+        function renderSavedAddress() {
+            if (!savedAddress) {
+                addressBlock.classList.add('hidden');
+                addressBtns.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            } else {
+                addressBlock.classList.remove('hidden');
+                addressBlock.innerHTML = `<strong>Address:</strong><br>${savedAddress.houseNumber}` +
+                    (savedAddress.landmark ? `, ${savedAddress.landmark}` : '') + `
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+                addressBtns.classList.remove('hidden');
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
+        function togglePaymentButtons(enabled) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function showAddressStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.add('hidden');
+            addressBtns.classList.add('hidden');
+            addressForm.classList.remove('hidden');
+            paymentSection.classList.add('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        function showPaymentStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.remove('hidden');
+            addressBtns.classList.remove('hidden');
+            addressForm.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        // Buy button logic
+        document.querySelectorAll('.buy-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                const product = e.target.closest('.product');
+                openModalForProduct(product);
+            });
+        });
+
+        // Address buttons
+        addressBtns.querySelector('.modify').onclick = function() {
+            addressForm.houseNumber.value = savedAddress.houseNumber || '';
+            addressForm.landmark.value = savedAddress.landmark || '';
+            addressForm.city.value = savedAddress.city || '';
+            addressForm.state.value = savedAddress.state || '';
+            addressForm.pin.value = savedAddress.pin || '';
+            showAddressStep();
+        };
+        addressBtns.querySelector('.add').onclick = function() {
+            addressForm.reset();
+            showAddressStep();
+        };
+
+        // Address form submit
+        addressForm.onsubmit = function(e) {
+            e.preventDefault();
+            if (!addressForm.checkValidity()) {
+                addressForm.reportValidity();
+                return;
+            }
+            const fd = new FormData(addressForm);
+            const newAddr = {
+                houseNumber: fd.get('houseNumber').trim(),
+                landmark: fd.get('landmark').trim(),
+                city: fd.get('city').trim(),
+                state: fd.get('state').trim(),
+                pin: fd.get('pin').trim()
+            };
+            saveAddress(newAddr);
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        };
+
+        // Payment button logic
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedPaymentMethod = btn.dataset.payment;
+                if (selectedPaymentMethod === "Online Payment") {
+                    walletSection.classList.add('visible');
+                } else {
+                    showOrderPlacedModal("Cash on Delivery");
+                    modalOverlay.classList.remove('active');
+                }
+            };
+        });
+
+        // Wallet button logic
+        document.querySelectorAll('.wallet-btn').forEach(btn => {
+            btn.onclick = function() {
+                walletSection.classList.remove('visible');
+                showOrderPlacedModal(btn.dataset.wallet);
+                modalOverlay.classList.remove('active');
+            };
+        });
+
+        function showOrderPlacedModal(paySource) {
+            successModalOverlay.classList.add('active');
+            orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// Success modal close
+successCloseBtn.onclick = () => successModalOverlay.classList.remove('active');
+successModalOverlay.addEventListener('click', e => {
+    if (e.target === successModalOverlay) successModalOverlay.classList.remove('active');
+});
+
+// AI Panel toggle
+const aiPanel = document.getElementById('aiPanel');
+const aiOpenBtn = document.getElementById('aiOpenBtn');
+const aiCloseBtn = document.getElementById('aiCloseBtn');
+
+aiOpenBtn.onclick = () => {
+    aiPanel.classList.remove('hidden');
+    document.body.classList.add('ai-open');
+};
+aiCloseBtn.onclick = () => {
+    aiPanel.classList.add('hidden');
+    document.body.classList.remove('ai-open');
+};
+document.addEventListener('click', function(e) {
+    if (!aiPanel.classList.contains('hidden') &&
+        !aiPanel.contains(e.target) &&
+        e.target !== aiOpenBtn) {
+        aiPanel.classList.add('hidden');
+        document.body.classList.remove('ai-open');
+    }
+});
+
+// Search input event
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    filterSearch(e.target.value);
+});
+
+document.getElementById('closeModal').onclick = () => {
+    // If address form is visible, just hide it and show previous step
+    if (!addressForm.classList.contains('hidden')) {
+        addressForm.classList.add('hidden');
+        if (loadSavedAddress()) {
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        } else {
+            modalOverlay.classList.remove('active');
+        }
+    } else {
+        modalOverlay.classList.remove('active');
+        walletSection.classList.remove('visible');
+    }
+};const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', function() {
+    searchClearBtn.style.display = searchInput.value ? 'inline' : 'none';
+});
+
+searchClearBtn.onclick = function() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterSearch('');
+};
+            </script>
+</body>
+
+</html>
+
+</html>

@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sports & Fitness Store</title>
+    <style>
+        /* ======= Base Styles ======= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    background-color: #f5f5f5;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #2563EB;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    color: white;
+    padding-top: 60px;
+    overflow-y: auto
+}
+
+.sidebar a {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background-color: #1041AE
+}
+
+.main {
+    margin-left: 200px;
+    flex: 1;
+}
+
+.search-bar-wrapper {
+    position: sticky;
+    top: 0;
+    background: #88AAF4;
+    padding: 10px;
+    z-index: 100
+}
+
+.search-container {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2)
+}
+
+.search-container input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 16px;
+}
+
+.search-container img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.products {
+    padding: 20px;
+}
+
+.category-section {
+    margin-bottom: 30px;
+}
+
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.product {
+    background: white;
+    width: 200px;              /* Fixed width */
+    height: 280px;             /* Fixed height */
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;       /* Center content */
+    box-sizing: border-box;    /* Prevent overflow */
+}
+
+.product img {
+    width: 100%;
+    height: 140px;             /* Fixed image height */
+    object-fit: cover;         /* Crop/fit nicely */
+    border-radius: 8px;
+}
+
+
+.product h3 {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.product p {
+    font-weight: bold;
+    color: #1041AE;
+    margin: 8px 0;
+}
+
+.buy-btn {
+    background-color: #1041AE;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.buy-btn:hover {
+    background: #388E3C;
+}
+
+.hidden {
+    display: none!important
+}
+
+/* ======= Modal Styles ======= */
+.modal-overlay,
+.success-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.modal-overlay.active,
+.success-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto
+}
+
+.modal {
+    background: white;
+    border-radius: 15px;
+    max-width: 420px;
+    width: 90%;
+    padding: 20px 30px;
+    text-align: center;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.modal p {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+.close-btn,
+.success-close-btn {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.close-btn:hover,
+.success-close-btn:hover {
+    color: #333;
+}
+
+#addressBlock {
+    background: #f7f7f7;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 12px;
+    margin-bottom: 18px;
+    text-align: left;
+    font-size: 15px;
+}
+
+.address-btns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.address-btns button {
+    flex: 1;
+    padding: 8px;
+    font-weight: 700;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    color: #fff;
+}
+
+.address-btns .modify {
+    background: #ff9800;
+}
+
+.address-btns .modify:hover {
+    background: #e65100;
+}
+
+.address-btns .add {
+    background: #03A9F4;
+}
+
+.address-btns .add:hover {
+    background: #0277bd;
+}
+
+#addressForm {
+    text-align: left;
+    margin-top: 14px;
+    max-width: 340px;
+    margin: auto;
+}
+
+#addressForm h3 {
+    color: #388E3C;
+    font-size: 18px;
+}
+
+#addressForm label {
+    display: block;
+    margin: 10px 0 6px;
+    font-weight: 600;
+}
+
+#addressForm input {
+    width: 100%;
+    padding: 8px;
+    border: 1.5px solid #ccc;
+    border-radius: 6px;
+}
+
+#addressForm input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.submit-address-btn {
+    margin-top: 18px;
+    width: 100%;
+    padding: 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.submit-address-btn:hover {
+    background: #388E3C;
+}
+
+.payment-options {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+}
+
+.payment-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: 3px solid #4CAF50;
+    border-radius: 30px;
+    background: white;
+    font-weight: 700;
+    color: #4CAF50;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.payment-btn:hover:not(:disabled) {
+    background: #4CAF50;
+    color: #fff;
+}
+
+.payment-btn:disabled {
+    background: #ccc!important;
+    color: #888!important;
+    cursor: not-allowed;
+}
+
+.wallet-section {
+    margin: 16px 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wallet-section.visible {
+    display: flex;
+    animation: popIn 0.4s;
+}
+
+.wallet-options {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+}
+
+.wallet-btn {
+    flex: 1;
+    border: 2px solid #2196f3;
+    background: #fff;
+    color: #2196f3;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wallet-btn:hover {
+    background: #2196f3;
+    color: white;
+}
+
+.success-modal {
+    background: white;
+    border-radius: 18px;
+    max-width: 340px;
+    width: 90%;
+    padding: 25px 22px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+    animation: fadeIn 0.5s;
+}
+
+.success-check {
+    font-size: 70px;
+    color: #19af56;
+    margin-bottom: 10px;
+    animation: tickBlink 1.4s linear infinite;
+}
+
+@keyframes tickBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; transform: scale(0.7); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.success-text-main {
+    font-size: 22px;
+    color: #19af56;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 4px 0 12px;
+}
+
+.success-message {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
+.success-address {
+    margin-top: 14px;
+    font-size: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+}
+
+/* Back Button Styles */
+.back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #1041AE 0%, #88AAF4 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transform: translateZ(0);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.back-btn .back-icon {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+    transform: translateX(0);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+}
+
+.back-btn .back-text {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* Hover effect - Blue */
+.back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    background: linear-gradient(135deg, #1041AE 0%, #88AAF4 100%);
+}
+
+/* Active/Click effect - Blue */
+.back-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+    background: linear-gradient(135deg, #2563EB 0%, #88AAF4 100%);
+}
+
+.back-btn:hover .back-icon {
+    transform: translateX(-3px);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 9px 14px;
+    }
+    .back-btn .back-text {
+        font-size: 13px;
+    }
+}
+
+
+    /* AI Assistant Panel */
+        
+        .ai-panel {
+            width: 340px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+            border-left: 2px solid #bdbdbd;
+            padding: 28px 20px 20px 20px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1300;
+            box-shadow: -4px 0 24px rgba(90, 64, 55, 0.10);
+            transition: transform 0.3s, box-shadow 0.2s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: slideInRight 0.4s;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .ai-panel h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #5D4037;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel textarea {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            border: 1.5px solid #bdbdbd;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: vertical;
+            box-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel button {
+            background: linear-gradient(90deg, #2563EB 0%, #1041AE 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3eeff;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .ai-panel button:hover {
+            background: linear-gradient(90deg, #2563EB 0%, #1041AE 100%);
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 2.2rem;
+            color: #8D6E63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .ai-close-btn:hover {
+            color: #388E3C;
+        }
+        
+        #aiResponse {
+            margin-top: 18px;
+            min-height: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-family: inherit;
+        }
+        
+        .ai-panel #aiResponse {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .ai-panel .ai-clone {
+            width: calc(50% - 10px);
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        /* Responsive for mobile */
+        
+        @media (max-width: 600px) {
+            .ai-panel .ai-clone {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 16px 8px;
+            }
+        }
+        /* ...existing code... */
+        
+        .ai-open-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1200;
+            background: #1041AE;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ai-open-btn:hover {
+            background: #388E3C;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- AI Assistant Button -->
+    <button id="aiOpenBtn" class="ai-open-btn" title="AI Assistance">🤖</button>
+
+    <!-- AI Assistant Sidebar -->
+    <div class="ai-panel hidden" id="aiPanel">
+        <span class="ai-close-btn" id="aiCloseBtn">&times;</span>
+        <h2>AI Assistance ✨</h2>
+        <textarea id="aiInput" placeholder="Ask me anything..."></textarea>
+        <button onclick="handleAI()">Ask AI</button>
+        <div id="aiResponse" style="margin-top:15px;"></div>
+    </div>
+    <!-- Sidebar -->
+	<button class="back-btn" id="backBtn" aria-label="Go back" onclick="window.location.href='categories.html'">
+    <span class="back-icon" aria-hidden="true">←</span>
+    <span class="back-text">Back</span>
+</button>
+    <div class="sidebar">
+        <a href="#" class="active" onclick="filterCategory('all', this)">All</a>
+        <a href="#" onclick="filterCategory('sports', this)">Sports</a>
+        <a href="#" onclick="filterCategory('fitness', this)">Fitness</a>
+    </div>
+    <div class="main">
+        <!-- Search -->
+        <div class="search-bar-wrapper">
+            <div class="search-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Search Icon">
+                <input type="text" id="searchInput" placeholder="Search for Sports & Fitness...">
+				
+                <span id="searchClearBtn" style="display:none;cursor:pointer;font-size:20px;margin-left:8px;">&#10005;</span>
+            </div>
+        </div>
+
+        <!-- Products -->
+        <div class="products" id="productContainer">
+            <!-- SPORTS -->
+            <div class="category-section" data-category="sports">
+                <div class="product-list">
+                    <!-- Example product with Buy Now inserted -->
+                    <div class="product" data-name="Volley Ball">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.l10xnn4gxBNXPHsTzd_Y3gHaER?pid=Api&P=0&h=180" alt="Volley Ball">
+                        <h3>Volley Ball</h3>
+                        <p>₹1,200</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="puma soccer ball">
+                        <img src="https://i.pinimg.com/originals/9b/5a/3d/9b5a3d61651a65bd8d97a6e1c430121e.jpg" alt="Puma Soccer Ball">
+                        <h3>Puma Soccer Ball</h3>
+                        <p>₹999</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Adidas Teamgeist,">
+                        <img src="https://www.soccerbible.com/media/117951/balls-5-min.jpg" alt="Adidas Teamgeist,">
+                        <h3>Adidas Teamgeist</h3>
+                        <p>₹850</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="cosco soccer ball">
+                        <img src="https://images.pexels.com/photos/1530417/pexels-photo-1530417.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260" alt="Cosco Soccer Ball">
+                        <h3>Cosco Soccer Ball</h3>
+                        <p>₹699</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="mikasa football">
+                        <img src="http://www.sibconline.com.sb/wp-content/uploads/2015/01/Soccer-ball.jpg" alt="Mikasa Football">
+                        <h3>Mikasa Football</h3>
+                        <p>₹899</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="sg cricket bat">
+					<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQToDGKwauWH-LOJmrZlQKnGredt2BZHomfuw&s" alt="SG Cricket Bat">
+                        <h3>SG Cricket Bat</h3>
+                        <p>₹2,500</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Kookaburra cricket bat">
+                        <img src="https://www.prodirectcricket.com/productimages/Main/193902_Main_Thumb_0381358.jpg" alt="Kookaburra cricket bat">
+                        <h3>Kookaburra cricket bat</h3>
+                        <p>₹3,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="gray nicoll scricket bat">
+                        <img src="https://www.prodirectcricket.com/productimages/Main/149987.jpg" alt="Gray Nicolls Cricket Bat">
+                        <h3>Gray Nicolls Cricket Bat</h3>
+                        <p>₹4,200</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Masuri E Line Pro TON Cricket Bat">
+                        <img src="https://www.prodirectcricket.com/ProductImages/Thumbs/205470_Main_Thumb_0461850.jpg" alt="Masuri E Line Pro TON Cricket Bat">
+                        <h3>Masuri E Line Pro TON Cricket Bat</h3>
+                        <p>₹3,800</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="spartan cricket bat">
+                        <img src="https://img.freepik.com/premium-photo/cricket-bat-design-as-cricket-equipment-icon_1197797-216684.jpg?w=2000" alt="Spartan Cricket Bat">
+                        <h3>Spartan Cricket Bat</h3>
+                        <p>₹2,900</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="county Classic">
+                        <img src="https://wallpapercave.com/wp/wp2644641.jpg" alt="County Classic">
+                        <h3>County Classic</h3>
+                        <p>₹2,900</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="star Striker">
+                        <img src="https://cdn-d03d5231-5b2e278c.mysagestore.com/cf738e9579802e6b988bb225ca6bc00c/contents/1A2455/1A2455M01-cricket-ball-county-star-front.jpg" alt="Star Striker">
+                        <h3>Star Striker</h3>
+                        <p>₹2,900</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="match Pro">
+                        <img src="https://images.pexels.com/photos/7702229/pexels-photo-7702229.jpeg?cs=srgb&dl=pexels-manoj-poosam-3217664-7702229.jpg&fm=jpg" alt="Match Pro">
+                        <h3>Match Pro</h3>
+                        <p>₹2,900</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="leather Ball">
+                        <img src="https://static.vecteezy.com/system/resources/previews/013/362/730/original/cricket-ball-transparent-free-png.png" alt="Leather Ball">
+                        <h3>Leather Ball</h3>
+                        <p>₹2,900</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Tournament Ball">
+                        <img src="https://media.istockphoto.com/id/157168420/photo/close-up-of-a-red-cricket-ball.webp?b=1&s=170667a&w=0&k=20&c=VDQK2XJoxyYO2pbDk6TScpTyeoRXi9Wp8WIo6rcmEhA=" alt="Tournament Ball">
+                        <h3>Tournament Ball</h3>
+                        <p>₹2,900</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="seam Master">
+                        <img src="https://media.istockphoto.com/photos/cricket-ball-picture-id139507908?b=1&k=20&m=139507908&s=170667a&w=0&h=kTHBRLeUUUPXX7Exa343PGhSwP2paStEFnMon74tzJE=" alt="Seam Master">
+                        <h3>Seam Master</h3>
+                        <p>₹2,900</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="cricket wickets ball">
+                        <img src="https://png.pngtree.com/png-clipart/20221127/ourmid/pngtree-cricket-wickets-ball-png-image_6483453.png" alt="Cricket Wickets Ball">
+                        <h3>Cricket Wickets Ball</h3>
+                        <p>₹450</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                    <div class="product" data-name="volleyball net pe">
+                        <img src="https://sportsandgames.co.tt/wp-content/uploads/2022/10/5000002734-Volleyball-Net-PE-SG-233.jpg" alt="Volleyball Net PE">
+                        <h3>Volleyball Net PE</h3>
+                        <p>₹750</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="volleyball clipart">
+                        <img src="https://clipart-library.com/images/Lcd5gMkqi.jpg" alt="Volleyball Clipart">
+                        <h3>Volleyball Clipart</h3>
+                        <p>₹299</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="jaypro volleyball system">
+                        <img src="https://3.bp.blogspot.com/--RETfRBHUjM/WbKtsLIqcaI/AAAAAAAAPV4/pnwBNTVJm9UMpx7IYylAol13Gni1ZCe4wCK4BGAYYCw/s1600/Jaypro%2BCollegiate%2BVolleyball%2BNet%2BSystem%2B-%2B3.5%2Binch%2BSteel%2B%257C%2BHayneedle-795323.jpg" alt="Jaypro Collegiate Volleyball Net System">
+                        <h3>Jaypro Volleyball system</h3>
+                        <p>₹8,000</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="volleyball set net post">
+                        <img src="https://m.media-amazon.com/images/I/61sZib92+9L.jpg" alt="Volleyball Set Net Post">
+                        <h3>Volleyball Set Net Post</h3>
+                        <p>₹3,400</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="head tennis set">
+                        <img src="https://cdn.pixabay.com/photo/2022/04/17/08/50/tennis-7137647_1280.jpg" alt="Tennis Set 1 - Head">
+                        <h3>Head Tennis Set</h3>
+                        <p>₹1,500</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="wilson tennis set">
+                        <img src="https://maxsports.co.uk/wp-content/uploads/2019/02/2nd-Serve-140.jpg" alt="Tennis Set 2 - Wilson">
+                        <h3>Wilson Tennis Set</h3>
+                        <p>₹1,800</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="yonex badmintion">
+                        <img src="http://sportlines.com.ph/cdn/shop/collections/boy-playing-badminton-isolated-white-wall.jpg?v=1679105956" alt="Badminton - Yonex">
+                        <h3>Yonex Badminton</h3>
+                        <p>₹1,200</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="li ning badmintion">
+                        <img src="https://wallpapercave.com/wp/wp1852922.jpg" alt="Badminton - Li-Ning">
+                        <h3>Li Ning Badminton</h3>
+                        <p>₹1,500</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="apacs badmintion">
+                        <img src="https://wallpaperaccess.com/full/1429496.jpg" alt="Badminton - Apacs">
+                        <h3>Apacs Badminton</h3>
+                        <p>₹1,300</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="pole vault">
+                        <img src="https://www.sportzcraazy.com/wp-content/uploads/2018/09/Pole-Vault.jpg" alt="Pole Vault">
+                        <h3>Pole Vault</h3>
+                        <p>₹1,300</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="hurdle set">
+                        <img src="https://www.popoptiq.com/wp-content/uploads/2019/01/22-31-1.jpg" alt="Hurdle Set">
+                        <h3>Hurdle Set</h3>
+                        <p>₹1,800</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="slalom pole set">
+                        <img src="https://nwscdn.com/media/wysiwyg/2022/slalom-pole-base-usp.jpeg" alt="Slalom Pole Set">
+                        <h3>Slalom Pole Set</h3>
+                        <p>₹1399</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="javelin">
+                        <img src="https://www.tdk.com/en/tech-mag/sites/default/files/2022-03/shutterstock_1851401410_0.jpg" alt="Javelin">
+                        <h3>Javelin</h3>
+                        <p>₹3999</p> <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="hammer throw">
+                        <img src="http://photos.demandstudios.com/getty/article/181/212/530907471.jpg" alt="Hammer Throw">
+                        <h3>Hammer Throw</h3>
+                        <p>₹2399</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FITNESS -->
+            <div class="category-section" data-category="fitness">
+                <div class="product-list">
+                    <!-- Example product with Buy Now -->
+                    <div class="product" data-name="horizon treadmill">
+                        <img src="https://podium4sport.ie/wp-content/uploads/sites/2/2022/10/Horizon-Fitness-7.4AT-Folding-Treadmill.png" alt="Horizon Treadmill">
+                        <h3>Horizon Treadmill</h3>
+                        <p>₹85,000</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="runow curved treadmill">
+                        <img src="http://www.gymreadyequipment.com/wp-content/uploads/2021/06/RUNOW-Curved-Treadmill-1.jpg" alt="RUNOW Curved Treadmill">
+                        <h3>RUNOW Curved Treadmill</h3>
+                        <p>₹1,10,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="adjustable dumbbells ">
+                        <img src="https://treadmillaustralia.com.au/wp-content/uploads/2020/09/822441_2_7.jpg" alt="adjustable dumbbells. ">
+                        <h3>adjustable dumbbells </h3>
+                        <p>₹92,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                  
+
+                    <div class="product" data-name="exl dumbbells">
+                        <img src="https://www.expertleisure.ie/wp-content/uploads/2020/07/EXL_Dumbbells_15-20-25kg-blue.jpg" alt="EXL Dumbbells">
+                        <h3>EXL Dumbbells</h3>
+                        <p>₹4,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="york barbell Set">
+                        <img src="https://yorkbarbell.com/wp-content/uploads/2017/01/2900_300LBStandardOlympicSet.jpg" alt="York Barbell Set">
+                        <h3>York Barbell Set</h3>
+                        <p>₹22,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="barbell">
+                        <img src="http://www.pngmart.com/files/7/Barbell-PNG-Image.png" alt="Barbell PNG 1">
+                        <h3>Barbell</h3>
+                        <p>₹6,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    
+
+                    <div class="product" data-name="fitkit barbell">
+                        <img src="https://www.fitkituk.com/images/products/1676994972-84376900.jpg " alt="Fitkit Barbell ">
+                        <h3>Fitkit Barbell</h3>
+                        <p>₹9,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="pure barbell">
+					<img src="data:image/jpeg;base64,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" alt="pure barbell">
+                        <h3>Pure Barbell</h3>
+                        <p>₹7,500</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="iasc barbell">
+                        <img src="https://iascfitness.org/wp-content/uploads/2022/09/realistic-3d-detailed-barbell-with-plates_8829-2479.jpeg " alt="IASC Barbell ">
+                        <h3>IASC Barbell</h3>
+                        <p>₹8,800</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="leg press machine"> <img src="https://befitnesshub.com/wp-content/uploads/2021/04/Bodycraft-F660-Leg-Press.jpg " alt="Leg Press Machine 1 ">
+                        <h3>Leg Press Machine</h3>
+                        <p>₹50,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="isolateral leg press"> <img src="https://cdn.shopify.com/s/files/1/0564/2607/0148/files/Bodykore-FL1801-isolateral-leg-press.webp?v=1677961066 " alt="Leg Press Machine 2 ">
+                        <h3>Isolateral Leg Press</h3>
+                        <p>₹55,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="commercical leg press"> <img src="https://leewarehouse.co.nz/wp-content/uploads/2024/09/leg-press-machine-2.png " alt="Leg Press Machine 3 ">
+                        <h3>Commercial Leg Press</h3>
+                        <p>₹60,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="half power rack"> <img src="https://mirafit.co.uk/wp/wp-content/uploads/2022/05/expert-does-a-pull-up-on-a-mirafit-half-power-rack.jpg " alt="Power Rack ">
+                        <h3>Half Power Rack</h3>
+                        <p>₹35,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="adjustable weight bench"> <img src="https://www.trainer.ae/articles/wp-content/uploads/2015/06/71heKAN4JtL._SL1500_.jpg " alt="Adjustable Bench ">
+                        <h3>Adjustable Weight Bench</h3>
+                        <p>₹18,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="flat bench press"> <img src="https://ucarecdn.com/7837dc5e-9439-4e36-accf-63c366f8f191/-/format/auto/-/preview/3000x3000/-/quality/lighter/bench-press.jpg " alt="Flat Bench Press ">
+                        <h3>Flat Bench Press</h3>
+                        <p>₹20,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="olympic bench press"> <img src="https://www.pharaohfitness.co.uk/wp-content/uploads/2017/04/Bench-Press-Feature-Image.jpg " alt="Bench Press Setup ">
+                        <h3>Olympic Bench Press</h3>
+                        <p>₹22,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="incline bench press"> <img src="https://www.bosshunting.com.au/wp-content/uploads/2022/09/how-to-bench-press.jpg " alt="How to Bench Press ">
+                        <h3>Incline Bench Press</h3>
+                        <p>₹23,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="resistance bands workout"> <img src="https://www.realsimple.com/thmb/MK1TL9GTPAjAqKZpIRx2yx9AtZc=/2000x1333/filters:fill(auto,1)/resistance-band-exercises-workout-moves-2000-d08565f9ac4d4b748e1a777e3a636eb2.jpg
+                        " alt="Resistance Bands Workout ">
+                        <h3>Resistance Bands</h3>
+                        <p>₹1,500</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    
+                    <div class="product" data-name="rubber dumbbells"> <img src="https://m.media-amazon.com/images/I/51QL9xBU2uL.jpg " alt="Rubber Dumbbells ">
+                        <h3>Rubber Dumbbells</h3>
+                        <p>₹4,500</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="kettlebell set"> <img src="https://yorkbarbell.com/wp-content/uploads/2017/01/Kettlebell-Group.jpg " alt="Kettlebells Set ">
+                        <h3>Kettlebell Set</h3>
+                        <p>₹3,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="steel kettlebells"> <img src="https://static01.nyt.com/images/2023/04/25/multimedia/WNT-KETTLEBELLS1-kgwl/WNT-KETTLEBELLS1-kgwl-videoSixteenByNine3000.jpg " alt="Kettlebells NYT ">
+                        <h3>Steel Kettlebells</h3>
+                        <p>₹3,500</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="professional kettlebells"> <img src="https://inonefit.com/wp-content/uploads/2020/03/5-Best-Kettlebells-to-Buy-and-The-Moves-to-Do-gear-patrol-lead-full.jpg " alt="Top Kettlebells ">
+                        <h3>Professional Kettlebells</h3>
+                        <p>₹4,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="incline chest fly machine">
+                        <img src="https://gmwdfitness.com/cdn/shop/files/gmwd-inclinechestflymachine-main3.jpg?v=1705297182&width=1400 " alt="Incline Chest Fly Machine ">
+                        <h3>Incline Chest Fly Machine</h3>
+                        <p>₹40,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="chest fly machine">
+                        <img src="https://freemotionfitness.com/wp-content/uploads/2020/07/ES806_3Q_Tallent_Female.png " alt="Chest Fly Machine - Female Demo ">
+                        <h3>Chest Fly Machine</h3>
+                        <p>₹30,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+
+                    <div class="product" data-name="rear delt pec fly">
+                        <img src="https://cdn-live.powerhouse-fitness.co.uk/pictures/bodymax/single_station_machines/SESS0254/hs015_reardelt_pec_fly_600.jpg " alt="Rear Delt Pec Fly ">
+                        <h3>Rear Delt Pec Fly</h3>
+                        <p>₹38,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                   
+                    <div class="product" data-name="la tpulldown machine">
+                        <img src="https://expertfitnesssupply.com/wp-content/uploads/2023/05/DSCF0234-Edit-Edit.jpg " alt="Lat Pulldown Machine ">
+                        <h3>Lat Pulldown Machine</h3>
+                        <p>₹40,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="seated chest press">
+                        <img src="https://i5.walmartimages.com/asr/1c5d40e8-20ce-4ef8-b0ae-067c55736294_2.f045fc9b549f11ee5406218d2c450afa.png " alt="Seated Chest Press Machine ">
+                        <h3>Seated Chest Press</h3>
+                        <p>₹45,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="cable crossover">
+                        <img src="https://www.ensayofitness.com/wp-content/uploads/2022/01/Cable-Crossover-Machine-2x200-Lbs.-A.jpg " alt="Cable Crossover Machine ">
+                        <h3>Cable Crossover</h3>
+                        <p>₹70,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Smith machine">
+                        <img src="https://www.adamantbarbell.com/3196/1412.jpg" alt="Smith machine">
+                        <h3>Smith machine</h3>
+                        <p>₹55,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="smith machine">
+                        <img src="https://befitnesshub.com/wp-content/uploads/2021/04/Body-Solid-GS348QP4-Series-7-Smith-Machine.jpg " alt="Smith Machine ">
+                        <h3>Smith Machine</h3>
+                        <p>₹85,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="leg extension curl">
+                        <img src="https://m.media-amazon.com/images/S/aplus-media/vc/3b6324d9-d17e-479e-8163-3a0fd3bf0b4f.jpg " alt="Leg Extension & Curl Machine ">
+                        <h3>Leg Extension & Curl</h3>
+                        <p>₹35,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="foam roller for back stretch">
+                        <img src="https://thorpesphysiotherapy.com/wp-content/uploads/2020/05/foam-roller-back-stretch.jpg " alt="Foam Roller for Back Stretch ">
+                        <h3>Foam Roller for Back Stretch</h3>
+                        <p>₹500</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="basic foam roller">
+                        <img src="https://cdn-ami-drupal.heartyhosting.com/sites/muscleandfitness.com/files/media/foam-rolling-roller-1109_0.jpg " alt="Basic Foam Roller ">
+                        <h3>Basic Foam Roller</h3>
+                        <p>₹450</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="contoured foam roller">
+                        <img src="https://www.pro-tecathletics.com/wp-content/uploads/2018/09/Contoured-Foam-Roller-In-Use-1-min.jpg " alt="Contoured Foam Roller ">
+                        <h3>Contoured Foam Roller</h3>
+                        <p>₹600</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="Mounting system">
+                        <img src="https://m.media-amazon.com/images/I/61tG0ezvWnS._AC_UF1000,1000_QL80_.jpg " alt="Mounting system ">
+                        <h3>Mounting system</h3>
+                        <p>₹550</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name=" reflex speed bag">
+                        <img src="https://m.media-amazon.com/images/I/61dAauAGfrL._AC_SL1500_.jpg " alt=" reflex speed bag ">
+                        <h3> reflex speed bag</h3>
+                        <p>₹700</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product " data-name="walmart foam roller">
+                        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUTEhMVFhUVGBcWFxgYFxcZGBYWFhgYFxgXFRcYHSgiHBolGxgXITEiJSkrLi8uGCAzODMuNygtMisBCgoKDg0NFxAQGisdFR0rLS0tLS0tLSstLS0tLSs3LS0tKy0tLS0tLTctLSstKy0tLSstLSstNzctKysrKystK//AABEIAOEA4QMBIgACEQEDEQH/xAAcAAEAAQUBAQAAAAAAAAAAAAAABAIDBQYHCAH/xABDEAACAQIEAwYDBQYEAwkAAAABAgADEQQSITEFQVEGBxMiYXGBkbEyQqHB8BQjM1JicoKS0eEksvEIFURTY3ODs+L/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAXEQEBAQEAAAAAAAAAAAAAAAAAEQEh/9oADAMBAAIRAxEAPwDuMREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQES21dBYllAO2o1nNe1ne7SoO1PDUmqkaeK1xSv8A0c3HroOhMDp0g8U4vQw65q9VEFr2J8x/tUasfQCcowPeli8hdhRqX+yAjK2t7AgMbWI31v6cuc4jFftFd3xIJqNmYszVMxIBNh5rD0FrDkJYlegMB3h8PqlgKrLl3z03W2l7kEXAtzNpz3jXenjatYrg2oU6YNlDKzuw6ucpUX6DbqZoj8SCpkIvcAWvqLbBiNwP1vLOGpL/ABqbC6kXAPXT9by8TrsfBu9VBTUYymRUH2mpZShtzALX+AJ/IblwDtThMZf9nrBiBcqQVYDrlYAkeo0nmFhnYLmI5AW6ab3me7P18XhXFRXtYHK3Q26HS2tjfrJqvTMTX+xvaZMbRzWC1VsKiA6AnZl/pOtviOU2CRSIiAiIgIiICIiAiIgIiICIljHY2nRQ1KzrTRd2dgqj3JgX4mkYnvS4eGy0jVrH/wBNNPm5X8Jh+0Hesvh2wigVTua1iEHUCkWzH3It67SxK6a7gAkkADUk6ADqTNT4h3l8KpNkOKV26U1aoP8AMgK/jOJcX4xjKrBq+Kapm1Clyl/7KZsPkJExVRj99R0vdm9+djEK7bxnvLwiUXNBw1a37tXV1FzzewuAN7GxNtN7zk/FO0uOxRK4msKtE38qgBAeQKWGnqQZghw2qdUa/wDhI/E3lQxD5fDfe979LdbcpUKwVFyUsguc1zrlO37vfLfmd/hKKHiLpUF0cEE7j3/6iWWw7che2xB/IyXjGcgOVN8qrYa2A1O3qT+EURqtVwLIMo5kaA+kuYbEXUqUbMLFSLnmAfbQmRsDi1pmzqSP1feZTG4qmtN2p23sg9Sqn5C5+UlGLokFhnAAOhJX1tbWT6uHpUixFyFQM1r2FyCo3sSSAbT5h+GmsmYtY6k26DmRtHE+H1Qiqt3G7bAlhYC4J2AAtCrLYUuM9IHfS+hv6Hb4T7xSq4QeItndclyfsoti1vVifkBK+FcXKsKLoVJ8oB0OvO3P3maxdSmB+8Kgf1W/AGQXu7zj6YatTKvbUBwfvISMwt+thPRam+o2M8pYqrhkanUpi5J0CnKp6XBH4C207z3ZdoziKAo1ABUoIozA3DpqFOuxAAB35HnYBusREKREQEREBETF8f7QYfB0/ExFQIDoo1LMeiqNT+UDKROUca73M2mBprpu1cG1+gVG/En4TDHvexoUZ0oBr/cVvMvI6ucv439OdiV2LiXGcNQt49enTvsHdVJ9gTczSOJd7WHSpkpUKlRb28QkIh9rBj8wD6TjWPrnEM9Zmc1L5mZzck+ugsPw5aSr9tCgkg9LA6DTWxlzCuk9ou9moUanQRaLkAByfFZOtksFv01PqOU5vjK2JZ/FfEPUY6nM5zEX6EmwkepQzIajEKvVjbX36/CUVqhJ1PmAUE+wsOX6uYRJqvTsQpyFr3Cjfn1sB6DpI2GQ03BbVZH/AGdr31PsPzvJdRaj0wCQcoa3MkHLa5+B+cmqtYhmZi6nVjckkAnpr0HIbT5QpVRqoW/xP0EpRwj3NiOnSZWvxGy/uyFsLs9r5BsABzcnYQLNepVellPIm4F/NtbNzsNdOekx1KsQfNTdrdEa2nwtKkqGqwuTYXtmNySd2bq34DYTMphKAXNUOg53t9IFnCcdQaFCDyFtT6W3mPr1aiuL3BAS4B0Fxc/jM9gWUrdQ2S/lzbkdddbdJa4jw8VBcHKw58vYiQfKgRlXXOWIAQhSCOZOlwAOd5TjuEK4GU5MosLDTU326yHw6qKN1Jz1L2CoCbAcrm3OTRUxDEGyU19fMx+X+0DHUsJiKLDzqaZNi2YKAOdwfTpeZLH8VWmQAM7HUAEAfEzBVK18XaoAwBsL+9vlYgyjtEw8SmVAA8o005kH8CIGbCYhzd2SkOQUZn+LHb4TEcdqFa9PUsLDex6+nUfjJzY4kD2mF4xUzMh9RLBN7U1swRh90/mpH5zpncdii2LdeX7MT/lemPzM5JxVrqo6kCdh7g8AfExFcjRUSkD1Lkuw+GVPnA7LERIpETSO8/tK2GpJSpOVqVb3Knzqg0OU/dJJtm9DbXYNh7R9osPgqfiV29FVdXY9FH5mwnMOMd7tWqCmFpeD1qMQ7AcrKRlB97zRMQ4a+4uSxNyxLHcsW32kKnhyG33Gp5EDXlzliNkTvB4lTzZsW1QMCAMiAg9QQot7zC4ji9XEsorlmOoVmd2OutgzMfxkA+ZwpVQCbA5R9Z8xIpqzBc3kNi1/KWGtlX06xRVhtNLggm/TkdvW0+UKYqVMuUAn1b/WW6IL7XDfreX0ouGF9Ctj629IFmq6jMUZmGq6gWbWxy9Rcc+cqp0yfsjNzItz/OWno3+x5tgoDDQAW3J1MqwuIq0SCVKjoRcH4iBIpU2KhToFYso6G1vw1+PtLVfC5bk3sbG45W6ynFszEXW2bxHA6Xby39bfWTuHMhQ52YZd7MRb4SC1hcSzL4SNlYnVhuKYFyR67D4yJi66syqh8iaA6+Y829ffnMzw+mMpOW2Ym1wAxXlmtz3kTE8EDfZqOvQaEfSBKTh9JlB3BsPX4EfTaX2wSZDTAsp+vXXfYTD8NotTqZXq0yBsA2pNrC45c5JqcVLOadILcaXY6fIQqy/An+7VA/wf/qR8MArWq1Fq22SmCxJ/q5D2vHaKs4RQxU82ABsdbbGZHBVlWmMoA01sAL20uYFeIx1QU2bwyh2W5BOvMjlIXCKgqjxXdyw5ZiAOWw9jPvEsTemw9PprMVwitYMP6j+vxlRc4XiCldhc6/7j62mXq42a5Tb9+fY/8xmQJjBDxT/8QD7/APKJ84q1ynv+cptet7fWXMVSvUUnYCBLXaRMTTLVUHIC/wCvhJ2HqA7KSSyqo5szGwUAak77Tp+F7mqlamHq4jwHJ/h+GKgVOQ+0tn5nfe0qNH7KdkH4niPDp1UQUlzuSC2lwNANzqOY2M9C9kOzVPAUPBpsWuxd3IALMbC9hsAAAB6SP2K7G4fhtJko3Z3salRrZntew00Ci5sB1O5N5scikREiqajgAk7AE/KeY+23Hq2IxBZ287eUWFgirfyqOg809L45CabgblGA9yDPJ3FGviT/AIvrLiau0ltt8+fzkhal9D+v95HBn280j5kba+3Pn6GWqgUnQg25Xt5iSSSetzJWa+o31Hz/AFf4SzWADA/dHKZVZRKqG+Qj1U5vnJz1qjpUqFbeRVUdbXufbX8Irmm1lpU1znUva2QdbjczIFpFYakQHBYAqbC3KZDyGoBRXKF+2wJA/tA2Mg8QwWUFldVHRth7f6SvDY0BQlJWqHmbWBJ3MDJYzDhxvYjY9JiEolKn71kCjXe5a23l3tJieMSC7qo/lABv7/8AWYiriCMQL2IN9CAdRr9NIGaxPFVFMuuvuCJFoo1dcz1iFP3UGX11Px9ZRxatmS3rIPCcQRTA/W5/2hGaw9GlS+wgHqdT8zMCKmXEXHqPkbyY9czF1T+9HufxAlgncbq5l+f0n3DVjkX2EicRby/r2/OXsOPKPaUXa7+VvY/SReGbE9STJLpcEE2vLmF4Vicq+Fhq7o/2HWlUYOL2uhVbHW40hEHBreozSVWrqpsSL+83rgfdZxHEZBWQYambFncqXyjklNTe/o2X4zsfBuzGA4fh2RURad89R6pUlm2zOzafQDkJFecOz/AcViTfDYepULmwYKcl76k1D5VG+5naOCdz+CFEDGA1q5OZnWpURVvbyKFYXUW3IuSTtoBkOJd6XDqPlpM1Yj/yl8vwZrAj1W4mt43vpyny4VVHIvV3+S2/GRXROCdlsFhLfs+HpoVFg9s1Sx3vUa7H5zMzi6d9lS/8CgfQVT/pMpge+ekf42EqL603FT42YL9YHVImD7O9rcHjR/w9ZWa1yh8rgdcjakeouPWZyAiIgJ5T7YYTwcfVT+WrUX4ZiR+AE9WTgffnwPwsUK67YhS+2z0soYX9VIPxMuJrRLz7tLCPoDJrV1NIAnzKdB/p6W+k0yto2soxNC6llZV65jYfOWw0rq2bRlB5i42v6ybi4vcOqoqnzBm3a1/wvuBLdHFvVJAYIASNL30/XpKnqjIQAALbAW9ZisFVyu3rY/l+cyqdxl2CABySBe/PTrb2knC4vyDpb66/nMbj6lx85bwdTyCWDKPipiMW/wC8B/q+skZpCxJ849x+Al3BNxD+X5fWR+Hny/Ey5WUlTaW8IMosd4RJvIvhHxLkaC+vKSqSs5K00Z20sFUsx9lAvN+7G91GLxLK+MVsPQ3IbSs/oqfc931H8pjRzrElTa50E2Ts92W4hiVD4fCuyHQMQqqfVWqEAj1F56J4X2P4fh8vg4SgrKAA3hqX05l2BYn1JmckqxyLsd3OBXFbiLrUO4oUycn/AMjmxb+0ADqSJ1qjSVFCooVVAVVAACgaAADYAcpXMB2w4jVRKdHDm1fFOKNNt/DFi1SrbnlQE262kVF4z2mqtWOE4fTWtiF/iOxIoYa+3jMN36U119pyDtelbF4tcMK9TFVBUyZ28qGoDZhh6I8lNFOmc3bfXTTu/BuD0sLQFCiLAXJJ1Z3b7VR2+85OpM4FwTiQwHFKRxAI/Z3qU6umozZlL23IGbNpyIMDo3ZzuiwtIBsUzVn0JVSUpg+4s7n1Y2NthN4wHA8LR/g4eknqqKD8Ta5kzD11dVdGDKwBVlIIYHYgjcS5At1KCsLMqkdCAfrMHxPsTw6v/EwlG/8AMqhH+DpY/jNgiBw7t/2BPD1GLwlRzSRgWDMfFok6K9OoNbX06i/MaToXdn2oOOw13OarTsGbbOrDyuQNibG9ul9L2GC76+09KnhWwSsDWrZcwGvh07g5m9SQAo3Mxf8A2f6ZH7X/ACgUR6XvVJA9tvlA7BERATTO9jghxOAdlF6mHPjKBuQoIqL63QsbcyBNznwiB48Tykr02/tO0uXm095vZM4LFkIv7p81Sh0yE3el7oTp/SV9ZqKPeaxleUypm2lm8qY6CVFLPINE+f4fnJV5Gop5vYSKu4o6T5hPsiKpB0+cu4dCxCU1Z3awRFBZifRVFz8IH0tbeWfLcsfhyA951/sV3NF1StxJmAOv7Muh9PFqKbjT7q2PruJ0XgXd7w3COKlDDL4g2Z2eoV9V8RjlPqIpHn3st2VxXEKoTDIwp3s1Zh+7Qczm+8f6Rc/DUdl4H3OcOpUwMQrYmpe5dmemPZUpsAF52JY+s6KBElWIfCuFUMMgp4eklJB91FCi/U23PqZMiJFIiICan2vrChisDiqmlGm9WnUblTNZMqM3QX0v6zbJZxmGSrTanUUOjgqynZgeRgXVN9RsZoneP3c0+I/vaTCliVFgxvlqAbB7agjkw1F+Y0nI24rjcG5wtV8Rh8rXVfFqZQB9gKb7AWAtobCdT7Adua9e1PEU2ZR/4kAKg/8AcLWUm+l0vuLjnA5lhv8Avrg7kWqolyToKlBvW+qXPXyN1mz4DvsrgDxsNSqHmUd6f4EP9Z2uRK3DKD/bo0m/uRT9RA5ZU77ltpg/81ew/wDrmLxPePxPHApg6eQHQmgrVWHvVIKp7kD3nY04JhRqMPRHtSQflMH3gcLr4jDDD4YvTzMCzIqlQo+46l1JUk8r7aiBwfD4IKTWxAavVz+WjnN6rGwJqVgSTzFkzM38wG/fe73gRwuEHiKFrVj41VQAAjMBakoGgCKFXTTQ9Zp/Yvu2rLVNTHkEUnvTUFb1MpurNlJCrfXLe556aHq0BERAREQML2t7N0sfhzQq6G+am4+1TqDZ1+ZBHMEiebO03Z2thK5o11FOpqQdfCrL/PTb69OdjPVsx/G+CYfF0zSxNJaiHWx3U7ZkYaq3qCDKjyZ4ZG9vgQflYyirU1nY+OdyRzXweJAU/crgnL7VEGo9Ct/Uy7wTuQpgE43Es7aWWgAir1uzhi3yE1cSa4qGHM6c5tfYTu/xPEizBjQoAfxmTMGN7Zaa3XNzub2Fp3bgXd/w3Cj93habNe+eqPFe/oz3y+y2E2YC20zurGg8L7nuFUkUVKT13Gpd6tQFjvqlNlW3pb3vNz4bwqhh1CUKNOko0siKv0EmRIpERAREQEREBERAREQMV2h7O4bG0/DxNMOOR2dD1RhqDMHxfgmNUBcH4JYkLnrFstOmLm4Rd2vaw29rTcYgYrs1wyth6OSviGxFQsWLlVQC4Ayoi6KgttruZlYiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiB//9k= " alt="Walmart Foam Roller ">
+                        <h3>Walmart Foam Roller</h3>
+                        <p>₹480</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="ab roller Wheel">
+                        <img src="https://images-na.ssl-images-amazon.com/images/I/61zevhnoPGL.jpg " alt="Ab Roller Black & Red ">
+                        <h3>Ab Roller Wheel</h3>
+                        <p>₹750</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="pushbars">
+                        <img src="https://cdn.mos.cms.futurecdn.net/ZBpTWiYQNBMnDjLbAWKRm-1200-80.jpg " alt="Push-up Bars ">
+                        <h3>PushBars</h3>
+                        <p>₹500</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="home gym">
+                        <img src="https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT6ccb4dWOmjJs1b9MJVFI__R7XV7P76RsWOtSxRuEnzVo5L-yg8CzWeWbX2e48u-xHyIKf4Y_7hf3rcn5P0ADxKdXtfKvr5tQRjQzojgntss9aYFO2NN9bec8 " alt="Home Gym ">
+                        <h3>Home Gym</h3>
+                        <p>₹2,000</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product " data-name="hand gripper">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFDRaTy3BlnwqM63I_IeKtTAftQsUiFNmPWw&s " alt="Hand Gripper ">
+                        <h3>Hand Gripper</h3>
+                        <p>₹300</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product " data-name="wrist exerciser">
+                        <img src="data:image/jpeg;base64,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" alt="Wrist Exerciser ">
+                        <h3>Wrist Exerciser</h3>
+                        <p>₹350</p><button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product " data-name="medicine balls">
+                        <img src="https://www.reymma.fitness/wp-content/uploads/2021/03/Medicine-Balls-1-R84.jpg " alt="Medicine Balls ">
+                        <h3>Medicine Balls</h3>
+                        <p>₹900</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                
+                    <div class="product " data-name="weighted jump rope">
+                        <img src="https://spy.com/wp-content/uploads/2020/11/weighted-jump-ropes-2.jpg?resize=800 " alt="Weighted Jump Rope ">
+                        <h3>Weighted Jump Rope</h3>
+                        <p>₹600</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product " data-name="jump rope">
+                        <img src="https://facts.net/wp-content/uploads/2023/09/12-captivating-facts-about-jump-rope-1695560026.jpg " alt="Jump Rope Exercise ">
+                        <h3>Jump Rope</h3>
+                        <p>₹300</p><button class="buy-btn">Buy Now</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (Address/Payment Flow) -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-btn" id="closeModal">&#10005;</span>
+            <h2 id="modalProductName">Product Name</h2>
+            <p id="modalProductPrice">Price</p>
+            <div id="addressBlock" class="hidden"></div>
+            <div class="address-btns hidden" id="addressBtns">
+                <button class="modify">Modify Address</button>
+                <button class="add">Add New Address</button>
+            </div>
+            <form id="addressForm" class="hidden" novalidate>
+                <h3>Delivery Address</h3>
+                <label>House/Flat Number*</label><input type="text" name="houseNumber" required>
+                <label>Landmark</label><input type="text" name="landmark">
+                <label>City*</label><input type="text" name="city" required>
+                <label>State*</label><input type="text" name="state" required>
+                <label>Pin Code*</label><input type="text" name="pin" pattern="\d{6}" required>
+                <button type="submit" class="submit-address-btn">Save Address</button>
+            </form>
+            <div id="paymentSection" class="hidden">
+                <p>Please select a payment method:</p>
+                <div class="payment-options">
+                    <button class="payment-btn" data-payment="Online Payment">💳 Online Payment</button>
+                    <button class="payment-btn" data-payment="Cash on Delivery">🏠 Cash on Delivery</button>
+                </div>
+            </div>
+            <div class="wallet-section" id="walletSection">
+                <p>Select a payment wallet:</p>
+                <div class="wallet-options">
+                    <button class="wallet-btn" data-wallet="PhonePe">📲 PhonePe</button>
+                    <button class="wallet-btn" data-wallet="Google Pay">💙 Google Pay</button>
+                    <button class="wallet-btn" data-wallet="Paytm">🟦 Paytm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <span class="success-close-btn" id="successCloseBtn">&#10005;</span>
+            <div class="success-check">✔</div>
+            <div class="success-text-main">Order Placed Successfully!</div>
+            <div class="success-message" id="orderPlacedDetails"></div>
+            <div class="success-address" id="orderPlacedAddress"></div>
+        </div>
+    </div>
+
+    <script>
+	    // ...existing code...
+                function showOrderPlacedModal(paySource) {
+                    successModalOverlay.classList.add('active');
+                    orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+// ...existing code...let currentProductName = "";
+        let currentProductPrice = "";
+        let selectedPaymentMethod = null;
+        let savedAddress = null;
+
+        // Modal elements
+        const modalOverlay = document.getElementById('modalOverlay'),
+            modalProductName = document.getElementById('modalProductName'),
+            modalProductPrice = document.getElementById('modalProductPrice'),
+            addressBlock = document.getElementById('addressBlock'),
+            addressBtns = document.getElementById('addressBtns'),
+            addressForm = document.getElementById('addressForm'),
+            paymentSection = document.getElementById('paymentSection'),
+            walletSection = document.getElementById('walletSection'),
+            successModalOverlay = document.getElementById('successModalOverlay'),
+            successCloseBtn = document.getElementById('successCloseBtn'),
+            orderPlacedDetails = document.getElementById('orderPlacedDetails'),
+            orderPlacedAddress = document.getElementById('orderPlacedAddress');
+
+        // Open modal for product
+        function openModalForProduct(product) {
+            currentProductName = product.querySelector('h3').textContent;
+            currentProductPrice = product.querySelector('p').textContent;
+            modalProductName.textContent = currentProductName;
+            modalProductPrice.textContent = currentProductPrice;
+            walletSection.classList.remove('visible');
+
+            if (loadSavedAddress()) {
+                renderSavedAddress();
+                showPaymentStep();
+                togglePaymentButtons(true);
+            } else {
+                showAddressStep();
+                togglePaymentButtons(false);
+            }
+        }
+
+        // Attach buy button for AI clones
+        function attachBuyForClone(card) {
+            const btn = card.querySelector('.buy-btn');
+            if (!btn) return;
+            btn.addEventListener('click', (e) => {
+                const p = e.target.closest('.product');
+                openModalForProduct(p);
+            });
+        }
+
+        // AI Assistant logic
+        function handleAI() {
+            const inputEl = document.getElementById("aiInput");
+            const responseBox = document.getElementById("aiResponse");
+            const input = (inputEl.value || "").trim().toLowerCase();
+
+            responseBox.innerHTML = "";
+
+            if (!input) {
+                responseBox.innerText = "⚠️ Please type something first!";
+                return;
+            }
+
+            const products = document.querySelectorAll("#productContainer .product");
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = input.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = input.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = input.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "products", "product"
+            ]);
+            const words = input
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            const matches = [];
+
+            products.forEach(product => {
+                const nameEl = product.querySelector("h3");
+                const priceEl = product.querySelector("p");
+                if (!nameEl || !priceEl) return;
+
+                const name = nameEl.innerText.toLowerCase();
+                const priceText = priceEl.innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+
+                const nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+
+                if (nameMatch && priceOK) matches.push({
+                    product,
+                    price
+                });
+            });
+
+            if (matches.length === 0) {
+                responseBox.innerText = "🤖 Sorry, no matching products found!";
+                return;
+            }
+
+            if (maxPrice != null && minPrice == null) {
+                matches.sort((a, b) => a.price - b.price);
+            } else if (minPrice != null && maxPrice == null) {
+                matches.sort((a, b) => b.price - a.price);
+            } else {
+                matches.sort((a, b) => a.price - b.price);
+            }
+
+            matches.forEach((hit, i) => {
+                const clone = hit.product.cloneNode(true);
+                clone.classList.add('ai-clone');
+                responseBox.appendChild(clone);
+                attachBuyForClone(clone);
+                setTimeout(() => clone.classList.add('show'), i * 120);
+            });
+        }
+
+        // Category filter
+        function filterCategory(category, link) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(sec => {
+                sec.classList.toggle('hidden',
+                    category !== 'all' && sec.dataset.category !== category);
+            });
+            document.getElementById('searchInput').value = '';
+            filterSearch('');
+        }
+
+        // Search filter
+        function filterSearch(query) {
+            query = query.toLowerCase().trim();
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = query.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = query.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = query.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "product", "products"
+            ]);
+            const words = query
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            // Always search across all categories for search
+            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('hidden'));
+
+            document.querySelectorAll('.product').forEach(p => {
+                const name = p.querySelector('h3').innerText.toLowerCase();
+                const priceText = p.querySelector('p').innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+                let nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+                p.classList.toggle('hidden', !(nameMatch && priceOK));
+
+            });
+
+            // Hide category-section if all products inside are hidden
+            document.querySelectorAll('.category-section').forEach(section => {
+                const products = section.querySelectorAll('.product');
+                const visible = Array.from(products).some(p => !p.classList.contains('hidden'));
+                section.classList.toggle('hidden', !visible);
+            });
+
+            // Show humble message if nothing matches
+            let anyVisible = !!document.querySelector('.product:not(.hidden)');
+            let msgId = 'searchNoMatchMsg';
+            let container = document.getElementById('productContainer');
+            let oldMsg = document.getElementById(msgId);
+            if (!anyVisible) {
+                if (!oldMsg) {
+                    let msg = document.createElement('div');
+                    msg.id = msgId;
+                    msg.style = "text-align:center; font-size:1.2rem; color:#555; margin:40px 0;";
+                    msg.innerText = "🙏 Sorry, no products found matching your search.";
+                    container.appendChild(msg);
+                }
+            } else if (oldMsg) {
+                oldMsg.remove();
+            }
+        }
+
+        // Address logic
+        function loadSavedAddress() {
+            let s = localStorage.getItem('userAddress');
+            savedAddress = s ? JSON.parse(s) : null;
+            return !!savedAddress;
+        }
+
+        function saveAddress(addr) {
+            savedAddress = addr;
+            localStorage.setItem('userAddress', JSON.stringify(addr));
+        }
+
+        function renderSavedAddress() {
+            if (!savedAddress) {
+                addressBlock.classList.add('hidden');
+                addressBtns.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            } else {
+                addressBlock.classList.remove('hidden');
+                addressBlock.innerHTML = `<strong>Address:</strong><br>${savedAddress.houseNumber}` +
+                    (savedAddress.landmark ? `, ${savedAddress.landmark}` : '') + `
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+                addressBtns.classList.remove('hidden');
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
+        function togglePaymentButtons(enabled) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function showAddressStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.add('hidden');
+            addressBtns.classList.add('hidden');
+            addressForm.classList.remove('hidden');
+            paymentSection.classList.add('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        function showPaymentStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.remove('hidden');
+            addressBtns.classList.remove('hidden');
+            addressForm.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        // Buy button logic
+        document.querySelectorAll('.buy-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                const product = e.target.closest('.product');
+                openModalForProduct(product);
+            });
+        });
+
+        // Address buttons
+        addressBtns.querySelector('.modify').onclick = function() {
+            addressForm.houseNumber.value = savedAddress.houseNumber || '';
+            addressForm.landmark.value = savedAddress.landmark || '';
+            addressForm.city.value = savedAddress.city || '';
+            addressForm.state.value = savedAddress.state || '';
+            addressForm.pin.value = savedAddress.pin || '';
+            showAddressStep();
+        };
+        addressBtns.querySelector('.add').onclick = function() {
+            addressForm.reset();
+            showAddressStep();
+        };
+
+        // Address form submit
+        addressForm.onsubmit = function(e) {
+            e.preventDefault();
+            if (!addressForm.checkValidity()) {
+                addressForm.reportValidity();
+                return;
+            }
+            const fd = new FormData(addressForm);
+            const newAddr = {
+                houseNumber: fd.get('houseNumber').trim(),
+                landmark: fd.get('landmark').trim(),
+                city: fd.get('city').trim(),
+                state: fd.get('state').trim(),
+                pin: fd.get('pin').trim()
+            };
+            saveAddress(newAddr);
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        };
+
+        // Payment button logic
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedPaymentMethod = btn.dataset.payment;
+                if (selectedPaymentMethod === "Online Payment") {
+                    walletSection.classList.add('visible');
+                } else {
+                    showOrderPlacedModal("Cash on Delivery");
+                    modalOverlay.classList.remove('active');
+                }
+            };
+        });
+
+        // Wallet button logic
+        document.querySelectorAll('.wallet-btn').forEach(btn => {
+            btn.onclick = function() {
+                walletSection.classList.remove('visible');
+                showOrderPlacedModal(btn.dataset.wallet);
+                modalOverlay.classList.remove('active');
+            };
+        });
+
+        function showOrderPlacedModal(paySource) {
+            successModalOverlay.classList.add('active');
+            orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// Success modal close
+successCloseBtn.onclick = () => successModalOverlay.classList.remove('active');
+successModalOverlay.addEventListener('click', e => {
+    if (e.target === successModalOverlay) successModalOverlay.classList.remove('active');
+});
+
+// AI Panel toggle
+const aiPanel = document.getElementById('aiPanel');
+const aiOpenBtn = document.getElementById('aiOpenBtn');
+const aiCloseBtn = document.getElementById('aiCloseBtn');
+
+aiOpenBtn.onclick = () => {
+    aiPanel.classList.remove('hidden');
+    document.body.classList.add('ai-open');
+};
+aiCloseBtn.onclick = () => {
+    aiPanel.classList.add('hidden');
+    document.body.classList.remove('ai-open');
+};
+document.addEventListener('click', function(e) {
+    if (!aiPanel.classList.contains('hidden') &&
+        !aiPanel.contains(e.target) &&
+        e.target !== aiOpenBtn) {
+        aiPanel.classList.add('hidden');
+        document.body.classList.remove('ai-open');
+    }
+});
+
+// Search input event
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    filterSearch(e.target.value);
+});
+
+document.getElementById('closeModal').onclick = () => {
+    // If address form is visible, just hide it and show previous step
+    if (!addressForm.classList.contains('hidden')) {
+        addressForm.classList.add('hidden');
+        if (loadSavedAddress()) {
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        } else {
+            modalOverlay.classList.remove('active');
+        }
+    } else {
+        modalOverlay.classList.remove('active');
+        walletSection.classList.remove('visible');
+    }
+};const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', function() {
+    searchClearBtn.style.display = searchInput.value ? 'inline' : 'none';
+});
+
+searchClearBtn.onclick = function() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterSearch('');
+};
+            </script>
+</body>
+
+</html>
+
+</html>

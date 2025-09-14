@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Grocery Store - Health</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: #f5f5f5
+        }
+        
+        .sidebar {
+            width: 200px;
+            background-color: 	#00994D;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: white;
+            padding-top: 60px;
+            overflow-y: auto
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold
+        }
+        
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: 	#006633
+        }
+        
+        .main {
+            margin-left: 200px;
+            flex: 1
+        }
+        
+        .search-bar-wrapper {
+            position: sticky;
+            top: 0;
+            background: 	#66CC99;
+            padding: 10px;
+            z-index: 100
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .2)
+        }
+        
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px
+        }
+        
+        .search-container img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px
+        }
+        
+        .products {
+            padding: 20px
+        }
+        
+        .category-section {
+            margin-bottom: 30px
+        }
+        
+        .category-section h2 {
+            margin-bottom: 15px
+        }
+        
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px
+        }
+        
+        .product {
+            background: white;
+            width: 180px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between
+        }
+        
+        .product img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 8px
+        }
+        
+        .product h3 {
+            margin-top: 10px;
+            font-size: 16px
+        }
+        
+        .product p {
+            font-weight: bold;
+            color:	#006633;
+            margin: 8px 0
+        }
+        
+        .buy-btn {
+            background-color: 	#006633;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold
+        }
+        
+        .buy-btn:hover {
+            background: #388E3C
+        }
+        
+        .hidden {
+            display: none!important
+        }
+        /* modal styling reused */
+        
+        .modal-overlay,
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, .6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s ease;
+            z-index: 1000
+        }
+        
+        .modal-overlay.active,
+        .success-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 420px;
+            width: 90%;
+            padding: 20px 30px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative
+        }
+        
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px
+        }
+        
+        .modal p {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 18px
+        }
+        
+        .close-btn,
+        .success-close-btn {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer
+        }
+        
+        .close-btn:hover,
+        .success-close-btn:hover {
+            color: #333
+        }
+        
+        #addressBlock {
+            background: #f7f7f7;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin-bottom: 18px;
+            text-align: left;
+            font-size: 15px
+        }
+        
+        .address-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px
+        }
+        
+        .address-btns button {
+            flex: 1;
+            padding: 8px;
+            font-weight: 700;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            color: #fff
+        }
+        
+        .address-btns .modify {
+            background: #ff9800
+        }
+        
+        .address-btns .add {
+            background: #03A9F4
+        }
+        
+        .address-btns .modify:hover {
+            background: #e65100
+        }
+        
+        .address-btns .add:hover {
+            background: #0277bd
+        }
+        
+        #addressForm {
+            text-align: left;
+            margin-top: 14px;
+            max-width: 340px;
+            margin: auto
+        }
+        
+        #addressForm h3 {
+            color: #388E3C;
+            font-size: 18px
+        }
+        
+        #addressForm label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600
+        }
+        
+        #addressForm input {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px
+        }
+        
+        #addressForm input:focus {
+            border-color: #4CAF50;
+            outline: none
+        }
+        
+        .submit-address-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer
+        }
+        
+        .submit-address-btn:hover {
+            background: #388E3C
+        }
+        
+        .payment-options {
+            display: flex;
+            justify-content: center;
+            gap: 22px
+        }
+        
+        .payment-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 3px solid #4CAF50;
+            border-radius: 30px;
+            background: white;
+            font-weight: 700;
+            color: #4CAF50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s
+        }
+        
+        .payment-btn:hover:not(:disabled) {
+            background: #4CAF50;
+            color: #fff
+        }
+        
+        .payment-btn:disabled {
+            background: #ccc!important;
+            color: #888!important;
+            cursor: not-allowed
+        }
+        
+        .wallet-section {
+            margin: 16px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center
+        }
+        
+        .wallet-section.visible {
+            display: flex;
+            animation: popIn 0.4s
+        }
+        
+        .wallet-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%
+        }
+        
+        .wallet-btn {
+            flex: 1;
+            border: 2px solid #2196f3;
+            background: #fff;
+            color: #2196f3;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s
+        }
+        
+        .wallet-btn:hover {
+            background: #2196f3;
+            color: white
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 18px;
+            max-width: 340px;
+            width: 90%;
+            padding: 25px 22px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+            animation: fadeIn 0.5s
+        }
+        
+        .success-check {
+            font-size: 70px;
+            color: #19af56;
+            margin-bottom: 10px;
+            animation: tickBlink 1.4s linear infinite
+        }
+        
+        @keyframes tickBlink {
+            0%,
+            100% {
+                opacity: 1
+            }
+            50% {
+                opacity: 0.4
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.7)
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1
+            }
+        }
+        
+        .success-text-main {
+            font-size: 22px;
+            color: #19af56;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 4px 0 12px
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 4px
+        }
+        
+        .success-address {
+            margin-top: 14px;
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 12px
+        }
+		/* Back Button Styles */
+.back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #006633 0%, #66CC99 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transform: translateZ(0);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.back-btn .back-icon {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+    transform: translateX(0);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+}
+
+.back-btn .back-text {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    background: linear-gradient(135deg, #006633 0%, #66CC99 100%);
+}
+
+.back-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.back-btn:hover .back-icon {
+    transform: translateX(-3px);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 9px 14px;
+    }
+    .back-btn .back-text {
+        font-size: 13px;
+    }
+}
+/* AI Assistant Panel */
+        
+        .ai-panel {
+            width: 340px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+            border-left: 2px solid #bdbdbd;
+            padding: 28px 20px 20px 20px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1300;
+            box-shadow: -4px 0 24px rgba(90, 64, 55, 0.10);
+            transition: transform 0.3s, box-shadow 0.2s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: slideInRight 0.4s;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .ai-panel h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #5D4037;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel textarea {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 10px;
+            border: 1.5px solid #bdbdbd;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: vertical;
+            box-shadow: 0 2px 8px #e3eeff;
+        }
+        
+        .ai-panel button {
+            background: linear-gradient(90deg, #00994D 0%, #006633 100%);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3eeff;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .ai-panel button:hover {
+            background: linear-gradient(90deg, #00994D 0%, #006633 100%);
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 2.2rem;
+            color: #8D6E63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .ai-close-btn:hover {
+            color: #006633;
+        }
+        
+        #aiResponse {
+            margin-top: 18px;
+            min-height: 40px;
+            font-size: 1.1rem;
+            color: #5D4037;
+            font-family: inherit;
+        }
+        
+        .ai-panel #aiResponse {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .ai-panel .ai-clone {
+            width: calc(50% - 10px);
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        /* Responsive for mobile */
+        
+        @media (max-width: 600px) {
+            .ai-panel .ai-clone {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .ai-panel {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 16px 8px;
+            }
+        }
+        /* ...existing code... */
+        
+        .ai-open-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1200;
+            background: #006633;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ai-open-btn:hover {
+            background: #388E3C;
+        }
+    </style>
+</head>
+
+<body>
+<!-- AI Assistant Button -->
+    <button id="aiOpenBtn" class="ai-open-btn" title="AI Assistance">🤖</button>
+
+    <!-- AI Assistant Sidebar -->
+    <div class="ai-panel hidden" id="aiPanel">
+        <span class="ai-close-btn" id="aiCloseBtn">&times;</span>
+        <h2>AI Assistance ✨</h2>
+        <textarea id="aiInput" placeholder="Ask me anything..."></textarea>
+        <button onclick="handleAI()">Ask AI</button>
+        <div id="aiResponse" style="margin-top:15px;"></div>
+    </div>
+<button class="back-btn" id="backBtn" aria-label="Go back" onclick="window.location.href='categories.html'">
+    <span class="back-icon" aria-hidden="true">←</span>
+    <span class="back-text">Back</span>
+</button>
+    <div class="sidebar">
+        <a href="#" class="active" onclick="filterCategory('all', this)">All</a>
+        <a href="#" onclick="filterCategory('health', this)">Health</a>
+    </div>
+    <div class="main">
+        <div class="search-bar-wrapper">
+            <div class="search-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Search Icon">
+                <input type="text" id="searchInput" placeholder="Search for health...">
+				
+                <span id="searchClearBtn" style="display:none;cursor:pointer;font-size:20px;margin-left:8px;">&#10005;</span>
+            </div>
+        </div>
+        <div class="products" id="productContainer">
+            <div class="category-section" data-category="health">
+                <div class="product-list">
+
+
+
+                    <div class="product" data-name="healthok multivitamin tablets">
+                        <img src="https://www.healthcareradius.in/cloud/2023/01/02/HealthOk-multivitamin-tablets-1024x576.jpeg" alt="HealthOk Multivitamin Tablets">
+                        <h3>HealthOk Multivitamin Tablets</h3>
+                        <p>₹299 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="move free advanced tablets">
+                        <img src="https://i5.walmartimages.com/asr/ad7681f8-7b09-452e-aedd-adcc508276f8.a6e8917288352803a43fe3611d307d04.jpeg" alt="Move Free Advanced Tablets">
+                        <h3>Move Free Advanced Tablets</h3>
+                        <p>₹1,399 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="joint health supplement">
+                        <img src="https://m.media-amazon.com/images/I/61V2dsrrfhL._SL1080_.jpg" alt="Joint Health Supplement">
+                        <h3>Joint Health Supplement</h3>
+                        <p>₹899 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="move free advanced glucosamine">
+                        <img src="https://i5.walmartimages.com/seo/Move-Free-Advanced-Tablets-200-Count-Box-Joint-Health-Supplement-with-Glucosamine-and-Chondroitin_11fb331a-58af-4d4f-a321-fd72dc3dfde6.90339de639b1b8d684b32240ae881cfa.jpeg" alt="Move Free Advanced Glucosamine and Chondroitin">
+                        <h3>Advanced Glucosamine</h3>
+                        <p>₹1,299 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="joint health supplement amazon 2">
+                        <img src="https://m.media-amazon.com/images/I/51aITLQnTjL._SL1000_.jpg" alt="Joint Health Supplement">
+                        <h3>Multivitamin Bottle<h3>
+                        <p>₹749 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="kirkland triple action joint health">
+                        <img src="https://i5.walmartimages.com/seo/Kirkland-Signature-Triple-Action-Joint-Health-110-Coated-Tablets_613818f9-c2ed-4551-8760-7769ef74cda3.52972ca704ef4502a2ef3cf3b79b3286.jpeg" alt="Kirkland Signature Triple Action Joint Health">
+                        <h3>Kirkland Triple Action Joint</h3>
+                        <p>₹1,499 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="onemg joint health tablet">
+                        <img src="https://onemg.gumlet.io/l_watermark_346,w_690,h_700/a_ignore,w_690,h_700,c_pad,q_auto,f_auto/f4b3be4edff54c7b81f31e0d4a9dbfd0.jpg" alt="1mg Joint Health Tablet">
+                        <h3>Vitamin D3 Supplement</h3>
+                        <p>₹379 / strip</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                    <div class="product" data-name="medicine pills and capsules">
+                        <img src="https://dm0qx8t0i9gc9.cloudfront.net/thumbnails/video/Vd3bj2jPe/videoblocks-medicine-pills-and-tablet-macro-view-of-pharmaceutical-pills-health-care-treatment-close-up-of-tablets-and-capsules-background-healthcare-industry-antibiotic-pills-medicine-health-supplement_rrhagnp_x_thumbnail-1080_01.png"
+                            alt="Medicine Pills and Capsules">
+                        <h3>Blue & White Capsules</h3>
+                        <p>₹199 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="acetaminophen paracetamol tablet">
+                        <img src="https://image.made-in-china.com/2f0j00BktiwYvRHOGz/Hot-Sale-Antipyretic-Analgesic-Medicine-Acetaminophen-Paracetamol-Tablet-500mg-Relief-Pain-Shinepharm.jpg" alt="Acetaminophen Paracetamol Tablet">
+                        <h3>Acetaminophen Paracetamol Tablet</h3>
+                        <p>₹49 / strip</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="montelukast sodium tablet">
+                        <img src="http://5.imimg.com/data5/SELLER/Default/2023/7/329938571/MA/VS/VU/85825727/montelukast-sodium-tablet-1000x1000.png" alt="Montelukast Sodium Tablet">
+                        <h3>Montelukast Sodium Tablet</h3>
+                        <p>₹129 / strip</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="pink round pain relief tablet">
+                        <img src="https://i5.walmartimages.com/asr/1e94a7e7-3f41-411b-90a9-8e8721e2fc01.ae7fb66eed8802ae52e12d345a1a79e1.jpeg" alt="Pink Round Pain Relief Tablet">
+                        <h3>Pain Relief Tablet</h3>
+                        <p>₹89 / strip</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="yellow capsule supplement">
+                        <img src="https://m.media-amazon.com/images/I/71DF5mIxJLL._AC_SL1500_.jpg" alt="Yellow Capsule Supplement">
+                        <h3>Pregnancy Multivitamin</h3>
+                        <p>₹199 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="white coated medicine tablets">
+                        <img src="https://i5.walmartimages.com/asr/cc8f8de8-68cb-43ad-af7f-53cfeec83a82.bb15e8b172451fcf508bef0439d77d2c.jpeg" alt="White Coated Medicine Tablets">
+                        <h3>Prenatal Multivitamin</h3>
+                        <p>₹109 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="ibuprofen pain relief caplets">
+                        <img src="http://pics.drugstore.com/prodimg/550640/900.jpg" alt="Ibuprofen Pain Relief Caplets">
+                        <h3>Prenatal Multivitamin</h3>
+                        <p>₹99 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="pregnancy plus blister pack">
+                        <img src="https://www.activeiron.com/wp-content/uploads/2022/07/Pack-blister-pills-Pregnancy-Plus-min.png" alt="Pregnancy Plus Blister Pack">
+                        <h3>Pregnancy Plus Blister Pack</h3>
+                        <p>₹1,199 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="anti inflammatory pain relief tablets">
+                        <img src="https://cdn.shopify.com/s/files/1/0477/5359/2988/products/Pain-_-Inflammation-30-TABS_1024x1024.jpg?v=1617152001" alt="Anti‑Inflammation 30 Tabs">
+                        <h3>Anti‑Inflammation 30 Tabs</h3>
+                        <p>₹249 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="infection tablet strip">
+                        <img src="https://5.imimg.com/data5/SE/IE/VO/GLADMIN-3061/taxim-of-infection-tablet-10-tab-strip.png" alt="Infection Tablet Strip">
+                        <h3>Infection Tablet Strip</h3>
+                        <p>₹169 / strip</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="yellow capsule medicine">
+                        <img src="https://i5.walmartimages.com/asr/f2b8ae04-88fa-4f86-bf30-b08c7d5c10c5.39fb6badd49bd24c58639043ecfd00bb.jpeg" alt="Yellow Capsule Medicine">
+                        <h3>Yellow Capsule Medicine</h3>
+                        <p>₹299 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="joint health tablet">
+                        <img src="https://onemg.gumlet.io/l_watermark_346,w_690,h_700/a_ignore,w_690,h_700,c_pad,q_auto,f_auto/sjfxzjhug0jbwr97biic.jpg" alt="Joint Health Tablet">
+                        <h3>Throat Relief</h3>
+                        <p>₹379 / strip</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="codral cold flu">
+                        <img src="https://images.ctfassets.net/zi25g2m16kts/59kNlljz3xRwfeBeeqOtJI/8a5e1d2458a261d6aa5532eb4b2dff86/codral-cold-flu-20-tablets-1-en-au" alt="Codral Cold Flu">
+                        <h3>Codral Cold Flu</h3>
+                        <p>₹349 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="codral day night">
+                        <img src="https://www.homewareessentials.co.uk/uploads/Product/xlarge/3e8a5ecd42f3f1328b9db655cfabe1e2.jpg" alt="Codral Day Night">
+                        <h3>Codral Day Night</h3>
+                        <p>₹499 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="cold relief plus cough tablets">
+                        <img src="https://coldcalm.com/wp-content/uploads/2023/12/Coldcalm_60_Tablets_4_Years_Contents-1024x1024.jpg" alt="Cold Relief Plus Cough Tablets">
+                        <h3>Cold Relief Plus Cough Tablets</h3>
+                        <p>₹599 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="flu and cough caplets">
+                        <img src="https://www.kroger.com/product/images/large/front/0030696260760" alt="Flu And Cough Caplets">
+                        <h3>Flu And Cough Caplets</h3>
+                        <p>₹529 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="cold sore throat syrup">
+                        <img src="https://thehealthpharmacy.co.uk/wp-content/uploads/2024/02/benylin4flu-600x600.jpg" alt="Cold Sore Throat Syrup">
+                        <h3>Cold Sore Throat Syrup</h3>
+                        <p>₹450 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="cough and cold relief">
+                        <img src="https://i.ebayimg.com/images/g/yy0AAOSw1qdjTd0m/s-l1600.png" alt="Cough And Cold Relief">
+                        <h3>Cough And Cold Relief</h3>
+                        <p>₹399 / box</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="day night flu tablets">
+                        <img src="https://www.kroger.com/product/images/large/front/0007431205535" alt="Day Night Flu Tablets">
+                        <h3>Magnesium 500 mg</h3>
+                        <p>₹549 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="immune support effervescent tablets">
+                        <img src="https://images.hollandandbarrettimages.co.uk/productimages/HB/724/062787_A.jpg" alt="Immune Support Effervescent Tablets">
+                        <h3>Immune Support Effervescent Tablets</h3>
+                        <p>₹629 / tin</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="neuro pro plus supplement">
+                        <img src="https://puristnaturalmedicine.com/wp-content/uploads/2023/11/NeuroProPlus.jpg" alt="Neuro Pro Plus Supplement">
+                        <h3>Neuro Pro Plus Supplement</h3>
+                        <p>₹799 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="biovea supplement bottle">
+                        <img src="http://www.biovea.com/au/images/products/xlrg/3073_z.jpg" alt="Biovea Supplement Bottle">
+                        <h3>Biovea Supplement Bottle</h3>
+                        <p>₹1,299 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="white medical tablet">
+                        <img src="https://i5.walmartimages.com/asr/ebad0ee3-714f-4399-b090-fc7650705c73.4d4b900c08a39f251a77bf03a3cdb72e.jpeg" alt="White Medical Tablet">
+                        <h3>Bayer Headache Tablets</h3>
+                        <p>₹99 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="yellow medicine capsule">
+                        <img src="https://i5.walmartimages.com/asr/3f4b2ad7-a67d-45bc-a2af-d6a698ee3448_1.86a3a8f48051ff3ca76d8a90b13c18d6.jpeg" alt="Yellow Medicine Capsule">
+                        <h3>Pediatric Cough Syrup</h3>
+                        <p>₹149 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="blue supplement tablet bottle">
+                        <img src="https://m.media-amazon.com/images/I/71rBmjlZOHL._AC_SX522_.jpg" alt="Blue Supplement Tablet Bottle">
+                        <h3>Blue Supplement Tablet Bottle</h3>
+                        <p>₹799 / bottle</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="pink heart pill tablet">
+                        <img src="https://img.rawpixel.com/s3fs-private/rawpixel_images/website_content/k-p-201-ake-02540.jpg?w=800&dpr=1&fit=default&crop=default&auto=format&fm=pjpg&q=75&vib=3&con=3&usm=15&bg=F4F4F3&ixlib=js-2.2.1&s=a1fc76121feb61e383f9bec1dd4fc736" alt="Pink Heart Pill Tablet">
+                        <h3>Cardio</h3>
+                        <p>₹199 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="medical equipment instruments">
+                        <img src="https://vegasvalleyvein.com/wp-content/uploads/2018/11/medical_equipment.jpg" alt="Medical Equipment Instruments">
+                        <h3>Medical Equipment Instruments</h3>
+                        <p>₹2,499 / set</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="medical supplies kit">
+                        <img src="https://5.imimg.com/data5/LF/EM/GV/SELLER-31100217/medical-supplies-1000x1000.jpg" alt="Medical Supplies Kit">
+                        <h3>Diagnostic Stethoscope</h3>
+                        <p>₹1,199 / kit</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="stethoscopes diagnostic tool">
+                        <img src="https://cdn.britannica.com/29/123229-050-4EE13335/stethoscopes-rubber-tubing-sounds-patient-ears-physician.jpg" alt="Stethoscopes Diagnostic Tool">
+                        <h3>Stethoscopes Diagnostic Tool</h3>
+                        <p>₹899 / piece</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="desk stethoscope model">
+                        <img src="https://media.istockphoto.com/id/894125638/photo/stethoscope-on-the-table.jpg?s=612x612&w=0&k=20&c=JgYfIxI_Eo7dddZuePNGRnTrEJDOslL1x92k60IqkUc=" alt="Desk Stethoscope Model">
+                        <h3>Desk Stethoscope Model</h3>
+                        <p>₹949 / piece</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+                    <div class="product" data-name="bsn medical cover roll stretch gauze">
+                        <img src="http://www.rehabmart.com/images_html2/BSN%20Medical/BSN-02075001-add1.JPG" alt="BSN Medical Cover Roll Stretch Gauze">
+                        <h3>BSN Medical Cover Roll Stretch Gauze</h3>
+                        <p>₹799 / roll</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="conforming stretch roll gauze bandage">
+                        <img src="https://www.medwest.ca/media/Conforming-Stretch-Roll-Gauze-Bandage-Individually-Wrapped.jpg" alt="Conforming Stretch Roll Gauze Bandage">
+                        <h3>Conforming Stretch Roll Gauze Bandage</h3>
+                        <p>₹299 / roll</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="elastomull stretch roll gauze dressing">
+                        <img src="https://m.media-amazon.com/images/I/81HsHJtLexL._AC_SL1500_.jpg" alt="Elastomull Stretch Roll Gauze Dressing">
+                        <h3>Elastomull Stretch Roll Gauze Dressing</h3>
+                        <p>₹899 / roll</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="bsn elastomull sterile bandage roll">
+                        <img src="https://m.media-amazon.com/images/I/81SoMheG4iL._AC_SL1500_.jpg" alt="BSN Elastomull Sterile Bandage Roll">
+                        <h3>BSN Elastomull Sterile Bandage Roll</h3>
+                        <p>₹949 / roll</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="medical adhesive bandage pad">
+                        <img src="https://i.pinimg.com/originals/6e/a7/05/6ea7057fb7cbb34e9093741254801ee0.jpg" alt="Medical Adhesive Bandage Pad">
+                        <h3>Medical Adhesive Bandage Pad</h3>
+                        <p>₹149 / unit</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+                    <div class="product" data-name="burn cover burn dressing">
+                        <img src="https://burncenters.com/wp-content/uploads/2022/06/CoverABurn_Blog2022.jpg" alt="Burn Cover Burn Dressing">
+                        <h3>Burn Cover Burn Dressing</h3>
+                        <p>₹1,249 / pack</p>
+                        <button class="buy-btn">Buy Now</button>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal structure -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-btn" id="closeModal">&#10005;</span>
+            <h2 id="modalProductName">Product Name</h2>
+            <p id="modalProductPrice">Price</p>
+            <div id="addressBlock" class="hidden"></div>
+            <div class="address-btns hidden" id="addressBtns">
+                <button class="modify">Modify Address</button>
+                <button class="add">Add New Address</button>
+            </div>
+            <form id="addressForm" class="hidden" novalidate>
+                <h3>Delivery Address</h3>
+                <label>House/Flat Number*</label><input type="text" name="houseNumber" required>
+                <label>Landmark</label><input type="text" name="landmark">
+                <label>City*</label><input type="text" name="city" required>
+                <label>State*</label><input type="text" name="state" required>
+                <label>Pin Code*</label><input type="text" name="pin" pattern="\d{6}" required>
+                <button type="submit" class="submit-address-btn">Save Address</button>
+            </form>
+            <div id="paymentSection" class="hidden">
+                <p>Please select a payment method:</p>
+                <div class="payment-options">
+                    <button class="payment-btn" data-payment="Online Payment">💳 Online Payment</button>
+                    <button class="payment-btn" data-payment="Cash on Delivery">🏠 Cash on Delivery</button>
+                </div>
+            </div>
+            <div class="wallet-section" id="walletSection">
+                <p>Select a payment wallet:</p>
+                <div class="wallet-options">
+                    <button class="wallet-btn" data-wallet="PhonePe">📲 PhonePe</button>
+                    <button class="wallet-btn" data-wallet="Google Pay">💙 Google Pay</button>
+                    <button class="wallet-btn" data-wallet="Paytm">🟦 Paytm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <span class="success-close-btn" id="successCloseBtn">&#10005;</span>
+            <div class="success-check">✔</div>
+            <div class="success-text-main">Order Placed Successfully!</div>
+            <div class="success-message" id="orderPlacedDetails"></div>
+            <div class="success-address" id="orderPlacedAddress"></div>
+        </div>
+    </div>
+
+    <script>
+	    // ...existing code...
+                function showOrderPlacedModal(paySource) {
+                    successModalOverlay.classList.add('active');
+                    orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+// ...existing code...let currentProductName = "";
+        let currentProductPrice = "";
+        let selectedPaymentMethod = null;
+        let savedAddress = null;
+
+        // Modal elements
+        const modalOverlay = document.getElementById('modalOverlay'),
+            modalProductName = document.getElementById('modalProductName'),
+            modalProductPrice = document.getElementById('modalProductPrice'),
+            addressBlock = document.getElementById('addressBlock'),
+            addressBtns = document.getElementById('addressBtns'),
+            addressForm = document.getElementById('addressForm'),
+            paymentSection = document.getElementById('paymentSection'),
+            walletSection = document.getElementById('walletSection'),
+            successModalOverlay = document.getElementById('successModalOverlay'),
+            successCloseBtn = document.getElementById('successCloseBtn'),
+            orderPlacedDetails = document.getElementById('orderPlacedDetails'),
+            orderPlacedAddress = document.getElementById('orderPlacedAddress');
+
+        // Open modal for product
+        function openModalForProduct(product) {
+            currentProductName = product.querySelector('h3').textContent;
+            currentProductPrice = product.querySelector('p').textContent;
+            modalProductName.textContent = currentProductName;
+            modalProductPrice.textContent = currentProductPrice;
+            walletSection.classList.remove('visible');
+
+            if (loadSavedAddress()) {
+                renderSavedAddress();
+                showPaymentStep();
+                togglePaymentButtons(true);
+            } else {
+                showAddressStep();
+                togglePaymentButtons(false);
+            }
+        }
+
+        // Attach buy button for AI clones
+        function attachBuyForClone(card) {
+            const btn = card.querySelector('.buy-btn');
+            if (!btn) return;
+            btn.addEventListener('click', (e) => {
+                const p = e.target.closest('.product');
+                openModalForProduct(p);
+            });
+        }
+
+        // AI Assistant logic
+        function handleAI() {
+            const inputEl = document.getElementById("aiInput");
+            const responseBox = document.getElementById("aiResponse");
+            const input = (inputEl.value || "").trim().toLowerCase();
+
+            responseBox.innerHTML = "";
+
+            if (!input) {
+                responseBox.innerText = "⚠️ Please type something first!";
+                return;
+            }
+
+            const products = document.querySelectorAll("#productContainer .product");
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = input.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = input.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = input.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "products", "product"
+            ]);
+            const words = input
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            const matches = [];
+
+            products.forEach(product => {
+                const nameEl = product.querySelector("h3");
+                const priceEl = product.querySelector("p");
+                if (!nameEl || !priceEl) return;
+
+                const name = nameEl.innerText.toLowerCase();
+                const priceText = priceEl.innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+
+                const nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+
+                if (nameMatch && priceOK) matches.push({
+                    product,
+                    price
+                });
+            });
+
+            if (matches.length === 0) {
+                responseBox.innerText = "🤖 Sorry, no matching products found!";
+                return;
+            }
+
+            if (maxPrice != null && minPrice == null) {
+                matches.sort((a, b) => a.price - b.price);
+            } else if (minPrice != null && maxPrice == null) {
+                matches.sort((a, b) => b.price - a.price);
+            } else {
+                matches.sort((a, b) => a.price - b.price);
+            }
+
+            matches.forEach((hit, i) => {
+                const clone = hit.product.cloneNode(true);
+                clone.classList.add('ai-clone');
+                responseBox.appendChild(clone);
+                attachBuyForClone(clone);
+                setTimeout(() => clone.classList.add('show'), i * 120);
+            });
+        }
+
+        // Category filter
+        function filterCategory(category, link) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(sec => {
+                sec.classList.toggle('hidden',
+                    category !== 'all' && sec.dataset.category !== category);
+            });
+            document.getElementById('searchInput').value = '';
+            filterSearch('');
+        }
+
+        // Search filter
+        function filterSearch(query) {
+            query = query.toLowerCase().trim();
+
+            // Price extraction: support <, >, under, above, k, etc.
+            let maxPrice = null, minPrice = null;
+            const gtMatch = query.match(/(?:>|greater\s*than|above|over|more\s*than)\s*(\d[\d,]*)(k)?/);
+            const ltMatch = query.match(/(?:<|less\s*than|under|below|lessthan)\s*(\d[\d,]*)(k)?/);
+            if (gtMatch) minPrice = parseInt(gtMatch[1].replace(/[^\d]/g, ""), 10) * (gtMatch[2] ? 1000 : 1);
+            if (ltMatch) maxPrice = parseInt(ltMatch[1].replace(/[^\d]/g, ""), 10) * (ltMatch[2] ? 1000 : 1);
+
+            // Also support direct "2k", "25k" etc. (if no >/< present)
+            if (!gtMatch && !ltMatch) {
+                const directK = query.match(/(\d[\d,]*)(k)\b/);
+                if (directK) {
+                    maxPrice = parseInt(directK[1].replace(/[^\d]/g, ""), 10) * 1000;
+                }
+            }
+
+            // Words for product name search
+            const ignore = new Set([
+                "under", "below", "less", "lessthan", "than", "above", "over", "greater", "more",
+                "with", "good", "quality", "base", "strong", "stronger", "beautiful", "nice", "cheap",
+                "best", "price", "cost", "worth", "show", "want", "i", "me", "please", "need", "a", "an", "the", "product", "products"
+            ]);
+            const words = query
+                .split(/[^a-z0-9]+/)
+                .filter(w => w && w.length > 1 && !ignore.has(w) && !/^\d+$/.test(w));
+
+            // Always search across all categories for search
+            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('hidden'));
+
+            document.querySelectorAll('.product').forEach(p => {
+                const name = p.querySelector('h3').innerText.toLowerCase();
+                const priceText = p.querySelector('p').innerText.split('/')[0].replace(/[^\d]/g, "");
+                const price = parseInt(priceText, 10) || 0;
+                let nameMatch = words.length === 0 ? true : words.some(w => name.includes(w));
+                let priceOK = true;
+                if (maxPrice != null) priceOK = priceOK && price <= maxPrice;
+                if (minPrice != null) priceOK = priceOK && price >= minPrice;
+                p.classList.toggle('hidden', !(nameMatch && priceOK));
+
+            });
+
+            // Hide category-section if all products inside are hidden
+            document.querySelectorAll('.category-section').forEach(section => {
+                const products = section.querySelectorAll('.product');
+                const visible = Array.from(products).some(p => !p.classList.contains('hidden'));
+                section.classList.toggle('hidden', !visible);
+            });
+
+            // Show humble message if nothing matches
+            let anyVisible = !!document.querySelector('.product:not(.hidden)');
+            let msgId = 'searchNoMatchMsg';
+            let container = document.getElementById('productContainer');
+            let oldMsg = document.getElementById(msgId);
+            if (!anyVisible) {
+                if (!oldMsg) {
+                    let msg = document.createElement('div');
+                    msg.id = msgId;
+                    msg.style = "text-align:center; font-size:1.2rem; color:#555; margin:40px 0;";
+                    msg.innerText = "🙏 Sorry, no products found matching your search.";
+                    container.appendChild(msg);
+                }
+            } else if (oldMsg) {
+                oldMsg.remove();
+            }
+        }
+
+        // Address logic
+        function loadSavedAddress() {
+            let s = localStorage.getItem('userAddress');
+            savedAddress = s ? JSON.parse(s) : null;
+            return !!savedAddress;
+        }
+
+        function saveAddress(addr) {
+            savedAddress = addr;
+            localStorage.setItem('userAddress', JSON.stringify(addr));
+        }
+
+        function renderSavedAddress() {
+            if (!savedAddress) {
+                addressBlock.classList.add('hidden');
+                addressBtns.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+            } else {
+                addressBlock.classList.remove('hidden');
+                addressBlock.innerHTML = `<strong>Address:</strong><br>${savedAddress.houseNumber}` +
+                    (savedAddress.landmark ? `, ${savedAddress.landmark}` : '') + `
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+                addressBtns.classList.remove('hidden');
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
+        function togglePaymentButtons(enabled) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function showAddressStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.add('hidden');
+            addressBtns.classList.add('hidden');
+            addressForm.classList.remove('hidden');
+            paymentSection.classList.add('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        function showPaymentStep() {
+            modalOverlay.classList.add('active');
+            addressBlock.classList.remove('hidden');
+            addressBtns.classList.remove('hidden');
+            addressForm.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            walletSection.classList.remove('visible');
+        }
+
+        // Buy button logic
+        document.querySelectorAll('.buy-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                const product = e.target.closest('.product');
+                openModalForProduct(product);
+            });
+        });
+
+        // Address buttons
+        addressBtns.querySelector('.modify').onclick = function() {
+            addressForm.houseNumber.value = savedAddress.houseNumber || '';
+            addressForm.landmark.value = savedAddress.landmark || '';
+            addressForm.city.value = savedAddress.city || '';
+            addressForm.state.value = savedAddress.state || '';
+            addressForm.pin.value = savedAddress.pin || '';
+            showAddressStep();
+        };
+        addressBtns.querySelector('.add').onclick = function() {
+            addressForm.reset();
+            showAddressStep();
+        };
+
+        // Address form submit
+        addressForm.onsubmit = function(e) {
+            e.preventDefault();
+            if (!addressForm.checkValidity()) {
+                addressForm.reportValidity();
+                return;
+            }
+            const fd = new FormData(addressForm);
+            const newAddr = {
+                houseNumber: fd.get('houseNumber').trim(),
+                landmark: fd.get('landmark').trim(),
+                city: fd.get('city').trim(),
+                state: fd.get('state').trim(),
+                pin: fd.get('pin').trim()
+            };
+            saveAddress(newAddr);
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        };
+
+        // Payment button logic
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedPaymentMethod = btn.dataset.payment;
+                if (selectedPaymentMethod === "Online Payment") {
+                    walletSection.classList.add('visible');
+                } else {
+                    showOrderPlacedModal("Cash on Delivery");
+                    modalOverlay.classList.remove('active');
+                }
+            };
+        });
+
+        // Wallet button logic
+        document.querySelectorAll('.wallet-btn').forEach(btn => {
+            btn.onclick = function() {
+                walletSection.classList.remove('visible');
+                showOrderPlacedModal(btn.dataset.wallet);
+                modalOverlay.classList.remove('active');
+            };
+        });
+
+        function showOrderPlacedModal(paySource) {
+            successModalOverlay.classList.add('active');
+            orderPlacedDetails.innerHTML = `
+<span style="font-weight:600;">Product:</span> ${currentProductName}<br>
+<span style="font-weight:600;">Price:</span> ${currentProductPrice}<br>
+<span style="font-weight:600;">Payment:</span> ${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`;
+    orderPlacedAddress.innerHTML = `
+<strong>Delivery Address:</strong><br> ${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+<br>${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`;
+
+    // Store order in localStorage
+    const order = {
+        product: currentProductName,
+        price: currentProductPrice,
+        image: Array.from(document.querySelectorAll('.product h3')).find(h3 => h3.textContent === currentProductName)?.parentElement.querySelector('img')?.src || '',
+        payment: `${selectedPaymentMethod}${paySource && paySource !== 'Cash on Delivery' ? ` via ${paySource}` : ''}`,
+        address: `${savedAddress.houseNumber}${savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}, ${savedAddress.city}, ${savedAddress.state} - ${savedAddress.pin}`,
+        time: new Date().toLocaleString()
+    };
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// Success modal close
+successCloseBtn.onclick = () => successModalOverlay.classList.remove('active');
+successModalOverlay.addEventListener('click', e => {
+    if (e.target === successModalOverlay) successModalOverlay.classList.remove('active');
+});
+
+// AI Panel toggle
+const aiPanel = document.getElementById('aiPanel');
+const aiOpenBtn = document.getElementById('aiOpenBtn');
+const aiCloseBtn = document.getElementById('aiCloseBtn');
+
+aiOpenBtn.onclick = () => {
+    aiPanel.classList.remove('hidden');
+    document.body.classList.add('ai-open');
+};
+aiCloseBtn.onclick = () => {
+    aiPanel.classList.add('hidden');
+    document.body.classList.remove('ai-open');
+};
+document.addEventListener('click', function(e) {
+    if (!aiPanel.classList.contains('hidden') &&
+        !aiPanel.contains(e.target) &&
+        e.target !== aiOpenBtn) {
+        aiPanel.classList.add('hidden');
+        document.body.classList.remove('ai-open');
+    }
+});
+
+// Search input event
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    filterSearch(e.target.value);
+});
+
+document.getElementById('closeModal').onclick = () => {
+    // If address form is visible, just hide it and show previous step
+    if (!addressForm.classList.contains('hidden')) {
+        addressForm.classList.add('hidden');
+        if (loadSavedAddress()) {
+            renderSavedAddress();
+            showPaymentStep();
+            togglePaymentButtons(true);
+        } else {
+            modalOverlay.classList.remove('active');
+        }
+    } else {
+        modalOverlay.classList.remove('active');
+        walletSection.classList.remove('visible');
+    }
+};const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', function() {
+    searchClearBtn.style.display = searchInput.value ? 'inline' : 'none';
+});
+
+searchClearBtn.onclick = function() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterSearch('');
+};
+    </script>
+</body>
+
+</html>
+
+</html>
